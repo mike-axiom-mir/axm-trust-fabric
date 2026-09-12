@@ -34,7 +34,8 @@ No human or machine actor is the constitutional merge gate by category. A ground
 - Optional one-use capabilities with **local-only** replay detection.
 - Separate claim-state labels for integrity, authorship, authority, identity continuity, and truth.
 - A fixed non-secret interoperability vector that locks one key, canonical unsigned envelope, digest, signature, and scoped evaluation result.
-- A second evidence-only verifier implementation that does not import the reference core and reproduces that fixed vector plus bounded negative cases.
+- A second evidence-only JavaScript verifier that does not import the reference core and reproduces that fixed vector plus bounded negative cases.
+- A Go standard-library verifier that independently reproduces the same fixed vector and bounded refusals without importing or executing either JavaScript verifier.
 
 ## v0.1 intentionally not implemented
 
@@ -45,39 +46,52 @@ No human or machine actor is the constitutional merge gate by category. A ground
 - globally authoritative time;
 - cross-device replay prevention while devices are disconnected;
 - key rotation/recovery claims beyond the documented research contract;
-- third-party or cross-language protocol conformance;
+- third-party or separately authored protocol conformance;
+- broad conformance beyond the published root-capability vector;
 - content truth or safety verification;
 - automatic CANON, install, migration, or permission escalation.
 
 ## Run locally
 
-Requires Node 20+ and no package installation.
+JavaScript reference and separate-verifier checks require Node 20+ and no package installation:
 
 ```bash
 npm test
 ```
+
+Cross-language evidence requires Go 1.23+ and no third-party modules:
+
+```bash
+cd crosslang/go
+go test ./...
+```
+
+CI runs both suites independently.
 
 ## Core files
 
 - `TRUST_MODEL.md` — semantic contract and root boundary.
 - `IDENTITY_VS_AUTHORITY.md` — separates the five claim dimensions.
 - `KEY_ROTATION.md` — unimplemented rotation/recovery research contract.
-- `INTEROPERABILITY.md` — deterministic vector, separate-verifier experiment, falsifier, and truth boundary.
-- `experiments/INDEPENDENT_VERIFIER_V1.md` — question and falsifier recorded before implementation.
+- `INTEROPERABILITY.md` — deterministic vector, verifier experiments, falsifiers, and truth boundary.
+- `experiments/INDEPENDENT_VERIFIER_V1.md` — same-language verifier question and falsifier.
+- `experiments/CROSS_LANGUAGE_VERIFIER_V1.md` — Go verifier question and falsifier recorded before publication.
 - `schema/` — machine-readable envelope, grant, revocation, and use-body schemas.
 - `src/trust-core.js` — dependency-free reference implementation.
-- `independent/vector-verifier-v1.js` — separate evidence-only verifier for the fixed vector; not the runtime core.
+- `independent/vector-verifier-v1.js` — separate JavaScript evidence-only verifier; not the runtime core.
+- `crosslang/go/vector_verifier.go` — Go standard-library evidence-only verifier for the fixed vector.
 - `tests/trust-core.test.js` — executable adversarial fixtures.
 - `tests/interop-vector.test.js` — locks the deterministic vector against the reference implementation and Node's Ed25519 verifier.
-- `tests/independent-interop.test.js` — proves the second implementation path stays dependency-separated and reproduces/refuses the bounded vector cases.
+- `tests/independent-interop.test.js` — proves the second JavaScript path stays dependency-separated and reproduces/refuses bounded vector cases.
+- `crosslang/go/vector_verifier_test.go` — seven cross-language fixed-vector and refusal checks.
 - `evidence/adversarial_matrix.json` — what is proven, held, and unresolved.
 - `evidence/interop_vector_v1.json` — fixed reproducible bytes and expected results; the included private seed is test-only and must never be real authority.
 - `donors/` — bounded donor mappings; donors are not rewritten by this repo.
 
 ## Evidence level
 
-Current claim: **fixture-tested local reference implementation with a deterministic vector reproduced by two same-repository code paths**.
+Current claim: **fixture-tested local reference implementation with one deterministic vector reproduced by two JavaScript paths and one Go standard-library path in the same repository**.
 
-`npm test` runs 21 trust-core fixtures, the reference-vector check, and 6 separate-verifier checks. The second verifier is source-level independent from `src/trust-core.js`, but it remains authored in the same repository and uses the same Node runtime. This is stronger than a single-code-path fixture and weaker than external or cross-language interoperability evidence.
+The authored adversarial matrix now contains 35 bounded cases: 21 trust-core fixtures, one reference-vector check, six separate-JavaScript-verifier checks, and seven Go-verifier checks. The Go path adds real language/runtime-library separation, but all implementations remain in the same repository and are not an independent third-party result.
 
-The evidence does not establish hostile-deployment security, hardware-backed key custody, globally fresh revocation, trustworthy clocks, legal/human identity, informed consent, content truth, or AXM-wide CANON status.
+The evidence does not establish hostile-deployment security, hardware-backed key custody, globally fresh revocation, trustworthy clocks, legal/human identity, informed consent, content truth, third-party conformance, or AXM-wide CANON status.
