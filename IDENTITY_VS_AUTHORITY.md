@@ -16,9 +16,16 @@ A valid signature supports that narrow claim. It does not establish the signer's
 
 ## Authority
 
-**Question:** Was this key allowed to perform this exact action against this exact target during this exact window?
+**Question:** Is this exact subject allowed to perform this exact action against this exact target during this exact window?
 
-That requires a capability evaluation, not merely a valid signature.
+A signature alone cannot answer that. v0.1 requires:
+
+1. an explicitly accepted root issuer supplied by the consuming system;
+2. a valid, unrevoked capability chain from that root;
+3. exact target/action scope with no delegation widening; and
+4. for live use, an exact capability-use envelope signed by the granted subject key.
+
+A capability can therefore be `GRANT_VALID_FOR_SCOPE` without claiming that the current requester possesses the subject key. `AUTHORIZED_USE` is reserved for the additional subject-signed use proof.
 
 ## Identity continuity
 
@@ -37,7 +44,9 @@ Cryptography cannot answer this. A liar can sign a lie perfectly.
 Interfaces consuming Trust Fabric should prefer labels such as:
 
 - `SIGNED_BYTES_MATCH`
-- `AUTHORIZED_FOR_SCOPE`
+- `GRANT_VALID_FOR_SCOPE`
+- `AUTHORIZED_USE`
+- `UNTRUSTED_ROOT_ISSUER`
 - `HOLD_CLOCK_UNKNOWN`
 - `REVOKED`
 - `IDENTITY_CONTINUITY_NOT_ESTABLISHED`
