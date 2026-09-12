@@ -1,0 +1,59 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const root = path.resolve(__dirname, '..');
+const matrixPath = path.join(root, 'evidence', 'adversarial_matrix.json');
+const reportPath = path.join(root, 'ROOT_GATE_REPORT.md');
+const matrix = JSON.parse(fs.readFileSync(matrixPath, 'utf8'));
+
+assert.equal(matrix.test_count, matrix.tests.length, 'matrix test_count must equal tests.length');
+console.log('PASS matrix declared count matches matrix entries');
+
+const caseIds = matrix.tests.map((entry) => entry.case);
+assert.equal(new Set(caseIds).size, caseIds.length, 'matrix case ids must be unique');
+console.log('PASS matrix case ids are unique');
+
+for (const entry of matrix.tests) {
+  assert.equal(entry.observed, entry.expected, `matrix case ${entry.case} must not record expected/observed drift`);
+}
+console.log('PASS matrix expected and observed states agree');
+
+const jsFixtureFiles = fs.readdirSync(__dirname)
+  .filter((name) => name.endsWith('.test.js') && name !== 'evidence-consistency.test.js');
+let jsFixtureCount = 0;
+for (const name of jsFixtureFiles) {
+  const text = fs.readFileSync(path.join(__dirname, name), 'utf8');
+  jsFixtureCount += (text.match(/^test\(/gm) || []).length;
+}
+
+const goDir = path.join(root, 'crosslang', 'go');
+const goFixtureFiles = fs.readdirSync(goDir).filter((name) => name.endsWith('_test.go'));
+let goFixtureCount = 0;
+for (const name of goFixtureFiles) {
+  const text = fs.readFileSync(path.join(goDir, name), 'utf8');
+  goFixtureCount += (text.match(/^func Test[A-Za-z0-9_]*\(/gm) || []).length;
+}
+
+const executableBehaviorFixtureCount = jsFixtureCount + goFixtureCount;
+assert.equal(
+  executableBehaviorFixtureCount,
+  matrix.test_count,
+  `authored executable behavior fixtures (${executableBehaviorFixtureCount}) must equal matrix test_count (${matrix.test_count})`
+);
+console.log(`PASS executable behavior fixtures match matrix count (${matrix.test_count})`);
+
+const report = fs.readFileSync(reportPath, 'utf8');
+const requiredCountLine = `Current authored adversarial matrix: **${matrix.test_count} bounded cases**.`;
+assert.ok(report.includes(requiredCountLine), `ROOT_GATE_REPORT.md must include: ${requiredCountLine}`);
+console.log('PASS primary root-gate report count matches matrix');
+
+assert.ok(
+  matrix.consistency_guard && matrix.consistency_guard.meta_test_counted_as_protocol_case === false,
+  'matrix must explicitly state that the consistency meta-test is not a protocol evidence case'
+);
+console.log('PASS evidence guard is excluded from protocol-case count');
+
+console.log('\nEvidence consistency guard passed.');
