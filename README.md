@@ -33,7 +33,8 @@ No human or machine actor is the constitutional merge gate by category. A ground
 - Explicit `CLOCK_UNKNOWN` hold rather than pretending offline time is trusted.
 - Optional one-use capabilities with **local-only** replay detection.
 - Separate claim-state labels for integrity, authorship, authority, identity continuity, and truth.
-- A fixed non-secret interoperability vector that locks one key, canonical unsigned envelope, digest, signature, and scoped evaluation result for reproduction by other implementations.
+- A fixed non-secret interoperability vector that locks one key, canonical unsigned envelope, digest, signature, and scoped evaluation result.
+- A second evidence-only verifier implementation that does not import the reference core and reproduces that fixed vector plus bounded negative cases.
 
 ## v0.1 intentionally not implemented
 
@@ -44,6 +45,7 @@ No human or machine actor is the constitutional merge gate by category. A ground
 - globally authoritative time;
 - cross-device replay prevention while devices are disconnected;
 - key rotation/recovery claims beyond the documented research contract;
+- third-party or cross-language protocol conformance;
 - content truth or safety verification;
 - automatic CANON, install, migration, or permission escalation.
 
@@ -60,17 +62,22 @@ npm test
 - `TRUST_MODEL.md` — semantic contract and root boundary.
 - `IDENTITY_VS_AUTHORITY.md` — separates the five claim dimensions.
 - `KEY_ROTATION.md` — unimplemented rotation/recovery research contract.
-- `INTEROPERABILITY.md` — deterministic vector question, falsifier, and truth boundary.
+- `INTEROPERABILITY.md` — deterministic vector, separate-verifier experiment, falsifier, and truth boundary.
+- `experiments/INDEPENDENT_VERIFIER_V1.md` — question and falsifier recorded before implementation.
 - `schema/` — machine-readable envelope, grant, revocation, and use-body schemas.
 - `src/trust-core.js` — dependency-free reference implementation.
+- `independent/vector-verifier-v1.js` — separate evidence-only verifier for the fixed vector; not the runtime core.
 - `tests/trust-core.test.js` — executable adversarial fixtures.
-- `tests/interop-vector.test.js` — locks the deterministic interoperability vector against the reference implementation and Node's Ed25519 verifier.
+- `tests/interop-vector.test.js` — locks the deterministic vector against the reference implementation and Node's Ed25519 verifier.
+- `tests/independent-interop.test.js` — proves the second implementation path stays dependency-separated and reproduces/refuses the bounded vector cases.
 - `evidence/adversarial_matrix.json` — what is proven, held, and unresolved.
 - `evidence/interop_vector_v1.json` — fixed reproducible bytes and expected results; the included private seed is test-only and must never be real authority.
 - `donors/` — bounded donor mappings; donors are not rewritten by this repo.
 
 ## Evidence level
 
-Current claim: **fixture-tested local reference implementation with one deterministic interoperability reference vector**.
+Current claim: **fixture-tested local reference implementation with a deterministic vector reproduced by two same-repository code paths**.
 
-`npm test` currently runs 21 trust-core fixtures plus the fixed interoperability-vector check. The vector demonstrates deterministic agreement inside this repository and against Node's Ed25519 primitive; it is **not yet independent implementation interoperability**. The evidence does not establish hostile-deployment security, hardware-backed key custody, globally fresh revocation, trustworthy clocks, legal/human identity, informed consent, or content truth.
+`npm test` runs 21 trust-core fixtures, the reference-vector check, and 6 separate-verifier checks. The second verifier is source-level independent from `src/trust-core.js`, but it remains authored in the same repository and uses the same Node runtime. This is stronger than a single-code-path fixture and weaker than external or cross-language interoperability evidence.
+
+The evidence does not establish hostile-deployment security, hardware-backed key custody, globally fresh revocation, trustworthy clocks, legal/human identity, informed consent, content truth, or AXM-wide CANON status.

@@ -1,14 +1,14 @@
 # Interoperability Evidence v0.1
 
-Status: **DETERMINISTIC REFERENCE VECTOR / NOT INDEPENDENTLY IMPLEMENTED**
+Status: **TWO SAME-REPOSITORY IMPLEMENTATIONS AGREE ON ONE FIXED VECTOR / NOT THIRD-PARTY CONFORMANCE**
 
 ## Question
 
-Can another implementation reproduce the exact Trust Fabric v0.1 signed bytes, key identifier, envelope digest, signature verification, and bounded capability result without depending on hidden runtime state?
+Can a separately implemented verifier reproduce the exact Trust Fabric v0.1 signed bytes, key identifier, envelope digest, signature verification, and bounded capability result without importing the reference runtime?
 
 ## Falsifier
 
-This experiment fails if the published fixed vector cannot be reproduced byte-for-byte from the stated rules, or if the current reference implementation disagrees with any published constant.
+The experiment fails if the separate verifier imports or calls `src/trust-core.js`, or if it disagrees with any published fixed-vector constant or bounded authorization result.
 
 In particular, a mismatch in any of these is a failure, not something to normalize silently:
 
@@ -16,9 +16,12 @@ In particular, a mismatch in any of these is a failure, not something to normali
 - key id;
 - canonical unsigned envelope text;
 - SHA-256 envelope digest;
-- Ed25519 signature;
-- signature verification result;
-- capability evaluation result for the stated trusted-root/scope context.
+- Ed25519 signature verification;
+- trusted-root decision;
+- temporal decision;
+- exact target/action capability result.
+
+The adversarial side also fails the experiment if the separate verifier accepts mutated signed bytes, an untrusted root, an expired envelope, a wrong target, or a wrong action.
 
 ## Vector
 
@@ -35,8 +38,33 @@ The vector fixes:
 - evaluation time and local trusted-root set;
 - exact expected authorization result.
 
+## Separate implementation
+
+`independent/vector-verifier-v1.js` is an intentionally separate implementation path. It does not import the reference core. Its test statically enforces that dependency boundary and then reproduces the published vector using Node's cryptographic primitive plus its own canonicalizer, key-id derivation, time check, root check, and exact scope evaluation.
+
+`tests/independent-interop.test.js` adds six bounded checks:
+
+1. no reference-core import;
+2. exact vector reproduction;
+3. signed-byte mutation rejection;
+4. untrusted-root refusal;
+5. expiry refusal;
+6. exact target/action scope refusal.
+
+This closes the previous **same-code-path** gap for the fixed vector. It establishes source-level implementation separation inside this repository.
+
 ## Claim boundary
 
-Passing this vector proves consistency with one deterministic fixture. It does **not** prove independent interoperability until a separately implemented verifier or signer reproduces it without importing `src/trust-core.js`.
+Passing both implementations proves that two code paths in this repository agree on one deterministic fixture and its bounded negative cases.
 
-It also does not prove hostile-environment security, correct key custody, human identity, trustworthy time, revocation freshness, or AXM-wide CANON status.
+It does **not** prove:
+
+- independent third-party interoperability;
+- cross-language conformance;
+- production protocol conformance;
+- hostile-environment security;
+- correct key custody or human identity;
+- trustworthy global time, globally fresh revocation, or disconnected replay prevention;
+- AXM-wide CANON status.
+
+The next stronger interoperability evidence must come from a genuinely external or independently authored implementation context, ideally in another language or runtime, reproducing the same published vector without copying either verifier implementation.

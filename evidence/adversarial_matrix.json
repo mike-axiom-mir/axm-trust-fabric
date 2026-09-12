@@ -1,7 +1,7 @@
 {
   "schema": "axm.trust-fabric.adversarial-matrix/v1",
-  "status": "FIXTURE_TESTED_LOCAL_REFERENCE",
-  "test_count": 22,
+  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_SEPARATE_VECTOR_VERIFIER",
+  "test_count": 28,
   "tests": [
     {"case":"canonical_object_key_order","expected":"PASS","observed":"PASS"},
     {"case":"signed_bytes_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
@@ -24,12 +24,19 @@
     {"case":"subject_signed_exact_use","expected":"AUTHORIZED_USE","observed":"AUTHORIZED_USE"},
     {"case":"wrong_subject_use","expected":"SUBJECT_POSSESSION_MISMATCH","observed":"SUBJECT_POSSESSION_MISMATCH"},
     {"case":"use_bound_to_wrong_capability","expected":"CAPABILITY_BINDING_MISMATCH","observed":"CAPABILITY_BINDING_MISMATCH"},
-    {"case":"deterministic_interop_reference_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"}
+    {"case":"deterministic_interop_reference_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
+    {"case":"independent_verifier_dependency_separation","expected":"NO_REFERENCE_CORE_IMPORT","observed":"NO_REFERENCE_CORE_IMPORT"},
+    {"case":"independent_verifier_exact_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
+    {"case":"independent_verifier_signed_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
+    {"case":"independent_verifier_untrusted_root","expected":"UNTRUSTED_ROOT_ISSUER","observed":"UNTRUSTED_ROOT_ISSUER"},
+    {"case":"independent_verifier_expiry","expected":"EXPIRED","observed":"EXPIRED"},
+    {"case":"independent_verifier_scope","expected":"REFUSE_WRONG_TARGET_OR_ACTION","observed":"REFUSE_WRONG_TARGET_OR_ACTION"}
   ],
   "separate_claim_test": {
     "signature_does_not_establish_truth": true,
     "signature_does_not_establish_identity_continuity": true,
-    "reference_vector_does_not_establish_independent_interoperability": true
+    "reference_vector_does_not_establish_third_party_interoperability": true,
+    "same_repo_source_separation_does_not_establish_external_independence": true
   },
   "unresolved": [
     "revocation freshness on a peer that has not synchronized",
@@ -37,8 +44,8 @@
     "trustworthy time when no trusted clock exists",
     "private-key copying or theft attribution",
     "key rotation and lost-key recovery",
-    "independent implementation interoperability beyond the fixed reference vector",
+    "third-party or cross-language interoperability beyond the same-repository independent verifier",
     "hostile-environment cryptographic review"
   ],
-  "truth_boundary": "This matrix records authored local fixtures and one deterministic reference vector. It is not an external security audit or proof of hostile-deployment safety or independent implementation interoperability."
+  "truth_boundary": "This matrix records authored local fixtures, one deterministic reference vector, and a second same-repository verifier with no reference-core import. It is not an external security audit, external implementation result, or proof of hostile-deployment safety."
 }
