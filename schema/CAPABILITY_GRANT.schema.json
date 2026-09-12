@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axm.local/schema/trust/CAPABILITY_GRANT.v1.json",
+  "title": "AXM Trust Fabric Capability Grant body v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind","subject","target","actions","delegationDepth","parentCapabilityId","oneUse"],
+  "properties": {
+    "kind": {"const":"capability-grant"},
+    "subject": {"type":"string","pattern":"^axm:key:ed25519:[a-f0-9]{64}$"},
+    "target": {"type":"string","minLength":1,"maxLength":256},
+    "actions": {"type":"array","minItems":1,"maxItems":64,"uniqueItems":true,"items":{"type":"string","minLength":1,"maxLength":128}},
+    "delegationDepth": {"type":"integer","minimum":0,"maximum":16},
+    "parentCapabilityId": {"oneOf":[{"type":"null"},{"type":"string","pattern":"^[a-f0-9]{64}$"}]},
+    "oneUse": {"type":"boolean"}
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axm.local/schema/trust/REVOCATION_PACKET.v1.json",
+  "title": "AXM Trust Fabric Revocation body v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind","capabilityId","reasonCode"],
+  "properties": {
+    "kind": {"const":"capability-revocation"},
+    "capabilityId": {"type":"string","pattern":"^[a-f0-9]{64}$"},
+    "reasonCode": {"type":"string","pattern":"^[A-Z0-9_]{2,64}$"}
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axm.local/schema/trust/CAPABILITY_USE.v1.json",
+  "title": "AXM Trust Fabric Capability Use body v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind","capabilityId","target","action"],
+  "properties": {
+    "kind": {"const":"capability-use"},
+    "capabilityId": {"type":"string","pattern":"^[a-f0-9]{64}$"},
+    "target": {"type":"string","minLength":1,"maxLength":256},
+    "action": {"type":"string","minLength":1,"maxLength":128}
+  }
+}
