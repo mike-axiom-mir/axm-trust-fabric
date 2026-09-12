@@ -11,6 +11,7 @@ PASS for this bounded claim.
 - An arbitrary signer cannot self-authorize: root issuers are explicitly supplied by the consuming system.
 - A valid grant is separated from live use; `AUTHORIZED_USE` requires a subject-signed request bound to the exact capability, target, and action.
 - Missing trusted time becomes `HOLD_CLOCK_UNKNOWN`.
+- One-use grants cannot delegate in v0.1, avoiding a false one-use claim through multiple children.
 - Offline revocation freshness, disconnected replay, key theft attribution, key rotation/recovery, interoperability, and hostile-environment review remain explicitly unresolved.
 
 ## Agency / non-domination
@@ -21,6 +22,7 @@ PASS for this bounded claim.
 - Capability authority is explicit, scoped, expiring, and rooted in caller-selected trust roots rather than familiar identity.
 - Delegation may narrow but cannot widen target, actions, time, reuse, or delegation depth.
 - Delegated grants require the complete parent chain.
+- One-use grants are non-delegable in v0.1.
 - The current requester must prove possession of the granted subject key for live use.
 
 ## Continuity
@@ -39,7 +41,7 @@ PASS for this bounded claim.
 
 - v0.1 uses Node built-in Ed25519 instead of inventing cryptography.
 - Key rotation/recovery is documented but intentionally not implemented.
-- Unknown clock, incomplete delegation chain, untrusted root, invalid revocation window, and missing subject proof fail closed.
+- Unknown clock, incomplete delegation chain, untrusted root, invalid revocation window, ambiguous one-use delegation, and missing subject proof fail closed.
 - The first implementation is a dependency-free local reference primitive, not infrastructure.
 
 ## Evidence
@@ -50,7 +52,7 @@ Local command:
 npm test
 ```
 
-Observed result before publication: `20 trust-core tests passed.`
+Observed result before publication: `21 trust-core tests passed.`
 
 The GitHub Actions workflow repeats the same command on Node 22. Remote CI must agree before merge.
 
