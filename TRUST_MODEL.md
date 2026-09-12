@@ -11,7 +11,7 @@ Trust Fabric proves bounded cryptographic statements about exact bytes and exact
 | Integrity | signed canonical bytes still match | bytes are safe, correct, or desirable |
 | Authorship | holder of a private key signed the bytes | a legal/named human authored them |
 | Authority | an explicitly trusted root issued a valid grant chain for an exact subject/action/target, and the subject can sign an exact use request | signer has authority outside that chain |
-| Identity continuity | a bounded predecessor key may attest one exact successor key for one exact domain/window | key succession proves same person/device/legal identity |
+| Identity continuity | bounded predecessor keys may attest exact successor keys for exact domains/windows, including one supplied two-hop A -> B -> C chain when possession is confirmed at both hops | key succession proves same person/device/legal identity or automatically transfers authority |
 | Truth | not evaluated | signed statement is true |
 
 ## Trust roots are local policy
@@ -141,7 +141,7 @@ Old predecessor-signed evidence remains independently verifiable against its ori
 
 `compareKeyRotations` evaluates two supplied packets in the same predecessor/domain/time context. The exact same packet is `ROTATIONS_IDENTICAL`. Two different simultaneously usable predecessor-signed successor statements become `ROTATION_FORK_EVIDENCE`; both packet ids remain visible and no winner is selected.
 
-The v0.1 experiment deliberately does not implement multi-hop rotation lineage, rotation revocation/discovery/freshness, fork resolution/consensus, automatic successor authority integration, or lost-key recovery.
+The v0.1 experiment deliberately does not implement rotation revocation/discovery/freshness, fork resolution/consensus, automatic successor authority integration, or lost-key recovery.
 
 ## Successor possession acknowledgement experiment
 
@@ -156,6 +156,22 @@ It does not prove human, device, or legal identity continuity. It does not trans
 An acknowledgement therefore strengthens the evidence from “A named public key B” to “A named public key B and B demonstrated control of the corresponding private key for this exact bounded packet.” It still does not establish that A and B are the same actor, that B inherits unrelated authority, or that no other valid rotation branch exists.
 
 The acknowledgement fails closed on a foreign signer, rotation-digest mismatch, predecessor/successor/domain substitution, validity-window escalation, unknown trusted time, not-yet-valid state, or expiry. Possession evidence for one branch remains branch-local evidence and cannot erase competing signed evidence.
+
+## Bounded two-hop rotation lineage experiment
+
+`src/key-rotation-lineage.js` composes exactly two supplied rotation/acknowledgement pairs. It does not introduce a new signer, rewrite either hop, generalize to arbitrary-length lineage, or alter root/capability/revocation/checkpoint authority.
+
+The evaluator requires an explicit `expectedOrigin`, exact expected `domain`, trusted `nowMs`, exactly two rotations, and exactly two acknowledgements. It first proves a usable `A -> B` rotation plus B's exact acknowledgement, then requires the second rotation predecessor to be that exact B key and proves a usable `B -> C` rotation plus C's exact acknowledgement.
+
+The second hop must preserve the same exact domain. It may not be issued before the first rotation's `effectiveAt`, and it may not expire after the first rotation's signed expiry. Those constraints prevent the supplied two-hop evidence from widening the first hop's temporal/domain boundary.
+
+A successful result is `TWO_HOP_ROTATION_LINEAGE_CONFIRMED`.
+
+It means only that this explicitly supplied `A -> B -> C` branch contains two currently usable predecessor-signed rotations, successor possession is confirmed at both hops, the domain is unchanged, and the second hop remains inside the first hop's effective/expiry bounds.
+
+It does **not** prove A, B, and C are the same human, device, account, legal identity, or constitutional authority. It does not transfer root, capability, revocation, or checkpoint authority. It does not prove the supplied branch is globally newest or unique, discover an unseen rotation, resolve a competing branch, or establish arbitrary-length key continuity.
+
+A competing `B -> C` / `B -> D` pair remains `ROTATION_FORK_EVIDENCE` under the existing comparator even when one supplied A -> B -> C branch independently passes the two-hop evaluator. No winner is selected and no historical rotation or acknowledgement bytes are rewritten.
 
 ## Interoperability evidence
 
@@ -180,7 +196,8 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - a retained checkpoint-lineage head can expose rollback only relative to that exact local memory;
 - checkpoint lineage cannot discover newer unseen checkpoints, survive loss of retained state, or resolve disconnected valid forks by itself;
 - a key-rotation verifier cannot discover a rotation it never received, prove that its supplied rotation is globally newest, or resolve two valid competing rotations;
-- a valid rotation packet does not prove successor/root/capability authority beyond its exact bounded attestation;
+- a valid single-hop or two-hop rotation result does not prove successor/root/capability authority beyond its exact bounded attestation;
+- a confirmed two-hop branch does not prove that branch is unique, globally newest, or free of unseen competitors;
 - `CLOCK_UNKNOWN` cannot become authorization or active rotation evidence;
 - replay can be detected against local consumed evidence, but not globally across disconnected peers;
 - copied private keys cannot be distinguished cryptographically from the original holder.
@@ -197,10 +214,11 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - checkpoint lineage says locally retained continuity/rollback state, not global newest state;
 - key rotation says the predecessor key attested this successor for one domain/window, not that both keys are the same person/device or that successor authority is globally current;
 - successor possession says the exact named successor key controlled its private key for the exact acknowledged rotation, not that identity or authority transferred;
+- two-hop rotation lineage says the exact supplied A -> B -> C evidence composed under bounded domain/time rules, not that identity/authority transferred or the branch is unique/newest;
 - competing rotations are conflict evidence, not a winner election;
 - agreement among same-repository JavaScript and Go implementations does not equal third-party interoperability;
 - missing time becomes `HOLD_CLOCK_UNKNOWN`;
-- unresolved distributed replay, current revocation freshness, rotation freshness, and lost-key recovery remain explicit.
+- unresolved distributed replay, current revocation freshness, rotation freshness, arbitrary-length lineage, and lost-key recovery remain explicit.
 
 ### Agency / non-domination
 
@@ -210,6 +228,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - checkpoint lineage likewise requires an explicit expected issuer and cannot be advanced by a foreign signer;
 - key rotation requires an explicit expected predecessor and exact domain; naming a successor grants no unrelated authority;
 - successor possession acknowledgement grants no root, capability, revocation, checkpoint, or fork-selection authority;
+- two-hop lineage requires an explicit origin and does not make B or C ambient authorities outside the supplied lineage evidence;
 - every capability is scoped and expiring;
 - delegation only narrows;
 - loss of ancestor authority removes downstream authority through that chain when the revocation evidence is known;
@@ -228,6 +247,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - retained local heads expose rollback/forks instead of silently rewriting history;
 - key rotation adds bounded successor evidence without rewriting old signatures or pretending the successor authored old bytes;
 - successor acknowledgement binds the exact rotation digest without rewriting the predecessor rotation or older evidence;
+- two-hop rotation lineage composes exact existing rotation/acknowledgement packets and leaves every packet independently verifiable and byte-identical;
 - competing rotations remain visible as distinct signed evidence;
 - fixed vector bytes make future canonicalization drift visible rather than silently rewriting old evidence;
 - evidence-only JavaScript and Go verifiers do not replace the reference runtime.
@@ -236,7 +256,8 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 
 - v0.1 has no account system, global registry, blockchain, trust score, or automatic recovery;
 - key rotation began as a documented contract and is implemented only as an isolated single-hop attestation before any authority integration or recovery mechanism;
-- successor possession remains a separate bounded acknowledgement layer before multi-hop lineage, authority integration, or recovery;
+- successor possession remains a separate bounded acknowledgement layer before authority integration or recovery;
+- rotation lineage advances only to exactly two hops with possession required at both hops, rather than jumping to arbitrary chain length, discovery, recovery, or consensus;
 - revocation-chain behavior is locked with local adversarial fixtures before attempting revocation distribution infrastructure;
 - checkpoint semantics are isolated and falsifier-tested before any synchronization service or authorization dependency is attempted;
 - checkpoint anti-rollback is first tested as local retained-state continuity instead of inventing consensus or a global service;
