@@ -40,9 +40,10 @@ No human or machine actor is the constitutional merge gate by category. A ground
 - Explicit `CLOCK_UNKNOWN` hold rather than pretending offline time is trusted.
 - Optional one-use capabilities with **local-only** replay detection.
 - Separate claim-state labels for integrity, authorship, authority, identity continuity, and truth.
-- A fixed non-secret interoperability vector that locks one key, canonical unsigned envelope, digest, signature, and scoped evaluation result.
-- A second evidence-only JavaScript verifier that does not import the reference core and reproduces that fixed vector plus bounded negative cases.
-- A Go standard-library verifier that independently reproduces the same fixed vector and bounded refusals without importing or executing either JavaScript verifier.
+- A fixed non-secret root-capability interoperability vector that locks one key, canonical unsigned envelope, digest, signature, and scoped evaluation result.
+- A second evidence-only JavaScript verifier that does not import the reference core and reproduces that fixed root-capability vector plus bounded negative cases.
+- A Go standard-library verifier that independently reproduces the same root-capability vector and bounded refusals without importing or executing either JavaScript verifier.
+- A second fixed non-secret interoperability vector for the exact bounded `A -> B -> C` rotation lineage, checked by the existing JavaScript lineage evaluator and a separate Go standard-library lineage verifier that does not import or execute the JavaScript lineage evaluator.
 
 ## v0.1 intentionally not implemented
 
@@ -62,13 +63,13 @@ No human or machine actor is the constitutional merge gate by category. A ground
 - cross-device replay prevention while devices are disconnected;
 - arbitrary-length key-rotation lineage beyond the bounded two-hop experiment, rotation discovery/freshness/revocation, automatic successor root/capability authority, or lost-key recovery;
 - third-party or separately authored protocol conformance;
-- broad conformance beyond the published root-capability vector;
+- broad conformance beyond the published root-capability and exact two-hop rotation-lineage vectors;
 - content truth or safety verification;
 - automatic CANON, install, migration, or permission escalation.
 
 ## Run locally
 
-JavaScript reference, checkpoint, checkpoint-lineage, lineage-comparison, key-rotation, successor-possession, two-hop rotation-lineage, and separate-verifier checks require Node 20+ and no package installation:
+JavaScript reference, checkpoint, checkpoint-lineage, lineage-comparison, key-rotation, successor-possession, two-hop rotation-lineage, interoperability-vector, and separate-verifier checks require Node 20+ and no package installation:
 
 ```bash
 npm test
@@ -88,7 +89,7 @@ CI runs both suites independently.
 - `TRUST_MODEL.md` — semantic contract and root boundary.
 - `IDENTITY_VS_AUTHORITY.md` — separates the five claim dimensions.
 - `KEY_ROTATION.md` — bounded single-step rotation, successor-possession, two-hop lineage, and unresolved recovery contract.
-- `INTEROPERABILITY.md` — deterministic vector, verifier experiments, falsifiers, and truth boundary.
+- `INTEROPERABILITY.md` — deterministic vectors, verifier experiments, falsifiers, and truth boundary.
 - `experiments/ANCESTOR_REVOCATION_V1.md` — falsifier-first ancestor-chain revocation experiment.
 - `experiments/REVOCATION_CHECKPOINT_V1.md` — falsifier-first historical revocation-manifest checkpoint experiment.
 - `experiments/CHECKPOINT_LINEAGE_V1.md` — falsifier-first local checkpoint anti-rollback experiment.
@@ -96,6 +97,7 @@ CI runs both suites independently.
 - `experiments/KEY_ROTATION_V1.md` — falsifier-first bounded predecessor-to-successor rotation experiment.
 - `experiments/KEY_ROTATION_ACK_V1.md` — falsifier-first exact-successor possession acknowledgement experiment.
 - `experiments/KEY_ROTATION_LINEAGE_V1.md` — falsifier-first exact two-hop `A -> B -> C` composition experiment.
+- `experiments/TWO_HOP_ROTATION_LINEAGE_INTEROP_V1.md` — falsifier-first same-repository cross-language portability test for the exact two-hop lineage.
 - `experiments/PUBLIC_EVIDENCE_CONSISTENCY_V2.md` — falsifier-first public evidence-summary consistency repair.
 - `experiments/INDEPENDENT_VERIFIER_V1.md` — same-language verifier question and falsifier.
 - `experiments/CROSS_LANGUAGE_VERIFIER_V1.md` — Go verifier question and falsifier recorded before publication.
@@ -108,7 +110,8 @@ CI runs both suites independently.
 - `src/key-rotation-ack.js` — isolated exact-successor possession evidence bound to one accepted rotation; it grants no authority.
 - `src/key-rotation-lineage.js` — isolated exact two-hop rotation/acknowledgement composition; it does not generalize to arbitrary lineage or grant successor authority.
 - `independent/vector-verifier-v1.js` — separate JavaScript evidence-only verifier; not the runtime core.
-- `crosslang/go/vector_verifier.go` — Go standard-library evidence-only verifier for the fixed vector.
+- `crosslang/go/vector_verifier.go` — Go standard-library evidence-only verifier for the fixed root-capability vector.
+- `crosslang/go/rotation_lineage_verifier.go` — separate Go standard-library verifier for the fixed two-hop rotation-lineage evidence and selected refusal states.
 - `tests/trust-core.test.js` — executable adversarial fixtures, including explicit ancestor-revocation chain behavior.
 - `tests/revocation-checkpoint.test.js` — checkpoint manifest binding, issuer, time, stale, unknown-clock, and duplicate-packet falsifiers.
 - `tests/checkpoint-lineage.test.js` — local genesis/head/advance, rollback, fork, gap, predecessor, completeness-regression, and foreign-issuer falsifiers.
@@ -116,22 +119,25 @@ CI runs both suites independently.
 - `tests/key-rotation.test.js` — predecessor/successor binding, effective-window, clock, domain, old-evidence preservation, and competing-rotation falsifiers.
 - `tests/key-rotation-ack.test.js` — exact successor possession, binding, validity-window, expiry, and no-fork-resolution falsifiers.
 - `tests/key-rotation-lineage.test.js` — exact two-hop composition, possession-at-each-hop, no-domain/window-widening, clock, history-preservation, and fork-remains-unresolved falsifiers.
-- `tests/interop-vector.test.js` — locks the deterministic vector against the reference implementation and Node's Ed25519 verifier.
-- `tests/independent-interop.test.js` — proves the second JavaScript path stays dependency-separated and reproduces/refuses bounded vector cases.
+- `tests/key-rotation-lineage-interop.test.js` — binds the published two-hop lineage vector to the existing JavaScript lineage evaluator and exact evidence digests.
+- `tests/interop-vector.test.js` — locks the root-capability deterministic vector against the reference implementation and Node's Ed25519 verifier.
+- `tests/independent-interop.test.js` — proves the second JavaScript path stays dependency-separated and reproduces/refuses bounded root-capability vector cases.
 - `tests/evidence-consistency.test.js` — CI meta-guard that keeps matrix, executable fixture count, primary root-gate report, and public README evidence count aligned without inflating protocol evidence.
-- `crosslang/go/vector_verifier_test.go` — seven cross-language fixed-vector and refusal checks.
+- `crosslang/go/vector_verifier_test.go` — seven cross-language root-capability fixed-vector and refusal checks.
+- `crosslang/go/rotation_lineage_verifier_test.go` — five cross-language two-hop-lineage dependency, exact-vector, mutation, domain, and acknowledgement-substitution checks.
 - `evidence/adversarial_matrix.json` — what is proven, held, and unresolved.
 - `evidence/consistency_guard_v1.json` — machine-readable evidence-accounting contract; the guard is not a protocol/security case.
-- `evidence/interop_vector_v1.json` — fixed reproducible bytes and expected results; the included private seed is test-only and must never be real authority.
+- `evidence/interop_vector_v1.json` — fixed root-capability bytes and expected results; the included private seed is test-only and must never be real authority.
+- `evidence/two_hop_rotation_lineage_interop_v1.json` — fixed signed `A -> B -> C` rotations/acknowledgements, exact digests, and expected bounded result; all deterministic keys are test-only.
 - `donors/` — bounded donor mappings; donors are not rewritten by this repo.
 
 ## Evidence level
 
-Current claim: **fixture-tested local reference implementation with explicit supplied-chain ancestor-revocation behavior, bounded issuer-attested historical revocation-manifest checkpoints, local retained-head checkpoint anti-rollback evidence, bounded comparison of two supplied complete checkpoint histories, bounded single-step predecessor-signed successor evidence plus exact-successor possession acknowledgement, bounded exact two-hop rotation-lineage composition, and one deterministic vector reproduced by two JavaScript paths and one Go standard-library path in the same repository**.
+Current claim: **fixture-tested local reference implementation with explicit supplied-chain ancestor-revocation behavior, bounded issuer-attested historical revocation-manifest checkpoints, local retained-head checkpoint anti-rollback evidence, bounded comparison of two supplied complete checkpoint histories, bounded single-step predecessor-signed successor evidence plus exact-successor possession acknowledgement, bounded exact two-hop rotation-lineage composition, one root-capability vector reproduced by two JavaScript paths and one Go standard-library path, and one exact two-hop rotation-lineage vector reproduced by the JavaScript reference lineage path and a separate Go standard-library lineage path in the same repository**.
 
-Current authored adversarial matrix: **94 bounded cases**.
+Current authored adversarial matrix: **100 bounded cases**.
 
-Those 94 protocol/security cases are composed of 24 trust-core fixtures, eight revocation-checkpoint fixtures, ten checkpoint-lineage fixtures, ten complete-lineage comparison fixtures, nine key-rotation fixtures, nine successor-possession acknowledgement fixtures, ten two-hop rotation-lineage fixtures, one reference-vector check, six separate-JavaScript-verifier checks, and seven Go-verifier checks. The evidence-consistency meta-test is deliberately outside that count.
+Those 100 protocol/security cases are composed of 24 trust-core fixtures, eight revocation-checkpoint fixtures, ten checkpoint-lineage fixtures, ten complete-lineage comparison fixtures, nine key-rotation fixtures, nine successor-possession acknowledgement fixtures, ten two-hop rotation-lineage fixtures, one root-capability reference-vector check, six separate-JavaScript-verifier checks, seven root-capability Go-verifier checks, one two-hop-lineage reference-vector check, and five two-hop-lineage Go-verifier checks. The evidence-consistency meta-test is deliberately outside that count.
 
 The checkpoint fixtures can establish that an expected issuer signed an exact supplied revocation manifest as complete through a named historical timestamp while the checkpoint is still within its signed validity window. They do **not** establish that no newer revocation exists after that timestamp or on another peer.
 
@@ -143,7 +149,9 @@ The key-rotation fixtures add one bounded continuity claim: an explicitly expect
 
 The two-hop rotation-lineage fixtures compose exactly `A -> B -> C` only when B and C each acknowledge possession for their exact hop, B is exactly both the first successor and second predecessor, the domain stays exact, trusted time is present, and the second rotation stays inside the first rotation's effective/expiry bounds. A successful supplied branch still does **not** prove same-person/device identity, transfer root/capability/revocation/checkpoint authority, establish a globally newest or unique branch, discover unseen rotations, generalize to arbitrary chain length, recover a lost predecessor, or resolve a fork.
 
-The ancestor-revocation fixtures lock local chain semantics; they do not establish global revocation freshness or distribution. The Go path adds real language/runtime-library separation, but all implementations remain in the same repository and are not an independent third-party result.
+The new lineage interoperability vector adds portability evidence for those exact two-hop bytes: the existing JavaScript evaluator and a separate Go standard-library implementation reproduce the expected lineage, while the Go path also refuses a signed-byte mutation, wrong domain, and substituted acknowledgement. That is stronger than one-language self-consistency but remains same-repository fixed-vector evidence, not general two-hop conformance or third-party independence.
+
+The ancestor-revocation fixtures lock local chain semantics; they do not establish global revocation freshness or distribution. The Go paths add real language/runtime-library separation, but all implementations remain in the same repository and are not an independent third-party result.
 
 The evidence-consistency guard makes public README count drift fail CI and still requires the bounded successor-possession truth boundary in `TRUST_MODEL.md`. That proves selected evidence declarations agree at one commit; it does not prove the underlying fixture set is complete or the public prose captures every semantic nuance.
 
