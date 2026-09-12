@@ -1,7 +1,7 @@
 {
   "schema": "axm.trust-fabric.adversarial-matrix/v1",
-  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_CHAIN_REVOCATION_AND_SAME_REPO_JS_GO_VECTOR_VERIFIERS",
-  "test_count": 38,
+  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_CHAIN_REVOCATION_CHECKPOINTS_AND_SAME_REPO_JS_GO_VECTOR_VERIFIERS",
+  "test_count": 46,
   "tests": [
     {"case":"canonical_object_key_order","expected":"PASS","observed":"PASS"},
     {"case":"signed_bytes_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
@@ -27,6 +27,14 @@
     {"case":"subject_signed_exact_use","expected":"AUTHORIZED_USE","observed":"AUTHORIZED_USE"},
     {"case":"wrong_subject_use","expected":"SUBJECT_POSSESSION_MISMATCH","observed":"SUBJECT_POSSESSION_MISMATCH"},
     {"case":"use_bound_to_wrong_capability","expected":"CAPABILITY_BINDING_MISMATCH","observed":"CAPABILITY_BINDING_MISMATCH"},
+    {"case":"checkpoint_exact_manifest","expected":"REVOCATION_SET_ATTESTED_THROUGH","observed":"REVOCATION_SET_ATTESTED_THROUGH"},
+    {"case":"checkpoint_omitted_packet","expected":"REVOCATION_SET_DIGEST_MISMATCH","observed":"REVOCATION_SET_DIGEST_MISMATCH"},
+    {"case":"checkpoint_substituted_packet","expected":"REVOCATION_SET_DIGEST_MISMATCH","observed":"REVOCATION_SET_DIGEST_MISMATCH"},
+    {"case":"checkpoint_wrong_issuer","expected":"CHECKPOINT_ISSUER_MISMATCH","observed":"CHECKPOINT_ISSUER_MISMATCH"},
+    {"case":"checkpoint_complete_through_after_signing","expected":"INVALID_CHECKPOINT_WINDOW","observed":"INVALID_CHECKPOINT_WINDOW"},
+    {"case":"checkpoint_expired","expected":"STALE_REVOCATION_CHECKPOINT","observed":"STALE_REVOCATION_CHECKPOINT"},
+    {"case":"checkpoint_clock_unknown","expected":"HOLD_CLOCK_UNKNOWN","observed":"HOLD_CLOCK_UNKNOWN"},
+    {"case":"checkpoint_duplicate_packet","expected":"DUPLICATE_REVOCATION_PACKET","observed":"DUPLICATE_REVOCATION_PACKET"},
     {"case":"deterministic_interop_reference_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
     {"case":"independent_verifier_dependency_separation","expected":"NO_REFERENCE_CORE_IMPORT","observed":"NO_REFERENCE_CORE_IMPORT"},
     {"case":"independent_verifier_exact_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
@@ -47,14 +55,19 @@
     "signature_does_not_establish_identity_continuity": true,
     "ancestor_revocation_invalidates_authorization_through_chain_but_does_not_directly_revoke_descendant_packet": true,
     "absence_of_local_ancestor_revocation_does_not_establish_global_freshness": true,
+    "checkpoint_attests_exact_manifest_only_through_historical_timestamp_not_current_global_state": true,
+    "expired_or_clock_unknown_checkpoint_does_not_become_freshness_evidence": true,
+    "checkpoint_does_not_automatically_change_capability_authorization": true,
     "reference_vector_does_not_establish_third_party_interoperability": true,
     "same_repo_source_separation_does_not_establish_external_independence": true,
     "same_repo_cross_language_agreement_does_not_establish_third_party_conformance": true
   },
   "unresolved": [
+    "current revocation freshness after a checkpoint completeThrough timestamp",
     "revocation freshness on a peer that has not synchronized",
     "revocation distribution or synchronization across peers",
-    "delegated or threshold revokers",
+    "checkpoint sequencing or anti-rollback across disconnected peers",
+    "delegated or threshold revokers and checkpoint signers",
     "cross-device replay prevention while peers are disconnected",
     "trustworthy time when no trusted clock exists",
     "private-key copying or theft attribution",
@@ -62,5 +75,5 @@
     "third-party or independently authored interoperability beyond the same-repository JavaScript and Go verifiers",
     "hostile-environment cryptographic review"
   ],
-  "truth_boundary": "This matrix records authored local fixtures, including explicit ancestor-chain invalidation when matching revocation evidence is supplied, plus one deterministic reference vector, a separate JavaScript verifier, and a Go standard-library verifier in the same repository. It does not prove globally fresh revocation knowledge, external security review, third-party implementation conformance, or hostile-deployment safety."
+  "truth_boundary": "This matrix records authored local fixtures, including supplied-chain ancestor invalidation and a bounded signed checkpoint that attests an exact supplied same-issuer revocation manifest only through a named historical timestamp while its envelope is valid. The checkpoint does not prove current global freshness, synchronization, or absence of newer unseen revocations. Interoperability evidence remains one deterministic vector plus same-repository JavaScript and Go verifiers and does not prove external security review, third-party conformance, or hostile-deployment safety."
 }
