@@ -11,7 +11,7 @@ Trust Fabric proves bounded cryptographic statements about exact bytes and exact
 | Integrity | signed canonical bytes still match | bytes are safe, correct, or desirable |
 | Authorship | holder of a private key signed the bytes | a legal/named human authored them |
 | Authority | an explicitly trusted root issued a valid grant chain for an exact subject/action/target, and the subject can sign an exact use request | signer has authority outside that chain |
-| Identity continuity | nothing from one signature alone | key = permanent person/device identity |
+| Identity continuity | a bounded predecessor key may attest one exact successor key for one exact domain/window | key succession proves same person/device/legal identity |
 | Truth | not evaluated | signed statement is true |
 
 ## Trust roots are local policy
@@ -119,6 +119,30 @@ This is intentionally **local anti-rollback only**. If the retained head is dele
 
 Checkpoint-lineage envelope time is not used as revocation freshness evidence. The lineage primitive verifies signed continuity history; `src/revocation-checkpoint.js` separately decides whether a checkpoint is temporally usable as `REVOCATION_SET_ATTESTED_THROUGH`.
 
+## Bounded key rotation experiment
+
+`src/key-rotation.js` adds an isolated single-step predecessor-to-successor research primitive. It does **not** rewrite capability authorization, trusted-root policy, checkpoint authority, revocation authority, or donor systems.
+
+A rotation is a normal signed Trust Fabric envelope whose body binds exactly:
+
+- `predecessorKeyId` — and the envelope issuer must equal it;
+- `successorKeyId`;
+- `successorPublicKey` — which must derive exactly to `successorKeyId`;
+- `domain` — exact bounded text selected by the consuming system;
+- `effectiveAt` — a canonical timestamp inside the envelope's signed validity window.
+
+Evaluation additionally requires a caller-supplied `expectedPredecessor`, exact expected `domain`, and trusted `nowMs`. A signed packet cannot become usable before `effectiveAt`; an unknown clock becomes `HOLD_CLOCK_UNKNOWN`.
+
+A successful result is `KEY_SUCCESSOR_ATTESTED_FOR_DOMAIN`. It means only that the explicitly expected predecessor key signed this exact successor key statement for this exact domain and bounded active window.
+
+It does **not** establish that predecessor and successor are the same human, device, account, legal identity, or constitutional authority. It also does not automatically add the successor to `trustedRootIssuers`, transfer existing capabilities, grant revocation/checkpoint authority, or relabel old signatures as successor-authored.
+
+Old predecessor-signed evidence remains independently verifiable against its original embedded public key.
+
+`compareKeyRotations` evaluates two supplied packets in the same predecessor/domain/time context. The exact same packet is `ROTATIONS_IDENTICAL`. Two different simultaneously usable predecessor-signed successor statements become `ROTATION_FORK_EVIDENCE`; both packet ids remain visible and no winner is selected.
+
+The v0.1 experiment deliberately does not implement multi-hop rotation lineage, rotation revocation/discovery/freshness, fork resolution/consensus, automatic successor authority integration, or lost-key recovery.
+
 ## Interoperability evidence
 
 `evidence/interop_vector_v1.json` fixes one deliberately non-secret Ed25519 seed/private key, derived public key and key id, canonical unsigned envelope bytes, SHA-256 envelope digest, signature, evaluation time, trusted-root context, and expected scoped grant result.
@@ -141,7 +165,9 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - an expired checkpoint is stale and an unknown clock cannot become checkpoint freshness evidence;
 - a retained checkpoint-lineage head can expose rollback only relative to that exact local memory;
 - checkpoint lineage cannot discover newer unseen checkpoints, survive loss of retained state, or resolve disconnected valid forks by itself;
-- `CLOCK_UNKNOWN` cannot become authorization;
+- a key-rotation verifier cannot discover a rotation it never received, prove that its supplied rotation is globally newest, or resolve two valid competing rotations;
+- a valid rotation packet does not prove successor/root/capability authority beyond its exact bounded attestation;
+- `CLOCK_UNKNOWN` cannot become authorization or active rotation evidence;
 - replay can be detected against local consumed evidence, but not globally across disconnected peers;
 - copied private keys cannot be distinguished cryptographically from the original holder.
 
@@ -155,9 +181,11 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - an ancestor revocation invalidates authorization through a supplied chain but does not claim the descendant capability was directly revoked;
 - a checkpoint says `ATTESTED_THROUGH`, not `CURRENT_GLOBAL_STATE`;
 - checkpoint lineage says locally retained continuity/rollback state, not global newest state;
+- key rotation says the predecessor key attested this successor for one domain/window, not that both keys are the same person/device or that successor authority is globally current;
+- competing rotations are conflict evidence, not a winner election;
 - agreement among same-repository JavaScript and Go implementations does not equal third-party interoperability;
 - missing time becomes `HOLD_CLOCK_UNKNOWN`;
-- unresolved distributed replay and current revocation freshness remain explicit.
+- unresolved distributed replay, current revocation freshness, rotation freshness, and lost-key recovery remain explicit.
 
 ### Agency / non-domination
 
@@ -165,10 +193,11 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - root trust is explicit and caller-supplied;
 - checkpoint evaluation requires an explicit expected issuer rather than trusting any signer by default;
 - checkpoint lineage likewise requires an explicit expected issuer and cannot be advanced by a foreign signer;
+- key rotation requires an explicit expected predecessor and exact domain; naming a successor grants no unrelated authority;
 - every capability is scoped and expiring;
 - delegation only narrows;
 - loss of ancestor authority removes downstream authority through that chain when the revocation evidence is known;
-- foreign signers cannot revoke another issuer's capability or attest/advance another issuer's checkpoint state;
+- foreign signers cannot revoke another issuer's capability or attest/advance another issuer's checkpoint or rotation state;
 - one-use grants do not delegate in v0.1;
 - no automatic permission escalation.
 
@@ -181,13 +210,15 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - checkpoint manifests bind exact revocation envelope ids instead of rewriting historical revocation packets;
 - checkpoint lineage adds signed predecessor links without mutating old checkpoints;
 - retained local heads expose rollback/forks instead of silently rewriting history;
+- key rotation adds bounded successor evidence without rewriting old signatures or pretending the successor authored old bytes;
+- competing rotations remain visible as distinct signed evidence;
 - fixed vector bytes make future canonicalization drift visible rather than silently rewriting old evidence;
 - evidence-only JavaScript and Go verifiers do not replace the reference runtime.
 
 ### Wisdom before speed
 
 - v0.1 has no account system, global registry, blockchain, trust score, or automatic recovery;
-- key rotation is documented before implementation;
+- key rotation began as a documented contract and is implemented only as an isolated single-hop attestation before any authority integration or recovery mechanism;
 - revocation-chain behavior is locked with local adversarial fixtures before attempting revocation distribution infrastructure;
 - checkpoint semantics are isolated and falsifier-tested before any synchronization service or authorization dependency is attempted;
 - checkpoint anti-rollback is first tested as local retained-state continuity instead of inventing consensus or a global service;
