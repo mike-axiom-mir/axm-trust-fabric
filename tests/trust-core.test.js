@@ -11,109 +11,162 @@ const {
   validateDelegation,
   createRevocation,
   evaluateCapability,
+  evaluateCapabilityChain,
+  createUseRequest,
+  evaluateUseRequest,
   claimState
 } = require('../src/trust-core');
 
-const t0 = Date.parse('2026-09-12T10:00:00.000Z');
+const now = Date.parse('2026-09-12T10:00:00.000Z');
 const t1 = '2026-09-12T09:00:00.000Z';
 const t2 = '2026-09-12T11:00:00.000Z';
 const root = generateIdentity();
 const delegate = generateIdentity();
 const child = generateIdentity();
 const stranger = generateIdentity();
+const trustedRootIssuers = new Set([root.keyId]);
+const nonce = (seed) => Buffer.from(`axm-trust-${seed}-nonce`).toString('base64url');
 
 let passed = 0;
 function test(name, fn) {
-  try {
-    fn();
-    passed += 1;
-    console.log(`PASS ${name}`);
-  } catch (error) {
-    console.error(`FAIL ${name}`);
-    throw error;
-  }
+  fn();
+  passed += 1;
+  console.log(`PASS ${name}`);
 }
 
-function nonce(seed) {
-  return Buffer.from(`axm-trust-${seed}-nonce`).toString('base64url');
+function cap(issuer, subject, overrides = {}) {
+  return createCapability(issuer, {
+    subject,
+    target: 'project:alpha',
+    actions: ['propose', 'read'],
+    delegationDepth: 1,
+    issuedAt: t1,
+    expiresAt: t2,
+    nonce: nonce(overrides.seed || 'cap'),
+    ...overrides
+  });
 }
 
-test('canonicalization ignores insertion order', () => {
+test('canonicalization ignores object insertion order', () => {
   assert.equal(canonicalize({ z: 1, a: ['x', true] }), canonicalize({ a: ['x', true], z: 1 }));
 });
 
-test('signed envelope verifies exact bytes', () => {
-  const env = signEnvelope({ identity: root, issuedAt: t1, expiresAt: t2, nonce: nonce('exact'), body: { claim: 'demo', truth: 'not-evaluated' } });
-  assert.equal(verifyEnvelope(env, { nowMs: t0 }).signatureValid, true);
+test('signed envelope verifies exact bytes and rejects mutation', () => {
+  const env = signEnvelope({ identity: root, issuedAt: t1, expiresAt: t2, nonce: nonce('exact'), body: { claim: 'demo' } });
+  assert.equal(verifyEnvelope(env, { nowMs: now }).signatureValid, true);
   const changed = structuredClone(env);
   changed.body.claim = 'changed';
-  assert.equal(verifyEnvelope(changed, { nowMs: t0 }).code, 'INVALID_SIGNATURE');
+  assert.equal(verifyEnvelope(changed, { nowMs: now }).code, 'INVALID_SIGNATURE');
 });
 
 test('embedded public key cannot be swapped', () => {
   const env = signEnvelope({ identity: root, issuedAt: t1, expiresAt: t2, nonce: nonce('swap'), body: { claim: 'demo' } });
-  const changed = { ...env, publicKey: stranger.publicKey };
-  assert.equal(verifyEnvelope(changed, { nowMs: t0 }).code, 'ISSUER_KEY_MISMATCH');
+  assert.equal(verifyEnvelope({ ...env, publicKey: stranger.publicKey }, { nowMs: now }).code, 'ISSUER_KEY_MISMATCH');
 });
 
-test('unknown clock never becomes authorization', () => {
-  const cap = createCapability(root, { subject: delegate.keyId, target: 'session:1', actions: ['join'], delegationDepth: 1, issuedAt: t1, expiresAt: t2, nonce: nonce('clock') });
-  assert.equal(evaluateCapability(cap, { target: 'session:1', action: 'join' }).code, 'HOLD_CLOCK_UNKNOWN');
+test('malformed public key fails closed without crashing verifier', () => {
+  const env = signEnvelope({ identity: root, issuedAt: t1, expiresAt: t2, nonce: nonce('bad-key'), body: { claim: 'demo' } });
+  assert.equal(verifyEnvelope({ ...env, publicKey: 'AAAA' }, { nowMs: now }).code, 'ISSUER_KEY_MISMATCH');
+});
+
+test('unknown clock cannot validate a grant', () => {
+  const grant = cap(root, delegate.keyId, { seed: 'clock' });
+  assert.equal(evaluateCapability(grant, { target: 'project:alpha', action: 'read', trustedRootIssuers }).code, 'HOLD_CLOCK_UNKNOWN');
 });
 
 test('expiry fails closed', () => {
-  const cap = createCapability(root, { subject: delegate.keyId, target: 'session:1', actions: ['join'], issuedAt: t1, expiresAt: t2, nonce: nonce('expired') });
-  assert.equal(evaluateCapability(cap, { nowMs: Date.parse('2026-09-12T12:00:00.000Z'), target: 'session:1', action: 'join' }).code, 'EXPIRED');
+  const grant = cap(root, delegate.keyId, { seed: 'expired' });
+  assert.equal(evaluateCapability(grant, { nowMs: Date.parse('2026-09-12T12:00:00.000Z'), target: 'project:alpha', action: 'read', trustedRootIssuers }).code, 'EXPIRED');
 });
 
 test('scope matches exact target and action', () => {
-  const cap = createCapability(root, { subject: delegate.keyId, target: 'session:1', actions: ['join'], issuedAt: t1, expiresAt: t2, nonce: nonce('scope') });
-  assert.equal(evaluateCapability(cap, { nowMs: t0, target: 'session:1', action: 'join' }).authorized, true);
-  assert.equal(evaluateCapability(cap, { nowMs: t0, target: 'session:2', action: 'join' }).code, 'WRONG_TARGET');
-  assert.equal(evaluateCapability(cap, { nowMs: t0, target: 'session:1', action: 'host' }).code, 'WRONG_ACTION');
+  const grant = cap(root, delegate.keyId, { seed: 'scope' });
+  assert.equal(evaluateCapability(grant, { nowMs: now, target: 'project:alpha', action: 'read', trustedRootIssuers }).grantValid, true);
+  assert.equal(evaluateCapability(grant, { nowMs: now, target: 'project:beta', action: 'read', trustedRootIssuers }).code, 'WRONG_TARGET');
+  assert.equal(evaluateCapability(grant, { nowMs: now, target: 'project:alpha', action: 'merge', trustedRootIssuers }).code, 'WRONG_ACTION');
 });
 
-test('delegation can narrow but not widen', () => {
-  const parent = createCapability(root, { subject: delegate.keyId, target: 'project:alpha', actions: ['propose', 'read'], delegationDepth: 2, issuedAt: t1, expiresAt: t2, nonce: nonce('parent') });
-  const childGrant = createCapability(delegate, { subject: child.keyId, target: 'project:alpha', actions: ['read'], delegationDepth: 1, parentCapabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:10:00.000Z', expiresAt: '2026-09-12T10:30:00.000Z', nonce: nonce('child') });
+test('untrusted root key cannot self-authorize', () => {
+  const grant = cap(stranger, stranger.keyId, { seed: 'untrusted' });
+  assert.equal(evaluateCapability(grant, { nowMs: now, target: 'project:alpha', action: 'read', trustedRootIssuers }).code, 'UNTRUSTED_ROOT_ISSUER');
+});
+
+test('delegation narrows and cannot widen action or time', () => {
+  const parent = cap(root, delegate.keyId, { seed: 'parent', delegationDepth: 2 });
+  const childGrant = cap(delegate, child.keyId, { seed: 'child', actions: ['read'], delegationDepth: 1, parentCapabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:10:00.000Z', expiresAt: '2026-09-12T10:30:00.000Z' });
   assert.equal(validateDelegation(parent, childGrant).ok, true);
-
-  const actionEscalation = createCapability(delegate, { subject: child.keyId, target: 'project:alpha', actions: ['merge', 'read'], delegationDepth: 1, parentCapabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:10:00.000Z', expiresAt: '2026-09-12T10:30:00.000Z', nonce: nonce('action-escalation') });
+  const actionEscalation = cap(delegate, child.keyId, { seed: 'action-up', actions: ['merge', 'read'], parentCapabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:10:00.000Z', expiresAt: '2026-09-12T10:30:00.000Z' });
   assert.equal(validateDelegation(parent, actionEscalation).code, 'ACTION_ESCALATION');
-
-  const timeEscalation = createCapability(delegate, { subject: child.keyId, target: 'project:alpha', actions: ['read'], delegationDepth: 1, parentCapabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:10:00.000Z', expiresAt: '2026-09-12T12:00:00.000Z', nonce: nonce('time-escalation') });
+  const timeEscalation = cap(delegate, child.keyId, { seed: 'time-up', actions: ['read'], parentCapabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:10:00.000Z', expiresAt: '2026-09-12T12:00:00.000Z' });
   assert.equal(validateDelegation(parent, timeEscalation).code, 'TIME_ESCALATION');
 });
 
-test('only exact parent subject may delegate', () => {
-  const parent = createCapability(root, { subject: delegate.keyId, target: 'project:alpha', actions: ['read'], delegationDepth: 1, issuedAt: t1, expiresAt: t2, nonce: nonce('issuer-parent') });
-  const forgedChild = createCapability(stranger, { subject: child.keyId, target: 'project:alpha', actions: ['read'], delegationDepth: 0, parentCapabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:10:00.000Z', expiresAt: '2026-09-12T10:30:00.000Z', nonce: nonce('issuer-child') });
-  assert.equal(validateDelegation(parent, forgedChild).code, 'DELEGATE_ISSUER_MISMATCH');
+test('only parent subject may issue child', () => {
+  const parent = cap(root, delegate.keyId, { seed: 'issuer-parent' });
+  const forged = cap(stranger, child.keyId, { seed: 'issuer-child', actions: ['read'], delegationDepth: 0, parentCapabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:10:00.000Z', expiresAt: '2026-09-12T10:30:00.000Z' });
+  assert.equal(validateDelegation(parent, forged).code, 'DELEGATE_ISSUER_MISMATCH');
 });
 
-test('issuer can revoke exact capability', () => {
-  const cap = createCapability(root, { subject: delegate.keyId, target: 'session:9', actions: ['join'], issuedAt: t1, expiresAt: t2, nonce: nonce('rev-cap') });
-  const rev = createRevocation(root, { capabilityId: envelopeDigest(cap), issuedAt: '2026-09-12T09:30:00.000Z', expiresAt: '2026-09-13T09:30:00.000Z', nonce: nonce('rev-packet') });
-  assert.equal(evaluateCapability(cap, { nowMs: t0, target: 'session:9', action: 'join', revocations: [rev] }).code, 'REVOKED');
+test('delegated grant requires full chain', () => {
+  const parent = cap(root, delegate.keyId, { seed: 'chain-parent' });
+  const leaf = cap(delegate, child.keyId, { seed: 'chain-leaf', actions: ['read'], delegationDepth: 0, parentCapabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:10:00.000Z', expiresAt: '2026-09-12T10:30:00.000Z' });
+  assert.equal(evaluateCapability(leaf, { nowMs: now, target: 'project:alpha', action: 'read', trustedRootIssuers }).code, 'HOLD_PARENT_CHAIN_REQUIRED');
+  assert.equal(evaluateCapabilityChain([parent, leaf], { nowMs: now, target: 'project:alpha', action: 'read', trustedRootIssuers }).grantValid, true);
 });
 
-test('revocation signed by someone else does not revoke', () => {
-  const cap = createCapability(root, { subject: delegate.keyId, target: 'session:9', actions: ['join'], issuedAt: t1, expiresAt: t2, nonce: nonce('foreign-cap') });
-  const rev = createRevocation(stranger, { capabilityId: envelopeDigest(cap), issuedAt: '2026-09-12T09:30:00.000Z', expiresAt: '2026-09-13T09:30:00.000Z', nonce: nonce('foreign-rev') });
-  assert.equal(evaluateCapability(cap, { nowMs: t0, target: 'session:9', action: 'join', revocations: [rev] }).authorized, true);
+test('issuer revokes exact capability', () => {
+  const grant = cap(root, delegate.keyId, { seed: 'rev-cap' });
+  const rev = createRevocation(root, { capabilityId: envelopeDigest(grant), issuedAt: '2026-09-12T09:30:00.000Z', expiresAt: t2, nonce: nonce('rev') });
+  assert.equal(evaluateCapability(grant, { nowMs: now, target: 'project:alpha', action: 'read', revocations: [rev], trustedRootIssuers }).code, 'REVOKED');
 });
 
-test('one-use replay is only locally detectable in v0.1', () => {
-  const cap = createCapability(root, { subject: delegate.keyId, target: 'door:1', actions: ['enter'], oneUse: true, issuedAt: t1, expiresAt: t2, nonce: nonce('one-use') });
-  const first = evaluateCapability(cap, { nowMs: t0, target: 'door:1', action: 'enter' });
-  assert.equal(first.authorized, true);
-  const consumed = new Set([first.capabilityId]);
-  assert.equal(evaluateCapability(cap, { nowMs: t0, target: 'door:1', action: 'enter', localConsumedIds: consumed }).code, 'LOCAL_REPLAY');
+test('foreign signer cannot revoke', () => {
+  const grant = cap(root, delegate.keyId, { seed: 'foreign-cap' });
+  const rev = createRevocation(stranger, { capabilityId: envelopeDigest(grant), issuedAt: '2026-09-12T09:30:00.000Z', expiresAt: t2, nonce: nonce('foreign-rev') });
+  assert.equal(evaluateCapability(grant, { nowMs: now, target: 'project:alpha', action: 'read', revocations: [rev], trustedRootIssuers }).grantValid, true);
+});
+
+test('short revocation cannot silently resurrect capability', () => {
+  const grant = cap(root, delegate.keyId, { seed: 'short-cap' });
+  const rev = createRevocation(root, { capabilityId: envelopeDigest(grant), issuedAt: '2026-09-12T09:30:00.000Z', expiresAt: '2026-09-12T10:30:00.000Z', nonce: nonce('short-rev') });
+  assert.equal(evaluateCapability(grant, { nowMs: now, target: 'project:alpha', action: 'read', revocations: [rev], trustedRootIssuers }).code, 'HOLD_INVALID_REVOCATION_WINDOW');
+});
+
+test('one-use replay is only locally detectable', () => {
+  const grant = cap(root, delegate.keyId, { seed: 'one-use', oneUse: true });
+  const first = evaluateCapability(grant, { nowMs: now, target: 'project:alpha', action: 'read', trustedRootIssuers });
+  assert.equal(first.grantValid, true);
+  assert.equal(evaluateCapability(grant, { nowMs: now, target: 'project:alpha', action: 'read', trustedRootIssuers, localConsumedIds: new Set([first.capabilityId]) }).code, 'LOCAL_REPLAY');
+});
+
+test('grant alone does not claim current requester possession', () => {
+  const grant = cap(root, delegate.keyId, { seed: 'grant-only' });
+  const result = evaluateCapability(grant, { nowMs: now, target: 'project:alpha', action: 'read', trustedRootIssuers });
+  assert.equal(result.code, 'GRANT_VALID_FOR_SCOPE');
+  assert.equal(result.subject, delegate.keyId);
+});
+
+test('subject-signed use request proves possession for exact grant and scope', () => {
+  const grant = cap(root, delegate.keyId, { seed: 'use-grant' });
+  const request = createUseRequest(delegate, { capabilityId: envelopeDigest(grant), target: 'project:alpha', action: 'read', issuedAt: '2026-09-12T09:59:00.000Z', expiresAt: '2026-09-12T10:01:00.000Z', nonce: nonce('use-request') });
+  assert.equal(evaluateUseRequest([grant], request, { nowMs: now, trustedRootIssuers }).code, 'AUTHORIZED_USE');
+});
+
+test('different key cannot use someone else capability', () => {
+  const grant = cap(root, delegate.keyId, { seed: 'stolen-grant' });
+  const request = createUseRequest(stranger, { capabilityId: envelopeDigest(grant), target: 'project:alpha', action: 'read', issuedAt: '2026-09-12T09:59:00.000Z', expiresAt: '2026-09-12T10:01:00.000Z', nonce: nonce('stolen-use') });
+  assert.equal(evaluateUseRequest([grant], request, { nowMs: now, trustedRootIssuers }).code, 'SUBJECT_POSSESSION_MISMATCH');
+});
+
+test('use request is bound to exact capability id', () => {
+  const grant = cap(root, delegate.keyId, { seed: 'bind-grant' });
+  const request = createUseRequest(delegate, { capabilityId: '0'.repeat(64), target: 'project:alpha', action: 'read', issuedAt: '2026-09-12T09:59:00.000Z', expiresAt: '2026-09-12T10:01:00.000Z', nonce: nonce('bind-use') });
+  assert.equal(evaluateUseRequest([grant], request, { nowMs: now, trustedRootIssuers }).code, 'CAPABILITY_BINDING_MISMATCH');
 });
 
 test('signature does not claim truth or identity continuity', () => {
-  const env = signEnvelope({ identity: root, issuedAt: t1, expiresAt: t2, nonce: nonce('claim-state'), body: { statement: 'the moon is cheese' } });
-  const state = claimState(env, { nowMs: t0 });
+  const env = signEnvelope({ identity: root, issuedAt: t1, expiresAt: t2, nonce: nonce('claims'), body: { statement: 'the moon is cheese' } });
+  const state = claimState(env, { nowMs: now });
   assert.equal(state.truth, 'NOT_EVALUATED');
   assert.equal(state.identityContinuity, 'NOT_ESTABLISHED_BY_SIGNATURE_ALONE');
 });
