@@ -13,5 +13,11 @@
     "delegationDepth": {"type":"integer","minimum":0,"maximum":16},
     "parentCapabilityId": {"oneOf":[{"type":"null"},{"type":"string","pattern":"^[a-f0-9]{64}$"}]},
     "oneUse": {"type":"boolean"}
-  }
+  },
+  "allOf": [
+    {
+      "if": {"properties":{"oneUse":{"const":true}},"required":["oneUse"]},
+      "then": {"properties":{"delegationDepth":{"const":0}}}
+    }
+  ]
 }
