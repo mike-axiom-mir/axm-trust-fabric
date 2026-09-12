@@ -1,0 +1,13 @@
+{
+  "name": "axm-trust-fabric",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first cryptographic authorization primitives for AXM research.",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node tests/trust-core.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
