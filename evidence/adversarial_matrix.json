@@ -1,7 +1,7 @@
 {
   "schema": "axm.trust-fabric.adversarial-matrix/v1",
   "status": "FIXTURE_TESTED_LOCAL_REFERENCE",
-  "test_count": 21,
+  "test_count": 22,
   "tests": [
     {"case":"canonical_object_key_order","expected":"PASS","observed":"PASS"},
     {"case":"signed_bytes_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
@@ -23,11 +23,13 @@
     {"case":"grant_not_equal_live_subject_possession","expected":"GRANT_ONLY","observed":"GRANT_ONLY"},
     {"case":"subject_signed_exact_use","expected":"AUTHORIZED_USE","observed":"AUTHORIZED_USE"},
     {"case":"wrong_subject_use","expected":"SUBJECT_POSSESSION_MISMATCH","observed":"SUBJECT_POSSESSION_MISMATCH"},
-    {"case":"use_bound_to_wrong_capability","expected":"CAPABILITY_BINDING_MISMATCH","observed":"CAPABILITY_BINDING_MISMATCH"}
+    {"case":"use_bound_to_wrong_capability","expected":"CAPABILITY_BINDING_MISMATCH","observed":"CAPABILITY_BINDING_MISMATCH"},
+    {"case":"deterministic_interop_reference_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"}
   ],
   "separate_claim_test": {
     "signature_does_not_establish_truth": true,
-    "signature_does_not_establish_identity_continuity": true
+    "signature_does_not_establish_identity_continuity": true,
+    "reference_vector_does_not_establish_independent_interoperability": true
   },
   "unresolved": [
     "revocation freshness on a peer that has not synchronized",
@@ -35,8 +37,8 @@
     "trustworthy time when no trusted clock exists",
     "private-key copying or theft attribution",
     "key rotation and lost-key recovery",
-    "independent implementation interoperability",
+    "independent implementation interoperability beyond the fixed reference vector",
     "hostile-environment cryptographic review"
   ],
-  "truth_boundary": "This matrix records authored local fixtures. It is not an external security audit or proof of hostile-deployment safety."
+  "truth_boundary": "This matrix records authored local fixtures and one deterministic reference vector. It is not an external security audit or proof of hostile-deployment safety or independent implementation interoperability."
 }
