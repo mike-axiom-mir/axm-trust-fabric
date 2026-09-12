@@ -50,7 +50,17 @@ For live use, v0.1 supports a subject-signed capability-use envelope bound to th
 
 v0.1 accepts an exact capability revocation only when its signature is valid, it references the exact capability digest, and its issuer is the capability issuer. A matching revocation whose expiry is earlier than the capability produces `HOLD_INVALID_REVOCATION_WINDOW` instead of allowing a later silent resurrection.
 
-Delegated revokers, threshold revocation, recovery keys, and revocation inheritance remain research questions.
+### Ancestor invalidation in a supplied delegation chain
+
+A revocation packet still names exactly one capability; Trust Fabric does **not** rewrite descendants as though they had each been directly revoked.
+
+However, a delegated grant is valid only while every capability in its required chain remains valid. Therefore, when the evaluator is supplied a complete chain plus a valid issuer-signed revocation of any ancestor in that chain, authorization through the descendant fails at the revoked ancestor. The result preserves the affected chain index.
+
+A foreign-signed ancestor revocation remains non-authoritative. A short-window ancestor revocation produces the existing `HOLD_INVALID_REVOCATION_WINDOW` fail-closed state for the descendant chain rather than allowing a clean later resurrection.
+
+This is local evidence semantics, not a freshness protocol. If a peer has never received a newer ancestor revocation, Trust Fabric cannot infer that no such revocation exists elsewhere.
+
+Delegated revokers, threshold revocation, recovery keys, revocation distribution, and globally fresh revocation state remain research questions.
 
 ## Interoperability evidence
 
@@ -69,6 +79,7 @@ This establishes **same-repository cross-language and cross-standard-library agr
 An offline verifier cannot know facts it has never synchronized. Therefore:
 
 - absence of a local revocation packet does not prove no newer revocation exists elsewhere;
+- ancestor-chain invalidation only applies to revocation evidence actually supplied to the evaluator;
 - `CLOCK_UNKNOWN` cannot become authorization;
 - replay can be detected against local consumed evidence, but not globally across disconnected peers;
 - copied private keys cannot be distinguished cryptographically from the original holder.
@@ -80,9 +91,10 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - every success state names only what was measured;
 - signed does not mean true;
 - a valid grant does not equal a live authorized use;
+- an ancestor revocation invalidates authorization through a supplied chain but does not claim the descendant capability was directly revoked;
 - agreement among same-repository JavaScript and Go implementations does not equal third-party interoperability;
 - missing time becomes `HOLD_CLOCK_UNKNOWN`;
-- unresolved distributed replay and freshness remain explicit.
+- unresolved distributed replay and revocation freshness remain explicit.
 
 ### Agency / non-domination
 
@@ -90,6 +102,8 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - root trust is explicit and caller-supplied;
 - every capability is scoped and expiring;
 - delegation only narrows;
+- loss of ancestor authority removes downstream authority through that chain when the revocation evidence is known;
+- foreign signers cannot revoke another issuer's capability;
 - one-use grants do not delegate in v0.1;
 - no automatic permission escalation.
 
@@ -97,6 +111,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 
 - donor systems are adapted, not destructively replaced;
 - exact parent digests preserve delegation lineage;
+- ancestor invalidation follows preserved lineage rather than rewriting descendant packets;
 - old signed evidence remains independently verifiable if its key material is retained;
 - fixed vector bytes make future canonicalization drift visible rather than silently rewriting old evidence;
 - evidence-only JavaScript and Go verifiers do not replace the reference runtime.
@@ -105,6 +120,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 
 - v0.1 has no account system, global registry, blockchain, trust score, or automatic recovery;
 - key rotation is documented before implementation;
+- revocation-chain behavior is locked with local adversarial fixtures before attempting revocation distribution infrastructure;
 - ambiguous one-use delegation is refused rather than guessed;
 - interoperability grew from one vector, to a separate same-language verifier, to one bounded Go verifier before any protocol service or broad compatibility claim;
 - the Go verifier stays standard-library only and narrow instead of becoming a second runtime;

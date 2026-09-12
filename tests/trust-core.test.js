@@ -132,6 +132,32 @@ test('short revocation cannot silently resurrect capability', () => {
   assert.equal(evaluateCapability(grant, { nowMs: now, target: 'project:alpha', action: 'read', revocations: [rev], trustedRootIssuers }).code, 'HOLD_INVALID_REVOCATION_WINDOW');
 });
 
+test('revoking an ancestor invalidates the descendant chain', () => {
+  const parent = cap(root, delegate.keyId, { seed: 'rev-parent', delegationDepth: 1 });
+  const leaf = cap(delegate, child.keyId, { seed: 'rev-leaf', actions: ['read'], delegationDepth: 0, parentCapabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:10:00.000Z', expiresAt: '2026-09-12T10:30:00.000Z' });
+  const rev = createRevocation(root, { capabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:30:00.000Z', expiresAt: t2, nonce: nonce('rev-parent-packet') });
+  const result = evaluateCapabilityChain([parent, leaf], { nowMs: now, target: 'project:alpha', action: 'read', revocations: [rev], trustedRootIssuers });
+  assert.equal(result.code, 'REVOKED');
+  assert.equal(result.chainIndex, 0);
+});
+
+test('foreign ancestor revocation does not invalidate descendant chain', () => {
+  const parent = cap(root, delegate.keyId, { seed: 'foreign-parent', delegationDepth: 1 });
+  const leaf = cap(delegate, child.keyId, { seed: 'foreign-leaf', actions: ['read'], delegationDepth: 0, parentCapabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:10:00.000Z', expiresAt: '2026-09-12T10:30:00.000Z' });
+  const rev = createRevocation(stranger, { capabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:30:00.000Z', expiresAt: t2, nonce: nonce('foreign-parent-rev') });
+  const result = evaluateCapabilityChain([parent, leaf], { nowMs: now, target: 'project:alpha', action: 'read', revocations: [rev], trustedRootIssuers });
+  assert.equal(result.grantValid, true);
+});
+
+test('short ancestor revocation holds descendant chain instead of allowing resurrection', () => {
+  const parent = cap(root, delegate.keyId, { seed: 'short-parent', delegationDepth: 1 });
+  const leaf = cap(delegate, child.keyId, { seed: 'short-leaf', actions: ['read'], delegationDepth: 0, parentCapabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:10:00.000Z', expiresAt: '2026-09-12T10:30:00.000Z' });
+  const rev = createRevocation(root, { capabilityId: envelopeDigest(parent), issuedAt: '2026-09-12T09:30:00.000Z', expiresAt: '2026-09-12T10:30:00.000Z', nonce: nonce('short-parent-rev') });
+  const result = evaluateCapabilityChain([parent, leaf], { nowMs: now, target: 'project:alpha', action: 'read', revocations: [rev], trustedRootIssuers });
+  assert.equal(result.code, 'HOLD_INVALID_REVOCATION_WINDOW');
+  assert.equal(result.chainIndex, 0);
+});
+
 test('one-use replay is only locally detectable', () => {
   const grant = cap(root, delegate.keyId, { seed: 'one-use', oneUse: true, delegationDepth: 0 });
   const first = evaluateCapability(grant, { nowMs: now, target: 'project:alpha', action: 'read', trustedRootIssuers });

@@ -1,7 +1,7 @@
 {
   "schema": "axm.trust-fabric.adversarial-matrix/v1",
-  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_SAME_REPO_JS_AND_GO_VECTOR_VERIFIERS",
-  "test_count": 35,
+  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_CHAIN_REVOCATION_AND_SAME_REPO_JS_GO_VECTOR_VERIFIERS",
+  "test_count": 38,
   "tests": [
     {"case":"canonical_object_key_order","expected":"PASS","observed":"PASS"},
     {"case":"signed_bytes_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
@@ -18,6 +18,9 @@
     {"case":"issuer_revocation","expected":"REVOKED","observed":"REVOKED"},
     {"case":"foreign_revocation","expected":"NOT_REVOKED","observed":"NOT_REVOKED"},
     {"case":"short_revocation_window","expected":"HOLD_INVALID_REVOCATION_WINDOW","observed":"HOLD_INVALID_REVOCATION_WINDOW"},
+    {"case":"ancestor_revocation_invalidates_descendant_chain","expected":"REVOKED_AT_ANCESTOR_CHAIN_INDEX","observed":"REVOKED_AT_ANCESTOR_CHAIN_INDEX"},
+    {"case":"foreign_ancestor_revocation","expected":"DESCENDANT_CHAIN_REMAINS_VALID","observed":"DESCENDANT_CHAIN_REMAINS_VALID"},
+    {"case":"short_ancestor_revocation_window","expected":"HOLD_INVALID_REVOCATION_WINDOW_AT_ANCESTOR","observed":"HOLD_INVALID_REVOCATION_WINDOW_AT_ANCESTOR"},
     {"case":"one_use_local_replay","expected":"LOCAL_REPLAY","observed":"LOCAL_REPLAY"},
     {"case":"one_use_delegation","expected":"ONE_USE_DELEGATION_FORBIDDEN","observed":"ONE_USE_DELEGATION_FORBIDDEN"},
     {"case":"grant_not_equal_live_subject_possession","expected":"GRANT_ONLY","observed":"GRANT_ONLY"},
@@ -42,12 +45,16 @@
   "separate_claim_test": {
     "signature_does_not_establish_truth": true,
     "signature_does_not_establish_identity_continuity": true,
+    "ancestor_revocation_invalidates_authorization_through_chain_but_does_not_directly_revoke_descendant_packet": true,
+    "absence_of_local_ancestor_revocation_does_not_establish_global_freshness": true,
     "reference_vector_does_not_establish_third_party_interoperability": true,
     "same_repo_source_separation_does_not_establish_external_independence": true,
     "same_repo_cross_language_agreement_does_not_establish_third_party_conformance": true
   },
   "unresolved": [
     "revocation freshness on a peer that has not synchronized",
+    "revocation distribution or synchronization across peers",
+    "delegated or threshold revokers",
     "cross-device replay prevention while peers are disconnected",
     "trustworthy time when no trusted clock exists",
     "private-key copying or theft attribution",
@@ -55,5 +62,5 @@
     "third-party or independently authored interoperability beyond the same-repository JavaScript and Go verifiers",
     "hostile-environment cryptographic review"
   ],
-  "truth_boundary": "This matrix records authored local fixtures, one deterministic reference vector, a separate JavaScript verifier, and a Go standard-library verifier in the same repository. It is not an external security audit, third-party implementation result, or proof of hostile-deployment safety."
+  "truth_boundary": "This matrix records authored local fixtures, including explicit ancestor-chain invalidation when matching revocation evidence is supplied, plus one deterministic reference vector, a separate JavaScript verifier, and a Go standard-library verifier in the same repository. It does not prove globally fresh revocation knowledge, external security review, third-party implementation conformance, or hostile-deployment safety."
 }
