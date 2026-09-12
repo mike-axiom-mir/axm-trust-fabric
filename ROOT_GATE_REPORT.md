@@ -6,7 +6,7 @@ This is the primary consolidated root-gate report for the current bounded Trust 
 
 Current authored adversarial matrix: **84 bounded cases**.
 
-A CI meta-guard checks that this count agrees with the machine-readable matrix and the executable JavaScript + Go behavior fixtures. The guard itself is evidence plumbing and is **not** counted as a protocol/security case.
+A CI meta-guard checks that this count agrees with the machine-readable matrix, executable JavaScript + Go behavior fixtures, and the public README evidence count. The guard itself is evidence plumbing and is **not** counted as a protocol/security case.
 
 ## Truth
 
@@ -28,7 +28,7 @@ PASS for the bounded repository state if the final published branch and CI agree
 - Older predecessor-signed evidence remains independently verifiable and is not rewritten as successor-authored evidence.
 - Same-repository JavaScript and Go implementations agree on one fixed root-capability interoperability vector; this does not establish separately authored or third-party interoperability.
 - Missing trusted time remains an explicit hold rather than invented certainty.
-- The evidence consistency guard fails if the adversarial matrix count, executable authored behavior-fixture count, expected/observed matrix states, or this primary report's count drift apart.
+- The evidence consistency guard fails if the adversarial matrix count, executable authored behavior-fixture count, expected/observed matrix states, this primary report's count, or the public README evidence count drift apart.
 - Current revocation freshness after `completeThrough`, synchronization/discovery, anti-rollback after local-state loss, disconnected-fork resolution, disconnected replay, key theft attribution, multi-hop rotation, automatic successor authority integration, rotation freshness/revocation, lost-key recovery, external third-party interoperability, and hostile-environment review remain unresolved.
 
 ## Agency / non-domination
@@ -59,7 +59,7 @@ PASS for the bounded repository state if the final published branch and CI agree
 - Forks, gaps, rollback, divergent common ancestry, and competing rotations are surfaced rather than silently normalized.
 - `src/trust-core.js`, revocation-checkpoint behavior, capability authorization, and donor boundaries remain separable from the later research layers.
 - Fixed interoperability bytes make serialization drift visible.
-- The consistency guard makes evidence-summary drift visible without rewriting protocol history or inflating the adversarial-case count.
+- The consistency guard makes evidence-summary drift visible across machine evidence, the primary gate report, and the public README without rewriting protocol history or inflating the adversarial-case count.
 
 ## Wisdom before speed
 
@@ -74,7 +74,7 @@ PASS for the bounded repository state if the final published branch and CI agree
 - The acknowledgement proves key control without being promoted into identity continuity, fork resolution, or authority transfer.
 - Lost-key recovery remains a documented boundary rather than being fabricated from a missing predecessor.
 - Interoperability remains deliberately narrow rather than being promoted into a broad protocol-conformance claim.
-- Evidence/governance accounting remains CI-bound as new protocol cases are added.
+- Evidence/governance accounting, including the public summary count, remains CI-bound as new protocol cases are added.
 
 ## Evidence
 
@@ -109,7 +109,8 @@ The evidence-consistency guard remains deliberately outside the 84-case protocol
 3. every matrix entry's `observed` equals `expected`;
 4. authored JavaScript + Go behavior-fixture count equals matrix `test_count`;
 5. `evidence/consistency_guard_v1.json` names the same protocol-case count and states the meta-test is not itself a protocol case;
-6. this primary report states the same current count.
+6. this primary report states the same current count;
+7. the public README states the same current count.
 
 Repository CI must run both:
 
@@ -122,6 +123,6 @@ The final published PR head must pass remote CI before merge.
 
 ## Gate conclusion
 
-The four roots permit merging the bounded successor-possession acknowledgement experiment **only if** the final published branch, PR diff, evidence matrix, consistency guard, and remote CI remain consistent with this report.
+The four roots permit merging the public evidence-consistency repair **only if** the final published branch, PR diff, evidence matrix, consistency guard, public README, and remote CI remain consistent with this report.
 
 This conclusion grants no automatic release, deployment, donor migration, security certification, external interoperability claim, automatic successor root/capability authority, rotation discovery/freshness/revocation, fork resolution, lost-key recovery authority, global synchronization/consensus, or AXM-wide CANON status.
