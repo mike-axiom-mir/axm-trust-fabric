@@ -28,11 +28,12 @@ No human or machine actor is the constitutional merge gate by category. A ground
 - Scoped capability grants: exact subject, target, and action set.
 - Delegation chains with exact parent binding and narrowing ceilings.
 - One-use grants are non-delegable in v0.1 so a one-use parent cannot multiply into several children.
-- Issuer-signed revocation packets for exact capability IDs, with a hold if revocation would expire before the capability.
+- Issuer-signed revocation packets for exact capability IDs, with a hold if a revocation would expire before the capability.
 - Subject-signed capability-use requests, separating a valid grant from proof that the current actor controls the granted subject key.
 - Explicit `CLOCK_UNKNOWN` hold rather than pretending offline time is trusted.
 - Optional one-use capabilities with **local-only** replay detection.
 - Separate claim-state labels for integrity, authorship, authority, identity continuity, and truth.
+- A fixed non-secret interoperability vector that locks one key, canonical unsigned envelope, digest, signature, and scoped evaluation result for reproduction by other implementations.
 
 ## v0.1 intentionally not implemented
 
@@ -59,14 +60,17 @@ npm test
 - `TRUST_MODEL.md` — semantic contract and root boundary.
 - `IDENTITY_VS_AUTHORITY.md` — separates the five claim dimensions.
 - `KEY_ROTATION.md` — unimplemented rotation/recovery research contract.
+- `INTEROPERABILITY.md` — deterministic vector question, falsifier, and truth boundary.
 - `schema/` — machine-readable envelope, grant, revocation, and use-body schemas.
 - `src/trust-core.js` — dependency-free reference implementation.
 - `tests/trust-core.test.js` — executable adversarial fixtures.
+- `tests/interop-vector.test.js` — locks the deterministic interoperability vector against the reference implementation and Node's Ed25519 verifier.
 - `evidence/adversarial_matrix.json` — what is proven, held, and unresolved.
+- `evidence/interop_vector_v1.json` — fixed reproducible bytes and expected results; the included private seed is test-only and must never be real authority.
 - `donors/` — bounded donor mappings; donors are not rewritten by this repo.
 
 ## Evidence level
 
-Current claim: **fixture-tested local reference implementation** only.
+Current claim: **fixture-tested local reference implementation with one deterministic interoperability reference vector**.
 
-The current authored harness contains 21 tests. That demonstrates behavior of this implementation on those fixtures. It does not establish hostile-deployment security, independent interoperability, hardware-backed key custody, globally fresh revocation, trustworthy clocks, legal/human identity, informed consent, or content truth.
+`npm test` currently runs 21 trust-core fixtures plus the fixed interoperability-vector check. The vector demonstrates deterministic agreement inside this repository and against Node's Ed25519 primitive; it is **not yet independent implementation interoperability**. The evidence does not establish hostile-deployment security, hardware-backed key custody, globally fresh revocation, trustworthy clocks, legal/human identity, informed consent, or content truth.

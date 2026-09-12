@@ -1,0 +1,37 @@
+{
+  "schema": "axm.trust-fabric.interop-vector/v1",
+  "warning": "TEST VECTOR ONLY — NEVER USE THIS KEY FOR REAL AUTHORITY",
+  "testOnlySeedHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+  "testOnlyPrivateKeyPkcs8": "MC4CAQAwBQYDK2VwBCIEIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4f",
+  "publicKeySpki": "MCowBQYDK2VwAyEAA6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg",
+  "keyId": "axm:key:ed25519:a050837d85070582ccf7394b0988847cc312cb88259b894899f6f239cf1791a5",
+  "canonicalUnsigned": "{\"body\":{\"actions\":[\"read\"],\"delegationDepth\":0,\"kind\":\"capability-grant\",\"oneUse\":false,\"parentCapabilityId\":null,\"subject\":\"axm:key:ed25519:a050837d85070582ccf7394b0988847cc312cb88259b894899f6f239cf1791a5\",\"target\":\"fixture:interop:v1\"},\"expiresAt\":\"2026-09-12T11:00:00.000Z\",\"issuedAt\":\"2026-09-12T10:00:00.000Z\",\"issuer\":\"axm:key:ed25519:a050837d85070582ccf7394b0988847cc312cb88259b894899f6f239cf1791a5\",\"nonce\":\"YXhtLWludGVyb3AtdjEtbm9uY2U\",\"publicKey\":\"MCowBQYDK2VwAyEAA6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg\",\"version\":\"axm.trust-envelope/v1\"}",
+  "envelopeDigest": "d3c2b5ea7734726e4ffb336d21287cfffc751b8e2f1d819f986f7658fcba6935",
+  "envelope": {
+    "version": "axm.trust-envelope/v1",
+    "issuer": "axm:key:ed25519:a050837d85070582ccf7394b0988847cc312cb88259b894899f6f239cf1791a5",
+    "publicKey": "MCowBQYDK2VwAyEAA6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg",
+    "issuedAt": "2026-09-12T10:00:00.000Z",
+    "expiresAt": "2026-09-12T11:00:00.000Z",
+    "nonce": "YXhtLWludGVyb3AtdjEtbm9uY2U",
+    "body": {
+      "kind": "capability-grant",
+      "subject": "axm:key:ed25519:a050837d85070582ccf7394b0988847cc312cb88259b894899f6f239cf1791a5",
+      "target": "fixture:interop:v1",
+      "actions": ["read"],
+      "delegationDepth": 0,
+      "parentCapabilityId": null,
+      "oneUse": false
+    },
+    "signature": "8xyjTF7bleN71Fz_9oX-lZQyDnBAGCC56QKEdIijoRVSsVSiCu4yQ8G2Uv0uuXgmaxKWHRlt_8Z5eC20RnaDBQ"
+  },
+  "evaluation": {
+    "nowMs": 1789209000000,
+    "nowIso": "2026-09-12T10:30:00.000Z",
+    "trustedRootIssuers": ["axm:key:ed25519:a050837d85070582ccf7394b0988847cc312cb88259b894899f6f239cf1791a5"],
+    "target": "fixture:interop:v1",
+    "action": "read",
+    "expectedCode": "GRANT_VALID_FOR_SCOPE"
+  },
+  "truthBoundary": "One deterministic vector tested against the reference implementation; not yet an independent implementation interoperability proof."
+}
