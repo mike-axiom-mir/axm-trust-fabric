@@ -52,6 +52,14 @@ v0.1 accepts an exact capability revocation only when its signature is valid, it
 
 Delegated revokers, threshold revocation, recovery keys, and revocation inheritance remain research questions.
 
+## Interoperability evidence
+
+`evidence/interop_vector_v1.json` fixes one deliberately non-secret Ed25519 seed/private key, derived public key and key id, canonical unsigned envelope bytes, SHA-256 envelope digest, signature, evaluation time, trusted-root context, and expected scoped grant result.
+
+The reference test must reproduce every fixed value exactly and also verify the signature directly with Node's Ed25519 primitive. Any mismatch is a failure rather than something to normalize silently.
+
+This improves reproducibility but does **not** close the independent-interoperability question. That requires a separately implemented signer or verifier to reproduce the vector without importing `src/trust-core.js`.
+
 ## Offline truth boundary
 
 An offline verifier cannot know facts it has never synchronized. Therefore:
@@ -68,6 +76,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - every success state names only what was measured;
 - signed does not mean true;
 - a valid grant does not equal a live authorized use;
+- deterministic reference-vector agreement does not equal independent interoperability;
 - missing time becomes `HOLD_CLOCK_UNKNOWN`;
 - unresolved distributed replay and freshness remain explicit.
 
@@ -84,13 +93,15 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 
 - donor systems are adapted, not destructively replaced;
 - exact parent digests preserve delegation lineage;
-- old signed evidence remains independently verifiable if its key material is retained.
+- old signed evidence remains independently verifiable if its key material is retained;
+- fixed vector bytes make future canonicalization drift visible rather than silently rewriting old evidence.
 
 ### Wisdom before speed
 
 - v0.1 has no account system, global registry, blockchain, trust score, or automatic recovery;
 - key rotation is documented before implementation;
 - ambiguous one-use delegation is refused rather than guessed;
+- interoperability begins with one falsifiable fixed vector rather than a premature network protocol;
 - unknown states fail closed rather than being filled by convenience.
 
 Passing the roots permits a repository merge. It does not automatically declare the mechanism CANON for every AXM system.
