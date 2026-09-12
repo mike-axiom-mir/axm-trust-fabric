@@ -12,19 +12,21 @@ PASS for this bounded claim.
 - A valid grant remains separated from live use; `AUTHORIZED_USE` requires a subject-signed request bound to the exact capability, target, and action.
 - Missing trusted time becomes `HOLD_CLOCK_UNKNOWN`.
 - One-use grants cannot delegate in v0.1, avoiding a false one-use claim through multiple children.
-- A revocation packet still targets exactly one capability; this change does not relabel descendants as directly revoked.
+- A revocation packet still targets exactly one capability; descendants are not relabeled as directly revoked.
 - Because a delegated grant requires every ancestor in its supplied chain to remain valid, a valid issuer-signed ancestor revocation invalidates authorization through the descendant chain at that ancestor.
-- A foreign ancestor revocation is ignored as non-authoritative, and an ancestor revocation with an invalidly short window produces `HOLD_INVALID_REVOCATION_WINDOW` rather than a clean resurrection path.
 - This ancestor behavior only applies to revocation evidence supplied to the evaluator; absence of local evidence does not establish global freshness.
-- The new checkpoint primitive does not claim current global revocation state. Its success code is deliberately `REVOCATION_SET_ATTESTED_THROUGH`, naming only the issuer-attested historical boundary.
-- A checkpoint binds the exact supplied same-issuer revocation manifest by count plus SHA-256 of sorted exact envelope ids, requires an explicit expected issuer, and refuses packet omission/substitution, wrong issuer, duplicate packets, future `completeThrough`, unknown clock, or stale expiry.
-- Checkpoint expiry is treated as `STALE_REVOCATION_CHECKPOINT`; lack of trusted time is `HOLD_CLOCK_UNKNOWN`.
-- The checkpoint is isolated from capability authorization; no grant becomes valid because a checkpoint exists.
+- The checkpoint primitive still says only `REVOCATION_SET_ATTESTED_THROUGH`, binding an exact supplied same-issuer revocation manifest to a historical timestamp while its checkpoint envelope is temporally valid.
+- Checkpoint expiry remains `STALE_REVOCATION_CHECKPOINT`; lack of trusted time remains `HOLD_CLOCK_UNKNOWN`.
+- The new checkpoint-lineage primitive is deliberately narrower than global anti-rollback: it detects rollback only relative to an exact local signed lineage head the verifier retained.
+- A non-genesis candidate without retained history becomes `HOLD_LINEAGE_HISTORY_REQUIRED` rather than inventing continuity.
+- Relative to a retained head, an older sequence becomes `CHECKPOINT_ROLLBACK_DETECTED`; a conflicting same-sequence or wrong-predecessor successor becomes `CHECKPOINT_FORK_DETECTED`; a skipped sequence becomes `HOLD_LINEAGE_GAP`; a direct successor that moves `completeThrough` backward becomes `CHECKPOINT_COMPLETENESS_ROLLBACK`.
+- The exact retained pair becomes `LINEAGE_HEAD_CURRENT`, and only the exact next linked sequence with non-regressing `completeThrough` becomes `LINEAGE_ADVANCE_ACCEPTABLE`.
+- The lineage result does not claim that the retained head is globally newest, does not discover checkpoints never received, and cannot preserve anti-rollback memory after local retained state is lost/replaced.
+- Two disconnected peers may retain different valid issuer-signed forks; this experiment exposes that conflict when compared but does not solve consensus.
+- The checkpoint-lineage module verifies signed historical continuity separately from checkpoint temporal freshness; it does not turn expired historical links into current revocation-freshness evidence.
 - The fixed interoperability vector remains byte-for-byte locked at the signed-envelope level.
-- A separate JavaScript verifier reproduces the fixed vector without importing the reference core.
-- A Go standard-library verifier independently reproduces the same canonical bytes, SPKI-derived key id, SHA-256 digest, Ed25519 verification, trusted-root decision, time decision, and exact scope result without importing or executing either JavaScript verifier.
-- The interoperability claim remains limited to three same-repository code paths agreeing on one fixed root-capability vector; no third-party, separately authored, broad protocol, production-conformance, or hostile-deployment claim is made.
-- Current revocation freshness after `completeThrough`, revocation distribution/synchronization, checkpoint anti-rollback/sequencing, disconnected replay, key theft attribution, key rotation/recovery, external third-party interoperability, and hostile-environment review remain explicitly unresolved.
+- Separate JavaScript and Go standard-library verifiers continue to reproduce the same one fixed vector, with the claim limited to same-repository agreement rather than third-party conformance.
+- Current revocation freshness after `completeThrough`, synchronization/discovery, anti-rollback after local-state loss, disconnected-fork resolution, disconnected replay, key theft attribution, key rotation/recovery, external third-party interoperability, and hostile-environment review remain explicitly unresolved.
 
 ## Agency / non-domination
 
@@ -37,11 +39,12 @@ PASS for this bounded claim.
 - Known loss of ancestor authority removes downstream authorization through that exact lineage; it does not grant unrelated actors revocation power.
 - Foreign-signed revocations remain non-authoritative.
 - Checkpoint evaluation requires an explicit `expectedIssuer`; a random valid signer cannot attest another issuer's revocation state.
-- Checkpoint packets must all be signed by that same issuer; foreign packets are refused rather than silently absorbed.
-- One-use grants are non-delegable in v0.1.
-- The current requester must prove possession of the granted subject key for live use.
-- The fixed interoperability key remains test-only and grants no real authority by publication.
-- Evidence-only JavaScript and Go verifiers have no authority of their own; they evaluate supplied evidence and local trust-root context only.
+- Checkpoint-lineage evaluation also requires that explicit expected issuer; a foreign signer cannot advance another issuer's retained continuity state.
+- A signed sequence number is not treated as global authority. It is evaluated only against exact locally retained predecessor evidence.
+- No automatic discovery, synchronization, capability escalation, donor migration, or checkpoint dependence is introduced.
+- One-use grants remain non-delegable in v0.1.
+- The current requester must still prove possession of the granted subject key for live use.
+- Evidence-only JavaScript and Go verifiers remain authority-free evaluators of supplied evidence and local trust-root context.
 
 ## Continuity
 
@@ -51,52 +54,62 @@ PASS for this bounded claim.
 - No donor repository is rewritten or migrated.
 - Existing bearer invite and authority-lease paths remain independently usable.
 - Signed parent digests preserve capability lineage.
-- Ancestor invalidation follows that preserved lineage and does not rewrite descendant capability packets.
+- Ancestor invalidation follows preserved lineage and does not rewrite descendant capability packets.
 - Checkpoints bind exact revocation envelope ids; they do not rewrite, compact away, or silently replace historical revocation packets.
-- `src/revocation-checkpoint.js` is a separate research primitive; `src/trust-core.js` authorization semantics are unchanged.
-- Fixed canonical bytes and cryptographic outputs make serialization drift detectable instead of silently rewriting old evidence.
-- The separate JavaScript and Go verifiers are explicitly evidence-only and do not replace `src/trust-core.js`.
-- The published vector itself is not rewritten to make implementations agree; mismatches are falsifiers.
+- `src/revocation-checkpoint.js` remains separate; `src/trust-core.js` authorization semantics are unchanged.
+- The new `src/checkpoint-lineage.js` adds signed predecessor links around exact checkpoint ids rather than modifying existing checkpoint bytes.
+- A retained head exposes rollback/fork/gap evidence instead of silently accepting historical replacement.
+- Loss of retained local lineage state is explicitly admitted as loss of local anti-rollback memory rather than hidden by a fake persistence claim.
+- Fixed canonical bytes and cryptographic outputs keep serialization drift visible.
 - Repository merge does not silently promote Trust Fabric to CANON across AXM.
 
 ## Wisdom before speed
 
 PASS for this bounded claim.
 
-- v0.1 uses established Ed25519 implementations rather than inventing cryptography: Node's built-in crypto for the reference paths and Go's standard-library `crypto/ed25519` / `crypto/x509` path for the cross-language check.
-- The checkpoint manifest uses the existing signed-envelope primitive plus SHA-256 over canonical exact revocation ids; it does not introduce a new cryptographic construction or network service.
+- v0.1 continues to use established Ed25519 implementations rather than inventing cryptography.
+- The checkpoint manifest uses existing signed envelopes plus SHA-256 over canonical exact revocation ids; no new network service is introduced.
+- The lineage experiment uses existing signed-envelope ids and exact predecessor binding rather than inventing consensus, blockchain, or a global monotonic counter service.
 - Key rotation/recovery remains documented but intentionally not implemented.
-- Unknown clock, incomplete delegation chain, untrusted root, invalid revocation window, ambiguous one-use delegation, missing subject proof, stale checkpoint, and malformed checkpoint manifest fail closed.
-- Revocation-chain semantics were made explicit with narrow falsifier-driven fixtures before any distributed revocation service or synchronization layer.
-- The checkpoint experiment is isolated and adversarially bounded before attempting synchronization, anti-rollback, or integration into authorization.
-- Interoperability growth moved from one fixed vector, to a separate same-language verifier, to one narrow cross-language verifier before any protocol service, account layer, or broad compatibility claim.
-- The Go verifier has no third-party modules and does not shell out to another crypto implementation.
-- The Go verifier covers only the published root-capability vector and bounded negative cases; it is not falsely promoted into a second full Trust Fabric runtime.
+- Unknown clock, incomplete delegation chain, untrusted root, invalid revocation window, ambiguous one-use delegation, missing subject proof, stale checkpoint, malformed checkpoint manifest, missing lineage history, lineage gap, rollback, fork, and completeness regression fail closed or remain explicit.
+- Revocation-chain semantics and checkpoint semantics were locked with bounded fixtures before distributed infrastructure.
+- Checkpoint anti-rollback is now tested first as local retained-state continuity before considering synchronization or durable shared state.
+- Interoperability remains one bounded vector across same-repository JavaScript and Go paths rather than being promoted into a broad protocol claim.
 
 ## Evidence
 
 Merged baseline before this change:
 
 - 24 trust-core fixtures;
-- one deterministic reference-vector check;
+- 8 revocation-checkpoint fixtures;
+- 1 deterministic reference-vector check;
 - 6 separate-JavaScript-verifier checks;
 - 7 Go-verifier checks;
 - successful JavaScript + Go CI on `main`.
 
-This branch adds 8 revocation-checkpoint fixtures:
+This branch adds 10 checkpoint-lineage fixtures:
 
-1. exact same-issuer manifest -> `REVOCATION_SET_ATTESTED_THROUGH`;
-2. omitted checkpointed packet -> `REVOCATION_SET_DIGEST_MISMATCH`;
-3. substituted same-issuer packet -> `REVOCATION_SET_DIGEST_MISMATCH`;
-4. foreign checkpoint signer -> `CHECKPOINT_ISSUER_MISMATCH`;
-5. `completeThrough` later than checkpoint signing time -> `INVALID_CHECKPOINT_WINDOW`;
-6. expired checkpoint -> `STALE_REVOCATION_CHECKPOINT`;
-7. missing trusted clock -> `HOLD_CLOCK_UNKNOWN`;
-8. duplicate revocation packet -> `DUPLICATE_REVOCATION_PACKET`.
+1. sequence-zero local genesis -> `LINEAGE_GENESIS_ACCEPTABLE`;
+2. non-genesis without retained history -> `HOLD_LINEAGE_HISTORY_REQUIRED`;
+3. exact next signed predecessor -> `LINEAGE_ADVANCE_ACCEPTABLE`;
+4. exact retained pair -> `LINEAGE_HEAD_CURRENT`;
+5. older sequence relative to retained head -> `CHECKPOINT_ROLLBACK_DETECTED`;
+6. conflicting same-sequence link -> `CHECKPOINT_FORK_DETECTED`;
+7. missing intermediate sequence -> `HOLD_LINEAGE_GAP`;
+8. next sequence naming a different predecessor -> `CHECKPOINT_FORK_DETECTED`;
+9. direct successor with lower `completeThrough` -> `CHECKPOINT_COMPLETENESS_ROLLBACK`;
+10. foreign signer attempting another issuer lineage -> `CHECKPOINT_LINEAGE_ISSUER_MISMATCH`.
 
-That brings the authored adversarial matrix to 46 bounded cases total.
+That brings the authored adversarial matrix to 56 bounded cases total.
 
-The branch also adds a machine-readable checkpoint body schema and a separate `src/revocation-checkpoint.js` module. It does not modify `src/trust-core.js`, donor boundaries, capability evaluation, revocation distribution, or synchronization.
+The branch also adds:
+
+- `src/checkpoint-lineage.js` as a separate local continuity primitive;
+- `schema/REVOCATION_CHECKPOINT_LINK.schema.json`;
+- `experiments/CHECKPOINT_LINEAGE_V1.md`, with the falsifier recorded before implementation;
+- explicit README, Trust Model, and evidence-matrix truth boundaries.
+
+It does not modify `src/trust-core.js`, donor boundaries, capability authorization, revocation distribution, checkpoint synchronization, global discovery, or external consensus.
 
 Repository CI must run both:
 
@@ -109,6 +122,6 @@ The final published PR head must pass remote CI before merge.
 
 ## Gate conclusion
 
-The four roots permit merging this bounded revocation-checkpoint experiment **only if** the final published branch, PR diff, and remote CI remain consistent with this report.
+The four roots permit merging this bounded local checkpoint-lineage experiment **only if** the final published branch, PR diff, and remote CI remain consistent with this report.
 
-This conclusion grants no automatic checkpoint synchronization, anti-rollback guarantee, current/global revocation freshness, capability-authorization dependency, donor migration, release, deployment, security certification, third-party interoperability claim, broad protocol conformance, or AXM-wide CANON status.
+This conclusion grants no automatic global checkpoint ordering, discovery, synchronization, anti-rollback after local-state loss, disconnected-fork resolution, current/global revocation freshness, capability-authorization dependency, donor migration, release, deployment, security certification, third-party interoperability claim, broad protocol conformance, or AXM-wide CANON status.
