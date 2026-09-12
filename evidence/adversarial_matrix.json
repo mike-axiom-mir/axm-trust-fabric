@@ -1,0 +1,31 @@
+{
+  "schema": "axm.trust-fabric.adversarial-matrix/v1",
+  "status": "FIXTURE_TESTED_LOCAL_REFERENCE",
+  "tests": [
+    {"case":"canonical_object_key_order","expected":"PASS","observed":"PASS"},
+    {"case":"one_byte_body_alteration","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
+    {"case":"embedded_public_key_swap","expected":"ISSUER_KEY_MISMATCH","observed":"ISSUER_KEY_MISMATCH"},
+    {"case":"clock_unavailable","expected":"HOLD_CLOCK_UNKNOWN","observed":"HOLD_CLOCK_UNKNOWN"},
+    {"case":"expired_capability","expected":"EXPIRED","observed":"EXPIRED"},
+    {"case":"wrong_target","expected":"WRONG_TARGET","observed":"WRONG_TARGET"},
+    {"case":"wrong_action","expected":"WRONG_ACTION","observed":"WRONG_ACTION"},
+    {"case":"valid_narrow_delegation","expected":"DELEGATION_VALID","observed":"DELEGATION_VALID"},
+    {"case":"delegated_action_escalation","expected":"ACTION_ESCALATION","observed":"ACTION_ESCALATION"},
+    {"case":"delegated_expiry_escalation","expected":"TIME_ESCALATION","observed":"TIME_ESCALATION"},
+    {"case":"wrong_delegate_issuer","expected":"DELEGATE_ISSUER_MISMATCH","observed":"DELEGATE_ISSUER_MISMATCH"},
+    {"case":"issuer_revocation","expected":"REVOKED","observed":"REVOKED"},
+    {"case":"foreign_revocation","expected":"NOT_REVOKED","observed":"NOT_REVOKED"},
+    {"case":"one_use_local_replay","expected":"LOCAL_REPLAY","observed":"LOCAL_REPLAY"},
+    {"case":"signature_truth_boundary","expected":"TRUTH_NOT_EVALUATED","observed":"TRUTH_NOT_EVALUATED"}
+  ],
+  "unresolved": [
+    "revocation freshness on a peer that has not synchronized",
+    "cross-device replay prevention while peers are disconnected",
+    "trustworthy time when no trusted clock exists",
+    "private-key copying or theft attribution",
+    "key rotation and lost-key recovery",
+    "independent implementation interoperability",
+    "hostile-environment cryptographic review"
+  ],
+  "truth_boundary": "This matrix records authored local fixtures. It is not an external security audit or proof of deployment safety."
+}
