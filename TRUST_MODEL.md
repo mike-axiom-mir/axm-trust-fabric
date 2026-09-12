@@ -91,6 +91,34 @@ An expired checkpoint becomes `STALE_REVOCATION_CHECKPOINT`; an unknown clock be
 
 The experiment does not add synchronization, distribution, background discovery, global freshness, delegated checkpoint issuers, or automatic dependence from `evaluateCapability*`.
 
+## Checkpoint lineage / local anti-rollback experiment
+
+`src/checkpoint-lineage.js` adds a second isolated research primitive. It does **not** rewrite checkpoint packets, alter capability authorization, or provide network discovery.
+
+A checkpoint-lineage link is a same-issuer signed Trust Fabric envelope whose body binds:
+
+- the exact checkpoint envelope id;
+- the exact predecessor link id, or `null` for sequence zero;
+- a bounded monotonic sequence number.
+
+A verifier evaluates a candidate checkpoint/link against an optional exact local retained head `{ checkpoint, link }`. The retained head is continuity memory held by that verifier; it is not a global registry and it does not prove that no newer checkpoint exists elsewhere.
+
+Without retained history, only a valid sequence-zero link can become `LINEAGE_GENESIS_ACCEPTABLE`. A non-genesis candidate becomes `HOLD_LINEAGE_HISTORY_REQUIRED` rather than fabricating a missing chain.
+
+With a retained head:
+
+- the exact retained pair becomes `LINEAGE_HEAD_CURRENT`;
+- the exact next sequence must point to the retained link and may become `LINEAGE_ADVANCE_ACCEPTABLE`;
+- an older sequence becomes `CHECKPOINT_ROLLBACK_DETECTED`;
+- a conflicting same sequence or wrong predecessor becomes `CHECKPOINT_FORK_DETECTED`;
+- skipped intermediate sequences become `HOLD_LINEAGE_GAP`;
+- a direct successor whose checkpoint moves `completeThrough` backward becomes `CHECKPOINT_COMPLETENESS_ROLLBACK`;
+- a foreign signer cannot advance the expected issuer lineage.
+
+This is intentionally **local anti-rollback only**. If the retained head is deleted, replaced, corrupted outside this model, or never synchronized, the verifier loses that anti-rollback memory. Two disconnected peers may retain different issuer-signed forks; this primitive exposes the conflict when compared but does not resolve consensus. A newer unseen checkpoint remains unknowable.
+
+Checkpoint-lineage envelope time is not used as revocation freshness evidence. The lineage primitive verifies signed continuity history; `src/revocation-checkpoint.js` separately decides whether a checkpoint is temporally usable as `REVOCATION_SET_ATTESTED_THROUGH`.
+
 ## Interoperability evidence
 
 `evidence/interop_vector_v1.json` fixes one deliberately non-secret Ed25519 seed/private key, derived public key and key id, canonical unsigned envelope bytes, SHA-256 envelope digest, signature, evaluation time, trusted-root context, and expected scoped grant result.
@@ -111,6 +139,8 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - ancestor-chain invalidation only applies to revocation evidence actually supplied to the evaluator;
 - a valid revocation checkpoint attests an exact supplied manifest only through its historical `completeThrough`; it does not prove no newer revocation exists;
 - an expired checkpoint is stale and an unknown clock cannot become checkpoint freshness evidence;
+- a retained checkpoint-lineage head can expose rollback only relative to that exact local memory;
+- checkpoint lineage cannot discover newer unseen checkpoints, survive loss of retained state, or resolve disconnected valid forks by itself;
 - `CLOCK_UNKNOWN` cannot become authorization;
 - replay can be detected against local consumed evidence, but not globally across disconnected peers;
 - copied private keys cannot be distinguished cryptographically from the original holder.
@@ -124,6 +154,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - a valid grant does not equal a live authorized use;
 - an ancestor revocation invalidates authorization through a supplied chain but does not claim the descendant capability was directly revoked;
 - a checkpoint says `ATTESTED_THROUGH`, not `CURRENT_GLOBAL_STATE`;
+- checkpoint lineage says locally retained continuity/rollback state, not global newest state;
 - agreement among same-repository JavaScript and Go implementations does not equal third-party interoperability;
 - missing time becomes `HOLD_CLOCK_UNKNOWN`;
 - unresolved distributed replay and current revocation freshness remain explicit.
@@ -133,10 +164,11 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - no ambient authority from identity familiarity;
 - root trust is explicit and caller-supplied;
 - checkpoint evaluation requires an explicit expected issuer rather than trusting any signer by default;
+- checkpoint lineage likewise requires an explicit expected issuer and cannot be advanced by a foreign signer;
 - every capability is scoped and expiring;
 - delegation only narrows;
 - loss of ancestor authority removes downstream authority through that chain when the revocation evidence is known;
-- foreign signers cannot revoke another issuer's capability or attest another issuer's checkpoint state;
+- foreign signers cannot revoke another issuer's capability or attest/advance another issuer's checkpoint state;
 - one-use grants do not delegate in v0.1;
 - no automatic permission escalation.
 
@@ -147,6 +179,8 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - ancestor invalidation follows preserved lineage rather than rewriting descendant packets;
 - old signed evidence remains independently verifiable if its key material is retained;
 - checkpoint manifests bind exact revocation envelope ids instead of rewriting historical revocation packets;
+- checkpoint lineage adds signed predecessor links without mutating old checkpoints;
+- retained local heads expose rollback/forks instead of silently rewriting history;
 - fixed vector bytes make future canonicalization drift visible rather than silently rewriting old evidence;
 - evidence-only JavaScript and Go verifiers do not replace the reference runtime.
 
@@ -156,6 +190,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - key rotation is documented before implementation;
 - revocation-chain behavior is locked with local adversarial fixtures before attempting revocation distribution infrastructure;
 - checkpoint semantics are isolated and falsifier-tested before any synchronization service or authorization dependency is attempted;
+- checkpoint anti-rollback is first tested as local retained-state continuity instead of inventing consensus or a global service;
 - ambiguous one-use delegation is refused rather than guessed;
 - interoperability grew from one vector, to a separate same-language verifier, to one bounded Go verifier before any protocol service or broad compatibility claim;
 - the Go verifier stays standard-library only and narrow instead of becoming a second runtime;
