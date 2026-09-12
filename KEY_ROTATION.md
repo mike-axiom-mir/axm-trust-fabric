@@ -1,10 +1,10 @@
 # Key Rotation / Recovery Research Contract
 
-Status: **SINGLE-STEP BOUNDED ROTATION + SUCCESSOR POSSESSION ACK IMPLEMENTED / RECOVERY NOT IMPLEMENTED**
+Status: **SINGLE-STEP ROTATION + SUCCESSOR POSSESSION + BOUNDED TWO-HOP LINEAGE IMPLEMENTED / RECOVERY NOT IMPLEMENTED**
 
 ## Implemented bounded property
 
-Trust Fabric now has an isolated single-step rotation experiment:
+Trust Fabric has an isolated single-step rotation experiment:
 
 ```text
 Key A -> A signs exact bounded successor statement -> Key B
@@ -38,6 +38,31 @@ A successful result is `SUCCESSOR_POSSESSION_CONFIRMED_FOR_ROTATION`.
 
 That proves only that the successor private key corresponding to the public key named in that exact rotation signed the acknowledgement. It does **not** prove same-person/device identity continuity, transfer root/capability authority, or make that rotation win over a competing predecessor-signed fork.
 
+## Bounded two-hop rotation lineage
+
+`src/key-rotation-lineage.js` composes exactly two already-existing rotation/acknowledgement pairs into one bounded supplied branch:
+
+```text
+A --signs--> B --acknowledges exact A->B packet
+B --signs--> C --acknowledges exact B->C packet
+```
+
+The evaluator requires:
+
+- exactly two rotations and exactly two successor acknowledgements;
+- an explicit expected origin key A;
+- the same exact domain at both hops;
+- B to be the exact successor named by A and the exact signer/predecessor of the second rotation;
+- the second rotation to be issued no earlier than the first rotation's `effectiveAt`;
+- the second rotation to expire no later than the first rotation;
+- trusted time so both rotations and acknowledgements are live under their existing checks.
+
+A successful result is `TWO_HOP_ROTATION_LINEAGE_CONFIRMED`.
+
+That means only that the supplied `A -> B -> C` evidence chain passed those exact bounded checks. It does **not** prove that A, B, and C are the same human/device/legal identity, transfer root/capability/revocation/checkpoint authority, prove the branch is globally newest or unique, discover unseen rotations, or resolve a competing branch.
+
+The first implementation deliberately stops at exactly two hops rather than pretending arbitrary-length lineage is already understood.
+
 ## Rules locked by fixtures
 
 - the rotation envelope issuer must equal the body predecessor key id;
@@ -53,16 +78,22 @@ That proves only that the successor private key corresponding to the public key 
 - acknowledgement must bind the exact rotation digest, predecessor, successor, and domain;
 - acknowledgement validity cannot outlive the rotation envelope;
 - expired acknowledgement is not live possession evidence;
-- possession proof for one branch does not resolve a competing rotation fork.
+- possession proof for one branch does not resolve a competing rotation fork;
+- two-hop lineage requires successor-possession acknowledgement at both hops;
+- the second hop's predecessor must equal the first hop's named successor;
+- the second hop cannot change the exact domain;
+- the second hop cannot be issued before the first hop becomes effective or outlive the first hop's signed expiry;
+- successful two-hop lineage remains branch-local evidence and does not hide or resolve a competing second-hop rotation;
+- evaluating a lineage does not rewrite any historical rotation or acknowledgement packet.
 
-See `experiments/KEY_ROTATION_V1.md` and `experiments/KEY_ROTATION_ACK_V1.md` for the falsifier-first contracts.
+See `experiments/KEY_ROTATION_V1.md`, `experiments/KEY_ROTATION_ACK_V1.md`, and `experiments/KEY_ROTATION_LINEAGE_V1.md` for the falsifier-first contracts.
 
 ## Still unresolved
 
 The bounded experiments do **not** yet define or claim:
 
-- multi-hop A -> B -> C rotation lineage;
-- automatic acceptance of B as a capability/root issuer because A named it or B acknowledged it;
+- arbitrary-length rotation lineage beyond the bounded two-hop `A -> B -> C` experiment;
+- automatic acceptance of B or C as a capability/root issuer because a predecessor named them or they acknowledged possession;
 - rotation revocation;
 - rotation discovery or globally current rotation state;
 - fork resolution or consensus;
@@ -87,5 +118,5 @@ Reject future rotation/recovery expansion if it:
 - rewrites prior signatures;
 - hides or automatically resolves a disputed fork;
 - treats successor/recovery possession as proof of legal/human identity;
-- silently converts a rotation statement or acknowledgement into unrelated capability/root authority;
+- silently converts a rotation statement, acknowledgement, or lineage result into unrelated capability/root authority;
 - turns recovery into automatic CANON or permission escalation.
