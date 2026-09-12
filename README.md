@@ -29,6 +29,7 @@ No human or machine actor is the constitutional merge gate by category. A ground
 - Delegation chains with exact parent binding and narrowing ceilings.
 - One-use grants are non-delegable in v0.1 so a one-use parent cannot multiply into several children.
 - Issuer-signed revocation packets for exact capability IDs, with a hold if a revocation would expire before the capability.
+- A supplied valid ancestor revocation invalidates authorization through a required delegation chain at that ancestor, without pretending the descendant packet itself was directly revoked.
 - Subject-signed capability-use requests, separating a valid grant from proof that the current actor controls the granted subject key.
 - Explicit `CLOCK_UNKNOWN` hold rather than pretending offline time is trusted.
 - Optional one-use capabilities with **local-only** replay detection.
@@ -44,6 +45,8 @@ No human or machine actor is the constitutional merge gate by category. A ground
 - centralized trust servers;
 - automatic recovery of a lost root key;
 - globally authoritative time;
+- globally fresh revocation knowledge or automatic revocation synchronization;
+- delegated or threshold revokers;
 - cross-device replay prevention while devices are disconnected;
 - key rotation/recovery claims beyond the documented research contract;
 - third-party or separately authored protocol conformance;
@@ -74,13 +77,14 @@ CI runs both suites independently.
 - `IDENTITY_VS_AUTHORITY.md` — separates the five claim dimensions.
 - `KEY_ROTATION.md` — unimplemented rotation/recovery research contract.
 - `INTEROPERABILITY.md` — deterministic vector, verifier experiments, falsifiers, and truth boundary.
+- `experiments/ANCESTOR_REVOCATION_V1.md` — falsifier-first ancestor-chain revocation experiment.
 - `experiments/INDEPENDENT_VERIFIER_V1.md` — same-language verifier question and falsifier.
 - `experiments/CROSS_LANGUAGE_VERIFIER_V1.md` — Go verifier question and falsifier recorded before publication.
 - `schema/` — machine-readable envelope, grant, revocation, and use-body schemas.
 - `src/trust-core.js` — dependency-free reference implementation.
 - `independent/vector-verifier-v1.js` — separate JavaScript evidence-only verifier; not the runtime core.
 - `crosslang/go/vector_verifier.go` — Go standard-library evidence-only verifier for the fixed vector.
-- `tests/trust-core.test.js` — executable adversarial fixtures.
+- `tests/trust-core.test.js` — executable adversarial fixtures, including explicit ancestor-revocation chain behavior.
 - `tests/interop-vector.test.js` — locks the deterministic vector against the reference implementation and Node's Ed25519 verifier.
 - `tests/independent-interop.test.js` — proves the second JavaScript path stays dependency-separated and reproduces/refuses bounded vector cases.
 - `crosslang/go/vector_verifier_test.go` — seven cross-language fixed-vector and refusal checks.
@@ -90,8 +94,8 @@ CI runs both suites independently.
 
 ## Evidence level
 
-Current claim: **fixture-tested local reference implementation with one deterministic vector reproduced by two JavaScript paths and one Go standard-library path in the same repository**.
+Current claim: **fixture-tested local reference implementation with explicit supplied-chain ancestor-revocation behavior and one deterministic vector reproduced by two JavaScript paths and one Go standard-library path in the same repository**.
 
-The authored adversarial matrix now contains 35 bounded cases: 21 trust-core fixtures, one reference-vector check, six separate-JavaScript-verifier checks, and seven Go-verifier checks. The Go path adds real language/runtime-library separation, but all implementations remain in the same repository and are not an independent third-party result.
+The authored adversarial matrix now contains 38 bounded cases: 24 trust-core fixtures, one reference-vector check, six separate-JavaScript-verifier checks, and seven Go-verifier checks. The ancestor-revocation fixtures lock local chain semantics; they do not establish global revocation freshness or distribution. The Go path adds real language/runtime-library separation, but all implementations remain in the same repository and are not an independent third-party result.
 
-The evidence does not establish hostile-deployment security, hardware-backed key custody, globally fresh revocation, trustworthy clocks, legal/human identity, informed consent, content truth, third-party conformance, or AXM-wide CANON status.
+The evidence does not establish hostile-deployment security, hardware-backed key custody, globally fresh revocation, revocation synchronization, trustworthy clocks, legal/human identity, informed consent, content truth, third-party conformance, or AXM-wide CANON status.
