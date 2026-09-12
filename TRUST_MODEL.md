@@ -62,6 +62,35 @@ This is local evidence semantics, not a freshness protocol. If a peer has never 
 
 Delegated revokers, threshold revocation, recovery keys, revocation distribution, and globally fresh revocation state remain research questions.
 
+## Revocation checkpoint experiment
+
+`src/revocation-checkpoint.js` adds a separate bounded research primitive. It does **not** change capability authorization.
+
+A checkpoint is a normal signed Trust Fabric envelope whose body binds:
+
+- `completeThrough` — a historical timestamp no later than the checkpoint's own `issuedAt`;
+- `revocationCount` — the exact number of revocation packets in the manifest;
+- `revocationIdsDigest` — SHA-256 of the canonical sorted list of exact revocation envelope ids.
+
+The checkpoint signer may attest only revocations signed by that same issuer. Evaluation also requires an explicit `expectedIssuer`; a valid signature from an arbitrary key is not enough.
+
+A successful result is `REVOCATION_SET_ATTESTED_THROUGH`. It means only that the expected issuer signed a manifest which exactly matches the supplied valid revocation packets and attested that manifest complete through the named historical timestamp, while the checkpoint envelope itself remains within its signed validity window.
+
+It does **not** establish that the verifier knows the newest global revocation state. A revocation created after `completeThrough`, or one that never reached this peer, remains unknown. The result therefore carries an explicit truth-boundary string rather than a generic `FRESH` claim.
+
+The checkpoint fails closed when:
+
+- the expected issuer is missing or different;
+- a packet is invalid, foreign-signed, duplicated, or issued after `completeThrough`;
+- the supplied packet set does not exactly match the signed manifest digest/count;
+- `completeThrough` is later than checkpoint `issuedAt`;
+- trusted time is unavailable;
+- the checkpoint is not yet valid or has expired.
+
+An expired checkpoint becomes `STALE_REVOCATION_CHECKPOINT`; an unknown clock becomes `HOLD_CLOCK_UNKNOWN`. Neither becomes current authorization evidence.
+
+The experiment does not add synchronization, distribution, background discovery, global freshness, delegated checkpoint issuers, or automatic dependence from `evaluateCapability*`.
+
 ## Interoperability evidence
 
 `evidence/interop_vector_v1.json` fixes one deliberately non-secret Ed25519 seed/private key, derived public key and key id, canonical unsigned envelope bytes, SHA-256 envelope digest, signature, evaluation time, trusted-root context, and expected scoped grant result.
@@ -80,6 +109,8 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 
 - absence of a local revocation packet does not prove no newer revocation exists elsewhere;
 - ancestor-chain invalidation only applies to revocation evidence actually supplied to the evaluator;
+- a valid revocation checkpoint attests an exact supplied manifest only through its historical `completeThrough`; it does not prove no newer revocation exists;
+- an expired checkpoint is stale and an unknown clock cannot become checkpoint freshness evidence;
 - `CLOCK_UNKNOWN` cannot become authorization;
 - replay can be detected against local consumed evidence, but not globally across disconnected peers;
 - copied private keys cannot be distinguished cryptographically from the original holder.
@@ -92,18 +123,20 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - signed does not mean true;
 - a valid grant does not equal a live authorized use;
 - an ancestor revocation invalidates authorization through a supplied chain but does not claim the descendant capability was directly revoked;
+- a checkpoint says `ATTESTED_THROUGH`, not `CURRENT_GLOBAL_STATE`;
 - agreement among same-repository JavaScript and Go implementations does not equal third-party interoperability;
 - missing time becomes `HOLD_CLOCK_UNKNOWN`;
-- unresolved distributed replay and revocation freshness remain explicit.
+- unresolved distributed replay and current revocation freshness remain explicit.
 
 ### Agency / non-domination
 
 - no ambient authority from identity familiarity;
 - root trust is explicit and caller-supplied;
+- checkpoint evaluation requires an explicit expected issuer rather than trusting any signer by default;
 - every capability is scoped and expiring;
 - delegation only narrows;
 - loss of ancestor authority removes downstream authority through that chain when the revocation evidence is known;
-- foreign signers cannot revoke another issuer's capability;
+- foreign signers cannot revoke another issuer's capability or attest another issuer's checkpoint state;
 - one-use grants do not delegate in v0.1;
 - no automatic permission escalation.
 
@@ -113,6 +146,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - exact parent digests preserve delegation lineage;
 - ancestor invalidation follows preserved lineage rather than rewriting descendant packets;
 - old signed evidence remains independently verifiable if its key material is retained;
+- checkpoint manifests bind exact revocation envelope ids instead of rewriting historical revocation packets;
 - fixed vector bytes make future canonicalization drift visible rather than silently rewriting old evidence;
 - evidence-only JavaScript and Go verifiers do not replace the reference runtime.
 
@@ -121,6 +155,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - v0.1 has no account system, global registry, blockchain, trust score, or automatic recovery;
 - key rotation is documented before implementation;
 - revocation-chain behavior is locked with local adversarial fixtures before attempting revocation distribution infrastructure;
+- checkpoint semantics are isolated and falsifier-tested before any synchronization service or authorization dependency is attempted;
 - ambiguous one-use delegation is refused rather than guessed;
 - interoperability grew from one vector, to a separate same-language verifier, to one bounded Go verifier before any protocol service or broad compatibility claim;
 - the Go verifier stays standard-library only and narrow instead of becoming a second runtime;
