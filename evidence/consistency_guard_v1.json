@@ -11,7 +11,8 @@
     "matrix_case_ids_unique",
     "matrix_expected_matches_observed",
     "javascript_plus_go_behavior_fixture_count_matches_matrix",
-    "primary_root_gate_report_states_current_matrix_count"
+    "primary_root_gate_report_states_current_matrix_count",
+    "public_readme_states_current_matrix_count"
   ],
-  "truth_boundary": "This guard proves repository evidence declarations agree at one commit. It does not prove fixture completeness, semantic correctness beyond exercised cases, external independence, hostile-environment security, or AXM-wide CANON status."
+  "truth_boundary": "This guard proves selected repository evidence declarations agree at one commit, including the machine matrix, primary root-gate report, and public README count. It does not prove fixture completeness, semantic correctness beyond exercised cases, external independence, hostile-environment security, or AXM-wide CANON status."
 }
