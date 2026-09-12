@@ -1,7 +1,7 @@
 {
   "schema": "axm.trust-fabric.adversarial-matrix/v1",
-  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_CHAIN_REVOCATION_CHECKPOINT_LINEAGE_COMPARE_AND_SAME_REPO_JS_GO_VECTOR_VERIFIERS",
-  "test_count": 66,
+  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_CHAIN_REVOCATION_CHECKPOINT_LINEAGE_COMPARE_ROTATION_AND_SAME_REPO_JS_GO_VECTOR_VERIFIERS",
+  "test_count": 75,
   "tests": [
     {"case":"canonical_object_key_order","expected":"PASS","observed":"PASS"},
     {"case":"signed_bytes_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
@@ -55,6 +55,15 @@
     {"case":"checkpoint_lineage_compare_foreign_issuer","expected":"HOLD_INVALID_LINEAGE_EVIDENCE:CHECKPOINT_LINEAGE_ISSUER_MISMATCH","observed":"HOLD_INVALID_LINEAGE_EVIDENCE:CHECKPOINT_LINEAGE_ISSUER_MISMATCH"},
     {"case":"checkpoint_lineage_compare_completeness_regression","expected":"HOLD_INVALID_LINEAGE_EVIDENCE:CHECKPOINT_COMPLETENESS_ROLLBACK","observed":"HOLD_INVALID_LINEAGE_EVIDENCE:CHECKPOINT_COMPLETENESS_ROLLBACK"},
     {"case":"checkpoint_lineage_compare_expected_issuer_required","expected":"HOLD_EXPECTED_ISSUER_REQUIRED","observed":"HOLD_EXPECTED_ISSUER_REQUIRED"},
+    {"case":"key_rotation_bounded_successor_attestation","expected":"KEY_SUCCESSOR_ATTESTED_FOR_DOMAIN","observed":"KEY_SUCCESSOR_ATTESTED_FOR_DOMAIN"},
+    {"case":"key_rotation_clock_unknown","expected":"HOLD_CLOCK_UNKNOWN","observed":"HOLD_CLOCK_UNKNOWN"},
+    {"case":"key_rotation_before_effective_boundary","expected":"ROTATION_NOT_YET_EFFECTIVE","observed":"ROTATION_NOT_YET_EFFECTIVE"},
+    {"case":"key_rotation_invalid_effective_window","expected":"INVALID_ROTATION_WINDOW","observed":"INVALID_ROTATION_WINDOW"},
+    {"case":"key_rotation_foreign_predecessor","expected":"ROTATION_PREDECESSOR_MISMATCH","observed":"ROTATION_PREDECESSOR_MISMATCH"},
+    {"case":"key_rotation_successor_key_binding","expected":"SUCCESSOR_KEY_MISMATCH","observed":"SUCCESSOR_KEY_MISMATCH"},
+    {"case":"key_rotation_wrong_domain","expected":"ROTATION_DOMAIN_MISMATCH","observed":"ROTATION_DOMAIN_MISMATCH"},
+    {"case":"key_rotation_preserves_old_signature","expected":"OLD_SIGNATURE_STILL_VALID","observed":"OLD_SIGNATURE_STILL_VALID"},
+    {"case":"key_rotation_competing_successors","expected":"ROTATION_FORK_EVIDENCE_NO_WINNER","observed":"ROTATION_FORK_EVIDENCE_NO_WINNER"},
     {"case":"deterministic_interop_reference_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
     {"case":"independent_verifier_dependency_separation","expected":"NO_REFERENCE_CORE_IMPORT","observed":"NO_REFERENCE_CORE_IMPORT"},
     {"case":"independent_verifier_exact_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
@@ -84,6 +93,10 @@
     "lineage_descendant_requires_exact_signed_prefix": true,
     "lineage_comparison_does_not_choose_fork_winner": true,
     "lineage_comparison_does_not_establish_global_newest_state": true,
+    "key_rotation_attestation_does_not_establish_person_or_device_identity": true,
+    "key_rotation_does_not_automatically_transfer_capability_or_root_authority": true,
+    "key_rotation_preserves_old_signed_evidence": true,
+    "competing_simultaneously_usable_rotations_are_exposed_not_resolved": true,
     "reference_vector_does_not_establish_third_party_interoperability": true,
     "same_repo_source_separation_does_not_establish_external_independence": true,
     "same_repo_cross_language_agreement_does_not_establish_third_party_conformance": true
@@ -99,9 +112,12 @@
     "cross-device replay prevention while peers are disconnected",
     "trustworthy time when no trusted clock exists",
     "private-key copying or theft attribution",
-    "key rotation and lost-key recovery",
+    "rotation chains beyond one bounded predecessor-to-successor hop",
+    "automatic successor acceptance as a capability or root issuer",
+    "rotation revocation, discovery, freshness, and fork resolution",
+    "lost-key recovery when the predecessor key is unavailable",
     "third-party or independently authored interoperability beyond the same-repository JavaScript and Go verifiers",
     "hostile-environment cryptographic review"
   ],
-  "truth_boundary": "This matrix records authored local fixtures. Revocation checkpoints attest an exact supplied same-issuer manifest only through a named historical timestamp. Checkpoint lineage can expose rollback, forks, gaps, wrong predecessors, and completeThrough regression only relative to exact local lineage state the verifier actually retained. The lineage comparator can classify two supplied complete valid histories as identical, exact-prefix descendant, fork after an exact common ancestor, or conflicting from genesis; it never discovers an unseen history, proves a globally newest head, resolves consensus, or selects a winning fork. Interoperability evidence remains one deterministic vector plus same-repository JavaScript and Go verifiers and does not prove third-party conformance or hostile-deployment safety."
+  "truth_boundary": "This matrix records authored local fixtures. Revocation checkpoints attest an exact supplied same-issuer manifest only through a named historical timestamp. Checkpoint lineage can expose rollback, forks, gaps, wrong predecessors, and completeThrough regression only relative to exact local lineage state the verifier actually retained. The lineage comparator can classify two supplied complete valid histories as identical, exact-prefix descendant, fork after an exact common ancestor, or conflicting from genesis; it never discovers an unseen history, proves a globally newest head, resolves consensus, or selects a winning fork. Key-rotation evidence proves only that an explicitly expected predecessor key signed an exact successor key for one exact domain and bounded active window; it does not prove same-person/device identity, rewrite old evidence, transfer capability/root authority automatically, recover a lost predecessor, discover unseen rotations, or resolve competing rotations. Interoperability evidence remains one deterministic vector plus same-repository JavaScript and Go verifiers and does not prove third-party conformance or hostile-deployment safety."
 }
