@@ -12,7 +12,9 @@ PASS for this bounded claim.
 - A valid grant is separated from live use; `AUTHORIZED_USE` requires a subject-signed request bound to the exact capability, target, and action.
 - Missing trusted time becomes `HOLD_CLOCK_UNKNOWN`.
 - One-use grants cannot delegate in v0.1, avoiding a false one-use claim through multiple children.
-- Offline revocation freshness, disconnected replay, key theft attribution, key rotation/recovery, interoperability, and hostile-environment review remain explicitly unresolved.
+- A deterministic interoperability vector now fixes one exact key, canonical unsigned envelope, digest, signature, and scoped evaluation result.
+- The vector is explicitly not called independent interoperability; no separate implementation has reproduced it yet.
+- Offline revocation freshness, disconnected replay, key theft attribution, key rotation/recovery, independent interoperability, and hostile-environment review remain explicitly unresolved.
 
 ## Agency / non-domination
 
@@ -24,6 +26,7 @@ PASS for this bounded claim.
 - Delegated grants require the complete parent chain.
 - One-use grants are non-delegable in v0.1.
 - The current requester must prove possession of the granted subject key for live use.
+- The fixed interoperability key is labeled test-only and grants no real authority by publication.
 
 ## Continuity
 
@@ -33,6 +36,7 @@ PASS for this bounded claim.
 - No donor repository is rewritten or migrated.
 - Existing bearer invite and authority-lease paths remain independently usable.
 - Signed parent digests preserve capability lineage.
+- Fixed canonical bytes and cryptographic outputs make future serialization drift detectable instead of silently rewriting old evidence.
 - Repository merge does not silently promote Trust Fabric to CANON across AXM.
 
 ## Wisdom before speed
@@ -42,22 +46,25 @@ PASS for this bounded claim.
 - v0.1 uses Node built-in Ed25519 instead of inventing cryptography.
 - Key rotation/recovery is documented but intentionally not implemented.
 - Unknown clock, incomplete delegation chain, untrusted root, invalid revocation window, ambiguous one-use delegation, and missing subject proof fail closed.
-- The first implementation is a dependency-free local reference primitive, not infrastructure.
+- Interoperability growth starts with one falsifiable fixed vector rather than a premature protocol or network service.
+- The first implementation remains a dependency-free local reference primitive, not infrastructure.
 
 ## Evidence
 
-Local command:
+Existing merged core evidence: `21 trust-core tests passed.`
+
+New branch evidence adds one deterministic interoperability-vector check, bringing the authored matrix to 22 cases. The vector constants were generated and independently self-checked with Node's Ed25519 primitive before publication.
+
+Repository verification command:
 
 ```bash
 npm test
 ```
 
-Observed result before publication: `21 trust-core tests passed.`
-
-The GitHub Actions workflow repeats the same command on Node 22. Remote CI must agree before merge.
+GitHub Actions repeats that command on Node 22. Remote CI must agree on the published branch before merge.
 
 ## Gate conclusion
 
-The four roots permit merging this bounded v0.1 reference implementation **only if** the published branch and remote CI remain consistent with this report.
+The four roots permit merging this bounded deterministic-vector improvement **only if** the published branch and remote CI remain consistent with this report.
 
-This conclusion grants no automatic installation, donor migration, release, deployment, security certification, or AXM-wide CANON status.
+This conclusion grants no automatic installation, donor migration, release, deployment, security certification, independent-interoperability claim, or AXM-wide CANON status.
