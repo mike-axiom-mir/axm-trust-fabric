@@ -10,9 +10,17 @@ Trust Fabric proves bounded cryptographic statements about exact bytes and exact
 |---|---|---|
 | Integrity | signed canonical bytes still match | bytes are safe, correct, or desirable |
 | Authorship | holder of a private key signed the bytes | a legal/named human authored them |
-| Authority | a valid capability authorizes an exact action/target within limits | signer has authority outside that capability |
+| Authority | an explicitly trusted root issued a valid grant chain for an exact subject/action/target, and the subject can sign an exact use request | signer has authority outside that chain |
 | Identity continuity | nothing from one signature alone | key = permanent person/device identity |
 | Truth | not evaluated | signed statement is true |
+
+## Trust roots are local policy
+
+Cryptography cannot decide which key is allowed to originate authority for a target. The consuming AXM system supplies the accepted root issuer set for the evaluation context.
+
+An arbitrary key signing its own capability therefore produces `UNTRUSTED_ROOT_ISSUER`, not authority.
+
+This is intentionally local and explicit. Trust Fabric does not maintain a global root registry.
 
 ## Capability rule
 
@@ -26,36 +34,29 @@ Authority is explicit and closed. A v0.1 capability declares:
 - exact parent capability id or null;
 - whether the capability is one-use.
 
-A child capability may only narrow its parent. It cannot:
+A child capability may only narrow its parent. It cannot add actions, change target, begin before or outlive the parent, increase delegation depth, turn one-use into reusable, or be issued by anyone except the parent subject.
 
-- add actions;
-- change target;
-- begin before the parent;
-- outlive the parent;
-- increase delegation depth;
-- turn a one-use parent into a reusable child;
-- be issued by a key other than the parent's subject.
+A delegated grant is not accepted without the complete parent chain back to an explicitly trusted root.
+
+## Grant is not use
+
+A valid grant means the named subject has been granted a scope. It does not prove that the current requester controls that subject key.
+
+For live use, v0.1 supports a subject-signed capability-use envelope bound to the exact capability id, target and action. Only then can the bounded result become `AUTHORIZED_USE`.
 
 ## Revocation rule
 
-v0.1 accepts an exact capability revocation only when:
+v0.1 accepts an exact capability revocation only when its signature is valid, it references the exact capability digest, and its issuer is the capability issuer. A matching revocation whose expiry is earlier than the capability produces `HOLD_INVALID_REVOCATION_WINDOW` instead of allowing a later silent resurrection.
 
-1. the revocation envelope has a valid signature;
-2. its own time window is current under the caller-supplied clock;
-3. it references the exact capability digest; and
-4. its issuer is the capability issuer.
-
-This is intentionally narrow. Delegated revokers, threshold revocation, recovery keys, and revocation inheritance remain research questions.
+Delegated revokers, threshold revocation, recovery keys, and revocation inheritance remain research questions.
 
 ## Offline truth boundary
 
-An offline verifier cannot know facts it has never synchronized.
-
-Therefore:
+An offline verifier cannot know facts it has never synchronized. Therefore:
 
 - absence of a local revocation packet does not prove no newer revocation exists elsewhere;
 - `CLOCK_UNKNOWN` cannot become authorization;
-- one-use replay can be detected locally after local consumption, but not globally across disconnected peers;
+- replay can be detected against local consumed evidence, but not globally across disconnected peers;
 - copied private keys cannot be distinguished cryptographically from the original holder.
 
 ## Root merge gate
@@ -64,12 +65,14 @@ Therefore:
 
 - every success state names only what was measured;
 - signed does not mean true;
+- a valid grant does not equal a live authorized use;
 - missing time becomes `HOLD_CLOCK_UNKNOWN`;
 - unresolved distributed replay and freshness remain explicit.
 
 ### Agency / non-domination
 
 - no ambient authority from identity familiarity;
+- root trust is explicit and caller-supplied;
 - every capability is scoped and expiring;
 - delegation only narrows;
 - no automatic permission escalation.
