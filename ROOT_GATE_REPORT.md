@@ -4,9 +4,9 @@ Status: candidate evidence for repository merge; not automatic CANON.
 
 This is the primary consolidated root-gate report for the current bounded Trust Fabric v0.1 research state. Supplementary experiment reports remain useful history, but this file must track the repository's current authored evidence count and truth boundaries.
 
-Current authored adversarial matrix: **84 bounded cases**.
+Current authored adversarial matrix: **94 bounded cases**.
 
-A CI meta-guard checks that this count agrees with the machine-readable matrix, executable JavaScript + Go behavior fixtures, and the public README evidence count. The same guard now also requires `TRUST_MODEL.md` to preserve the bounded successor-possession truth boundary already exercised by the protocol fixtures. The guard itself is evidence plumbing and is **not** counted as a protocol/security case.
+A CI meta-guard checks that this count agrees with the machine-readable matrix, executable JavaScript + Go behavior fixtures, and the public README evidence count. The same guard also requires `TRUST_MODEL.md` to preserve the bounded successor-possession truth boundary already exercised by the protocol fixtures. The guard itself is evidence plumbing and is **not** counted as a protocol/security case.
 
 ## Truth
 
@@ -24,12 +24,14 @@ PASS for the bounded repository state if the final published branch and CI agree
 - Bounded key-rotation evidence proves only that an explicitly expected predecessor key signed an exact successor public key for one exact domain during one signed effective window. It does not prove same-person/device identity or automatically transfer capability/root authority.
 - A bounded successor acknowledgement proves only that the exact successor key signed evidence bound to the exact accepted rotation, predecessor, successor, domain, and contained validity window.
 - Successor possession does not prove human/device/legal identity continuity, transfer root/capability/revocation/checkpoint authority, or resolve a rotation fork.
-- Competing simultaneously usable rotations for the same predecessor/domain remain `ROTATION_FORK_EVIDENCE`; an acknowledgement for one branch does not select a winner.
+- The bounded two-hop lineage experiment composes exactly one supplied `A -> B -> C` branch only when both rotations are usable, B and C each prove possession for their exact hop, B is exactly the first successor and second predecessor, the same domain is preserved, and the second rotation neither predates the first effective boundary nor outlives the first signed expiry.
+- `TWO_HOP_ROTATION_LINEAGE_CONFIRMED` does not prove A/B/C are the same person/device/legal identity, transfer authority, establish a globally newest or unique branch, discover unseen rotations, generalize to arbitrary lineage length, or resolve a competing branch.
+- Competing simultaneously usable rotations remain `ROTATION_FORK_EVIDENCE`; a successful lineage branch does not select a winner.
 - Older predecessor-signed evidence remains independently verifiable and is not rewritten as successor-authored evidence.
 - Same-repository JavaScript and Go implementations agree on one fixed root-capability interoperability vector; this does not establish separately authored or third-party interoperability.
 - Missing trusted time remains an explicit hold rather than invented certainty.
 - The evidence consistency guard fails if the adversarial matrix count, executable authored behavior-fixture count, expected/observed matrix states, this primary report's count, the public README evidence count, or the required successor-possession boundary in `TRUST_MODEL.md` drift apart.
-- Current revocation freshness after `completeThrough`, synchronization/discovery, anti-rollback after local-state loss, disconnected-fork resolution, disconnected replay, key theft attribution, multi-hop rotation, automatic successor authority integration, rotation freshness/revocation, lost-key recovery, external third-party interoperability, and hostile-environment review remain unresolved.
+- Current revocation freshness after `completeThrough`, synchronization/discovery, anti-rollback after local-state loss, disconnected-fork resolution, disconnected replay, key theft attribution, arbitrary-length rotation lineage beyond two hops, automatic successor authority integration, rotation freshness/revocation, lost-key recovery, external third-party interoperability, and hostile-environment review remain unresolved.
 
 ## Agency / non-domination
 
@@ -41,6 +43,7 @@ PASS for the bounded repository state if the final published branch and CI agree
 - Foreign signers cannot revoke another issuer's capability, attest another issuer's revocation checkpoint, or advance another issuer's checkpoint lineage.
 - Key rotation requires an explicit expected predecessor and exact domain; naming a successor does not make that successor a root/capability authority automatically.
 - Successor acknowledgement must be signed by that exact successor and remains branch-local evidence; it grants no unrelated authority.
+- The two-hop lineage evaluator requires an explicit expected origin and exact domain; neither B nor C becomes an ambient root, capability issuer, revoker, checkpoint signer, or fork winner because it appears in a valid lineage.
 - A rotation statement and acknowledgement both expire with bounded signed windows and do not create permanent identity ownership.
 - Checkpoint comparison and rotation comparison expose conflicts as evidence states and grant no branch/successor automatic authority.
 - Evidence-only JavaScript and Go verifiers remain evaluators of supplied evidence; they do not become authorities.
@@ -56,8 +59,9 @@ PASS for the bounded repository state if the final published branch and CI agree
 - Parent capability digests preserve delegation lineage; checkpoint manifests bind exact revocation envelope ids; checkpoint-lineage links bind exact predecessor ids.
 - Key rotation adds successor evidence without modifying old predecessor signatures or claiming the successor authored historical bytes.
 - Successor acknowledgement binds the exact rotation digest instead of rewriting the rotation or any earlier signature.
-- Forks, gaps, rollback, divergent common ancestry, and competing rotations are surfaced rather than silently normalized.
-- `src/trust-core.js`, revocation-checkpoint behavior, capability authorization, and donor boundaries remain separable from the later research layers.
+- Two-hop rotation lineage composes four existing signed packets without modifying any of them; the continuity fixture verifies packet bytes and envelope ids remain unchanged after evaluation.
+- Forks, gaps, rollback, divergent common ancestry, competing rotations, and competing second-hop branches are surfaced rather than silently normalized.
+- `src/trust-core.js`, revocation-checkpoint behavior, capability authorization, donor boundaries, and existing single-hop rotation/acknowledgement semantics remain separable from the two-hop research layer.
 - Fixed interoperability bytes make serialization drift visible.
 - The consistency guard makes evidence-summary drift visible across machine evidence, the primary gate report, the public README, and the bounded successor-possession contract in `TRUST_MODEL.md` without rewriting protocol history or inflating the adversarial-case count.
 
@@ -70,15 +74,15 @@ PASS for the bounded repository state if the final published branch and CI agree
 - Revocation semantics were fixture-locked before distribution/synchronization infrastructure.
 - Checkpoint freshness was separated from lineage continuity before any network discovery or consensus attempt.
 - Fork comparison exposes evidence before considering fork-resolution policy.
-- Key rotation was introduced first as an isolated single-hop predecessor-signed evidence primitive; successor possession is now added as a separate exact-rotation acknowledgement before any authority integration or recovery mechanism.
-- The acknowledgement proves key control without being promoted into identity continuity, fork resolution, or authority transfer.
+- Key rotation was introduced first as an isolated single-hop predecessor-signed evidence primitive; successor possession was added as a separate exact-rotation acknowledgement before authority integration or recovery.
+- Multi-hop research now advances only to exactly two supplied hops, reusing existing rotation and acknowledgement checks, requiring possession at both hops, and forbidding domain/time widening before any arbitrary-length lineage engine, discovery system, authority transfer, or recovery protocol is attempted.
 - Lost-key recovery remains a documented boundary rather than being fabricated from a missing predecessor.
 - Interoperability remains deliberately narrow rather than being promoted into a broad protocol-conformance claim.
 - Evidence/governance accounting, including the public summary count and the Trust Model possession boundary, remains CI-bound as new protocol cases are added.
 
 ## Evidence
 
-The current 84 authored bounded cases are composed of:
+The current 94 authored bounded cases are composed of:
 
 - 24 trust-core fixtures;
 - 8 revocation-checkpoint fixtures;
@@ -86,23 +90,25 @@ The current 84 authored bounded cases are composed of:
 - 10 complete-lineage comparison fixtures;
 - 9 bounded key-rotation fixtures;
 - 9 bounded successor-possession acknowledgement fixtures;
+- 10 bounded two-hop key-rotation-lineage fixtures;
 - 1 deterministic reference-vector check;
 - 6 separate JavaScript verifier checks;
 - 7 Go standard-library verifier checks.
 
-The 9 successor-possession acknowledgement fixtures cover:
+The 10 two-hop key-rotation-lineage fixtures cover:
 
-1. exact successor signature bound to the exact rotation;
-2. foreign signer refusal;
-3. exact rotation-digest binding;
-4. exact predecessor-context binding;
-5. acknowledgement issuer/body successor consistency;
-6. exact domain-context binding;
-7. acknowledgement window containment inside the rotation window;
-8. expired acknowledgement refusal;
-9. possession proof leaves a competing rotation fork unresolved and selects no winner.
+1. exact `A -> B -> C` composition with successor possession confirmed at both hops;
+2. first-hop acknowledgement required;
+3. second-hop acknowledgement required;
+4. exact first-successor / second-predecessor continuity;
+5. exact domain preservation;
+6. refusal when the second rotation is issued before the first rotation becomes effective;
+7. refusal when the second rotation outlives the first signed expiry;
+8. exact binding of the second acknowledgement to the supplied second rotation;
+9. trusted-time requirement;
+10. successful supplied lineage leaves a competing second-hop fork unresolved while historical packet bytes and ids remain unchanged.
 
-The evidence-consistency guard remains deliberately outside the 84-case protocol matrix. It checks repository accounting and report alignment:
+The evidence-consistency guard remains deliberately outside the 94-case protocol matrix. It checks repository accounting and report alignment:
 
 1. matrix `test_count` equals `tests.length`;
 2. matrix case ids are unique;
@@ -124,6 +130,6 @@ The final published PR head must pass remote CI before merge.
 
 ## Gate conclusion
 
-The four roots permit merging the Trust Model successor-possession consistency repair **only if** the final published branch, PR diff, evidence matrix, consistency guard, `TRUST_MODEL.md`, public README, and remote CI remain consistent with this report.
+The four roots permit merging the bounded two-hop key-rotation-lineage experiment **only if** the final published branch, PR diff, 94-case evidence matrix, consistency guard, `TRUST_MODEL.md`, `KEY_ROTATION.md`, public README, donor boundaries, and remote CI remain consistent with this report.
 
-This conclusion grants no automatic release, deployment, donor migration, security certification, external interoperability claim, automatic successor root/capability authority, rotation discovery/freshness/revocation, fork resolution, lost-key recovery authority, global synchronization/consensus, or AXM-wide CANON status.
+This conclusion grants no automatic release, deployment, donor migration, security certification, external interoperability claim, automatic successor root/capability/revocation/checkpoint authority, arbitrary-length rotation lineage, rotation discovery/freshness/revocation, fork resolution, lost-key recovery authority, global synchronization/consensus, or AXM-wide CANON status.
