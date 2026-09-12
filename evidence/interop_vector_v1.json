@@ -33,5 +33,5 @@
     "action": "read",
     "expectedCode": "GRANT_VALID_FOR_SCOPE"
   },
-  "truthBoundary": "One deterministic vector tested against the reference implementation; not yet an independent implementation interoperability proof."
+  "truthBoundary": "One deterministic vector reproduced by the reference JavaScript path, a separate JavaScript verifier, and a Go standard-library verifier in the same repository; not third-party conformance or an external security audit."
 }

@@ -1,7 +1,7 @@
 {
   "schema": "axm.trust-fabric.adversarial-matrix/v1",
-  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_SEPARATE_VECTOR_VERIFIER",
-  "test_count": 28,
+  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_SAME_REPO_JS_AND_GO_VECTOR_VERIFIERS",
+  "test_count": 35,
   "tests": [
     {"case":"canonical_object_key_order","expected":"PASS","observed":"PASS"},
     {"case":"signed_bytes_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
@@ -30,13 +30,21 @@
     {"case":"independent_verifier_signed_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
     {"case":"independent_verifier_untrusted_root","expected":"UNTRUSTED_ROOT_ISSUER","observed":"UNTRUSTED_ROOT_ISSUER"},
     {"case":"independent_verifier_expiry","expected":"EXPIRED","observed":"EXPIRED"},
-    {"case":"independent_verifier_scope","expected":"REFUSE_WRONG_TARGET_OR_ACTION","observed":"REFUSE_WRONG_TARGET_OR_ACTION"}
+    {"case":"independent_verifier_scope","expected":"REFUSE_WRONG_TARGET_OR_ACTION","observed":"REFUSE_WRONG_TARGET_OR_ACTION"},
+    {"case":"go_verifier_language_dependency_separation","expected":"GO_STDLIB_ONLY_NO_JS_IMPORT_OR_EXEC","observed":"GO_STDLIB_ONLY_NO_JS_IMPORT_OR_EXEC"},
+    {"case":"go_verifier_exact_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
+    {"case":"go_verifier_signed_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
+    {"case":"go_verifier_untrusted_root","expected":"UNTRUSTED_ROOT_ISSUER","observed":"UNTRUSTED_ROOT_ISSUER"},
+    {"case":"go_verifier_expiry","expected":"EXPIRED","observed":"EXPIRED"},
+    {"case":"go_verifier_wrong_target","expected":"WRONG_TARGET","observed":"WRONG_TARGET"},
+    {"case":"go_verifier_wrong_action","expected":"WRONG_ACTION","observed":"WRONG_ACTION"}
   ],
   "separate_claim_test": {
     "signature_does_not_establish_truth": true,
     "signature_does_not_establish_identity_continuity": true,
     "reference_vector_does_not_establish_third_party_interoperability": true,
-    "same_repo_source_separation_does_not_establish_external_independence": true
+    "same_repo_source_separation_does_not_establish_external_independence": true,
+    "same_repo_cross_language_agreement_does_not_establish_third_party_conformance": true
   },
   "unresolved": [
     "revocation freshness on a peer that has not synchronized",
@@ -44,8 +52,8 @@
     "trustworthy time when no trusted clock exists",
     "private-key copying or theft attribution",
     "key rotation and lost-key recovery",
-    "third-party or cross-language interoperability beyond the same-repository independent verifier",
+    "third-party or independently authored interoperability beyond the same-repository JavaScript and Go verifiers",
     "hostile-environment cryptographic review"
   ],
-  "truth_boundary": "This matrix records authored local fixtures, one deterministic reference vector, and a second same-repository verifier with no reference-core import. It is not an external security audit, external implementation result, or proof of hostile-deployment safety."
+  "truth_boundary": "This matrix records authored local fixtures, one deterministic reference vector, a separate JavaScript verifier, and a Go standard-library verifier in the same repository. It is not an external security audit, third-party implementation result, or proof of hostile-deployment safety."
 }

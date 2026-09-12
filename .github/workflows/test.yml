@@ -16,3 +16,10 @@ jobs:
         with:
           node-version: '22'
       - run: npm test
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+          cache: false
+      - name: Cross-language Go verifier
+        working-directory: crosslang/go
+        run: go test ./...
