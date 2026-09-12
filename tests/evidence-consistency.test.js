@@ -6,8 +6,10 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
 const matrixPath = path.join(root, 'evidence', 'adversarial_matrix.json');
+const guardPath = path.join(root, 'evidence', 'consistency_guard_v1.json');
 const reportPath = path.join(root, 'ROOT_GATE_REPORT.md');
 const matrix = JSON.parse(fs.readFileSync(matrixPath, 'utf8'));
+const guard = JSON.parse(fs.readFileSync(guardPath, 'utf8'));
 
 assert.equal(matrix.test_count, matrix.tests.length, 'matrix test_count must equal tests.length');
 console.log('PASS matrix declared count matches matrix entries');
@@ -45,15 +47,13 @@ assert.equal(
 );
 console.log(`PASS executable behavior fixtures match matrix count (${matrix.test_count})`);
 
+assert.equal(guard.protocol_case_count, matrix.test_count, 'consistency contract must name the current matrix count');
+assert.equal(guard.meta_test_counted_as_protocol_case, false, 'consistency meta-test must not inflate protocol evidence');
+console.log('PASS evidence consistency contract matches matrix without inflating it');
+
 const report = fs.readFileSync(reportPath, 'utf8');
 const requiredCountLine = `Current authored adversarial matrix: **${matrix.test_count} bounded cases**.`;
 assert.ok(report.includes(requiredCountLine), `ROOT_GATE_REPORT.md must include: ${requiredCountLine}`);
 console.log('PASS primary root-gate report count matches matrix');
-
-assert.ok(
-  matrix.consistency_guard && matrix.consistency_guard.meta_test_counted_as_protocol_case === false,
-  'matrix must explicitly state that the consistency meta-test is not a protocol evidence case'
-);
-console.log('PASS evidence guard is excluded from protocol-case count');
 
 console.log('\nEvidence consistency guard passed.');
