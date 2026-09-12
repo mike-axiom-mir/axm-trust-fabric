@@ -38,6 +38,8 @@ A child capability may only narrow its parent. It cannot add actions, change tar
 
 A delegated grant is not accepted without the complete parent chain back to an explicitly trusted root.
 
+In v0.1, a one-use grant must have `delegationDepth = 0`. This deliberately forbids delegation from one-use grants because allowing one parent to mint multiple children would make the one-use claim ambiguous without a stronger shared consumption protocol.
+
 ## Grant is not use
 
 A valid grant means the named subject has been granted a scope. It does not prove that the current requester controls that subject key.
@@ -75,6 +77,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - root trust is explicit and caller-supplied;
 - every capability is scoped and expiring;
 - delegation only narrows;
+- one-use grants do not delegate in v0.1;
 - no automatic permission escalation.
 
 ### Continuity
@@ -87,6 +90,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 
 - v0.1 has no account system, global registry, blockchain, trust score, or automatic recovery;
 - key rotation is documented before implementation;
+- ambiguous one-use delegation is refused rather than guessed;
 - unknown states fail closed rather than being filled by convenience.
 
 Passing the roots permits a repository merge. It does not automatically declare the mechanism CANON for every AXM system.

@@ -133,10 +133,17 @@ test('short revocation cannot silently resurrect capability', () => {
 });
 
 test('one-use replay is only locally detectable', () => {
-  const grant = cap(root, delegate.keyId, { seed: 'one-use', oneUse: true });
+  const grant = cap(root, delegate.keyId, { seed: 'one-use', oneUse: true, delegationDepth: 0 });
   const first = evaluateCapability(grant, { nowMs: now, target: 'project:alpha', action: 'read', trustedRootIssuers });
   assert.equal(first.grantValid, true);
   assert.equal(evaluateCapability(grant, { nowMs: now, target: 'project:alpha', action: 'read', trustedRootIssuers, localConsumedIds: new Set([first.capabilityId]) }).code, 'LOCAL_REPLAY');
+});
+
+test('one-use grants cannot delegate in v0.1', () => {
+  assert.throws(
+    () => cap(root, delegate.keyId, { seed: 'one-use-delegate', oneUse: true, delegationDepth: 1 }),
+    (error) => error && error.code === 'ONE_USE_DELEGATION_FORBIDDEN'
+  );
 });
 
 test('grant alone does not claim current requester possession', () => {

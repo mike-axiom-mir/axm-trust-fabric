@@ -27,6 +27,7 @@ No human or machine actor is the constitutional merge gate by category. A ground
 - Caller-supplied trusted root issuers: an arbitrary key cannot self-authorize merely by signing a grant.
 - Scoped capability grants: exact subject, target, and action set.
 - Delegation chains with exact parent binding and narrowing ceilings.
+- One-use grants are non-delegable in v0.1 so a one-use parent cannot multiply into several children.
 - Issuer-signed revocation packets for exact capability IDs, with a hold if revocation would expire before the capability.
 - Subject-signed capability-use requests, separating a valid grant from proof that the current actor controls the granted subject key.
 - Explicit `CLOCK_UNKNOWN` hold rather than pretending offline time is trusted.
@@ -68,4 +69,4 @@ npm test
 
 Current claim: **fixture-tested local reference implementation** only.
 
-The current authored harness contains 20 tests. That demonstrates behavior of this implementation on those fixtures. It does not establish hostile-deployment security, independent interoperability, hardware-backed key custody, globally fresh revocation, trustworthy clocks, legal/human identity, informed consent, or content truth.
+The current authored harness contains 21 tests. That demonstrates behavior of this implementation on those fixtures. It does not establish hostile-deployment security, independent interoperability, hardware-backed key custody, globally fresh revocation, trustworthy clocks, legal/human identity, informed consent, or content truth.
