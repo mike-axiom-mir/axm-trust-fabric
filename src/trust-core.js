@@ -161,6 +161,7 @@ function validateCapabilityBody(body) {
   demand(Number.isSafeInteger(body.delegationDepth) && body.delegationDepth >= 0 && body.delegationDepth <= 16, 'INVALID_DELEGATION_DEPTH', 'delegationDepth must be 0-16.');
   demand(body.parentCapabilityId === null || (typeof body.parentCapabilityId === 'string' && HEX_256_RE.test(body.parentCapabilityId)), 'INVALID_PARENT', 'parentCapabilityId must be null or sha256 hex.');
   demand(typeof body.oneUse === 'boolean', 'INVALID_ONE_USE', 'oneUse must be boolean.');
+  if (body.oneUse) demand(body.delegationDepth === 0, 'ONE_USE_DELEGATION_FORBIDDEN', 'one-use capabilities cannot delegate in v0.1.');
 }
 
 function createCapability(identity, { subject, target, actions, delegationDepth = 0, parentCapabilityId = null, oneUse = false, issuedAt, expiresAt, nonce }) {
