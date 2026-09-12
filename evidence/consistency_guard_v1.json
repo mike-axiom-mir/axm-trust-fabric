@@ -1,7 +1,7 @@
 {
   "schema": "axm.trust-fabric.evidence-consistency/v1",
   "status": "CI_META_GUARD",
-  "protocol_case_count": 66,
+  "protocol_case_count": 75,
   "meta_test_counted_as_protocol_case": false,
   "javascript_direct_case_files": [
     "tests/interop-vector.test.js"

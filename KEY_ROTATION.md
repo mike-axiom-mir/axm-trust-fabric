@@ -1,34 +1,56 @@
 # Key Rotation / Recovery Research Contract
 
-Status: **DESIGNED BOUNDARY / NOT IMPLEMENTED IN v0.1**
+Status: **SINGLE-STEP BOUNDED ROTATION EXPERIMENT IMPLEMENTED / RECOVERY NOT IMPLEMENTED**
 
-## Desired property
+## Implemented bounded property
 
-A future rotation mechanism should allow:
+Trust Fabric now has an isolated single-step rotation experiment:
 
 ```text
-Key A -> explicitly authorized rotation -> Key B
-      -> old A signatures remain verifiable
-      -> new grants may use B after the rotation boundary
+Key A -> A signs exact bounded successor statement -> Key B
+      -> exact domain
+      -> explicit effectiveAt
+      -> expires with the signed rotation envelope
+      -> old A signatures remain independently verifiable
+      -> competing simultaneously usable A -> B / A -> C statements become conflict evidence
 ```
 
-without silently rewriting old evidence or treating possession of a backup as automatic identity ownership.
+The implementation lives in `src/key-rotation.js` and is deliberately **not** wired into capability/root authorization.
 
-## Required future rules
+A successful result is `KEY_SUCCESSOR_ATTESTED_FOR_DOMAIN`.
 
-A rotation experiment must define and test:
+That result means only that the explicitly expected predecessor key signed the exact successor public key for one exact domain and bounded active window. It does **not** prove A and B are the same human, device, legal identity, or constitutional authority.
 
-- exact old-key authorization of the new key when the old key is available;
-- a deterministic effective boundary;
-- preservation of old signature verification;
-- replay and fork behavior when two rotations compete;
-- revocation interaction;
-- rollback visibility;
-- device replacement without equating device identity to actor identity.
+## Rules locked by fixtures
+
+- the envelope issuer must equal the body predecessor key id;
+- the evaluator must be given an explicit expected predecessor;
+- the successor key id must derive from the exact signed successor public key;
+- `effectiveAt` must lie inside the signed envelope window;
+- trusted time is required and the rotation is unusable before `effectiveAt`;
+- the domain must match exactly;
+- old predecessor-signed bytes remain independently verifiable and are never rewritten as successor signatures;
+- two distinct simultaneously usable predecessor-signed rotations for the same expected predecessor/domain become `ROTATION_FORK_EVIDENCE`;
+- the comparator exposes both exact packet ids and chooses no winner.
+
+See `experiments/KEY_ROTATION_V1.md` for the falsifier-first contract.
+
+## Still unresolved
+
+The bounded v1 experiment does **not** yet define or claim:
+
+- multi-hop A -> B -> C rotation lineage;
+- automatic acceptance of B as a capability/root issuer because A named it;
+- rotation revocation;
+- rotation discovery or globally current rotation state;
+- fork resolution or consensus;
+- rollback protection after local evidence loss;
+- device replacement as proof of actor identity;
+- lost-key recovery.
 
 ## Lost-key recovery
 
-If the only authority key is irretrievably lost and no recovery mechanism was established beforehand, v0.1's honest state is:
+If the only authority key is irretrievably lost and no recovery mechanism was established beforehand, the honest state remains:
 
 `IDENTITY_CONTINUITY_UNPROVEN`
 
@@ -36,11 +58,12 @@ A future recovery mechanism may use pre-authorized recovery keys, threshold sche
 
 ## Stop conditions
 
-Reject a recovery design if it:
+Reject future rotation/recovery expansion if it:
 
 - lets a central service silently become the owner;
 - creates permanent global identity as a base requirement;
 - rewrites prior signatures;
-- hides a disputed fork;
-- treats recovery possession as proof of legal/human identity;
-- turns recovery into automatic CANON or capability escalation.
+- hides or automatically resolves a disputed fork;
+- treats successor/recovery possession as proof of legal/human identity;
+- silently converts a rotation statement into unrelated capability/root authority;
+- turns recovery into automatic CANON or permission escalation.
