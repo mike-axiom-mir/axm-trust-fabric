@@ -1,0 +1,17 @@
+{
+  "schema": "axm.trust-fabric.evidence-consistency/v1",
+  "status": "CI_META_GUARD",
+  "protocol_case_count": 66,
+  "meta_test_counted_as_protocol_case": false,
+  "javascript_direct_case_files": [
+    "tests/interop-vector.test.js"
+  ],
+  "checks": [
+    "matrix_test_count_matches_entries",
+    "matrix_case_ids_unique",
+    "matrix_expected_matches_observed",
+    "javascript_plus_go_behavior_fixture_count_matches_matrix",
+    "primary_root_gate_report_states_current_matrix_count"
+  ],
+  "truth_boundary": "This guard proves repository evidence declarations agree at one commit. It does not prove fixture completeness, semantic correctness beyond exercised cases, external independence, hostile-environment security, or AXM-wide CANON status."
+}
