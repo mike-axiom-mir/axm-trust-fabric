@@ -1,7 +1,7 @@
 {
   "schema": "axm.trust-fabric.adversarial-matrix/v1",
-  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_CHAIN_REVOCATION_CHECKPOINT_LINEAGE_AND_SAME_REPO_JS_GO_VECTOR_VERIFIERS",
-  "test_count": 56,
+  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_CHAIN_REVOCATION_CHECKPOINT_LINEAGE_COMPARE_AND_SAME_REPO_JS_GO_VECTOR_VERIFIERS",
+  "test_count": 66,
   "tests": [
     {"case":"canonical_object_key_order","expected":"PASS","observed":"PASS"},
     {"case":"signed_bytes_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
@@ -45,6 +45,16 @@
     {"case":"checkpoint_lineage_wrong_predecessor","expected":"CHECKPOINT_FORK_DETECTED","observed":"CHECKPOINT_FORK_DETECTED"},
     {"case":"checkpoint_lineage_complete_through_regression","expected":"CHECKPOINT_COMPLETENESS_ROLLBACK","observed":"CHECKPOINT_COMPLETENESS_ROLLBACK"},
     {"case":"checkpoint_lineage_foreign_issuer","expected":"CHECKPOINT_LINEAGE_ISSUER_MISMATCH","observed":"CHECKPOINT_LINEAGE_ISSUER_MISMATCH"},
+    {"case":"checkpoint_lineage_compare_identical","expected":"LINEAGES_IDENTICAL","observed":"LINEAGES_IDENTICAL"},
+    {"case":"checkpoint_lineage_compare_right_descendant","expected":"RIGHT_DESCENDS_FROM_LEFT","observed":"RIGHT_DESCENDS_FROM_LEFT"},
+    {"case":"checkpoint_lineage_compare_left_descendant","expected":"LEFT_DESCENDS_FROM_RIGHT","observed":"LEFT_DESCENDS_FROM_RIGHT"},
+    {"case":"checkpoint_lineage_compare_fork_common_ancestor","expected":"LINEAGE_FORK_EVIDENCE","observed":"LINEAGE_FORK_EVIDENCE"},
+    {"case":"checkpoint_lineage_compare_genesis_conflict","expected":"LINEAGE_GENESIS_CONFLICT","observed":"LINEAGE_GENESIS_CONFLICT"},
+    {"case":"checkpoint_lineage_compare_missing_intermediate","expected":"HOLD_INVALID_LINEAGE_EVIDENCE:HOLD_LINEAGE_GAP","observed":"HOLD_INVALID_LINEAGE_EVIDENCE:HOLD_LINEAGE_GAP"},
+    {"case":"checkpoint_lineage_compare_wrong_predecessor","expected":"HOLD_INVALID_LINEAGE_EVIDENCE:CHECKPOINT_FORK_DETECTED","observed":"HOLD_INVALID_LINEAGE_EVIDENCE:CHECKPOINT_FORK_DETECTED"},
+    {"case":"checkpoint_lineage_compare_foreign_issuer","expected":"HOLD_INVALID_LINEAGE_EVIDENCE:CHECKPOINT_LINEAGE_ISSUER_MISMATCH","observed":"HOLD_INVALID_LINEAGE_EVIDENCE:CHECKPOINT_LINEAGE_ISSUER_MISMATCH"},
+    {"case":"checkpoint_lineage_compare_completeness_regression","expected":"HOLD_INVALID_LINEAGE_EVIDENCE:CHECKPOINT_COMPLETENESS_ROLLBACK","observed":"HOLD_INVALID_LINEAGE_EVIDENCE:CHECKPOINT_COMPLETENESS_ROLLBACK"},
+    {"case":"checkpoint_lineage_compare_expected_issuer_required","expected":"HOLD_EXPECTED_ISSUER_REQUIRED","observed":"HOLD_EXPECTED_ISSUER_REQUIRED"},
     {"case":"deterministic_interop_reference_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
     {"case":"independent_verifier_dependency_separation","expected":"NO_REFERENCE_CORE_IMPORT","observed":"NO_REFERENCE_CORE_IMPORT"},
     {"case":"independent_verifier_exact_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
@@ -71,6 +81,9 @@
     "checkpoint_lineage_detects_rollback_only_relative_to_retained_local_state": true,
     "checkpoint_lineage_does_not_discover_newer_unseen_checkpoints": true,
     "loss_of_retained_lineage_state_removes_local_anti_rollback_memory": true,
+    "lineage_descendant_requires_exact_signed_prefix": true,
+    "lineage_comparison_does_not_choose_fork_winner": true,
+    "lineage_comparison_does_not_establish_global_newest_state": true,
     "reference_vector_does_not_establish_third_party_interoperability": true,
     "same_repo_source_separation_does_not_establish_external_independence": true,
     "same_repo_cross_language_agreement_does_not_establish_third_party_conformance": true
@@ -80,7 +93,8 @@
     "revocation freshness on a peer that has not synchronized",
     "revocation distribution or synchronization across peers",
     "checkpoint discovery or anti-rollback when local retained lineage state is absent, lost, or replaced",
-    "checkpoint sequencing across disconnected peers that retain different valid forks",
+    "fork resolution or consensus across disconnected peers that retain different valid issuer-signed histories",
+    "knowing whether an unseen lineage exists beyond the histories supplied for comparison",
     "delegated or threshold revokers and checkpoint signers",
     "cross-device replay prevention while peers are disconnected",
     "trustworthy time when no trusted clock exists",
@@ -89,5 +103,5 @@
     "third-party or independently authored interoperability beyond the same-repository JavaScript and Go verifiers",
     "hostile-environment cryptographic review"
   ],
-  "truth_boundary": "This matrix records authored local fixtures. Revocation checkpoints attest an exact supplied same-issuer manifest only through a named historical timestamp. Checkpoint lineage can expose rollback, forks, gaps, wrong predecessors, and completeThrough regression only relative to exact local lineage state the verifier actually retained; it cannot discover newer unseen checkpoints, provide consensus, or survive loss of that retained state. Interoperability evidence remains one deterministic vector plus same-repository JavaScript and Go verifiers and does not prove third-party conformance or hostile-deployment safety."
+  "truth_boundary": "This matrix records authored local fixtures. Revocation checkpoints attest an exact supplied same-issuer manifest only through a named historical timestamp. Checkpoint lineage can expose rollback, forks, gaps, wrong predecessors, and completeThrough regression only relative to exact local lineage state the verifier actually retained. The lineage comparator can classify two supplied complete valid histories as identical, exact-prefix descendant, fork after an exact common ancestor, or conflicting from genesis; it never discovers an unseen history, proves a globally newest head, resolves consensus, or selects a winning fork. Interoperability evidence remains one deterministic vector plus same-repository JavaScript and Go verifiers and does not prove third-party conformance or hostile-deployment safety."
 }
