@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axm.local/schema/trust/REVOCATION_CHECKPOINT_LINK.v1.json",
+  "title": "AXM Trust Fabric revocation checkpoint lineage link body v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "checkpointId", "previousLinkId", "sequence"],
+  "properties": {
+    "kind": {"const": "revocation-checkpoint-link"},
+    "checkpointId": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "previousLinkId": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      ]
+    },
+    "sequence": {"type": "integer", "minimum": 0, "maximum": 1000000}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"sequence": {"const": 0}}},
+      "then": {"properties": {"previousLinkId": {"type": "null"}}}
+    },
+    {
+      "if": {"properties": {"sequence": {"minimum": 1}}},
+      "then": {"properties": {"previousLinkId": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}}
+    }
+  ]
+}

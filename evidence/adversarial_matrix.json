@@ -1,7 +1,7 @@
 {
   "schema": "axm.trust-fabric.adversarial-matrix/v1",
-  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_CHAIN_REVOCATION_CHECKPOINTS_AND_SAME_REPO_JS_GO_VECTOR_VERIFIERS",
-  "test_count": 46,
+  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_CHAIN_REVOCATION_CHECKPOINT_LINEAGE_AND_SAME_REPO_JS_GO_VECTOR_VERIFIERS",
+  "test_count": 56,
   "tests": [
     {"case":"canonical_object_key_order","expected":"PASS","observed":"PASS"},
     {"case":"signed_bytes_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
@@ -35,6 +35,16 @@
     {"case":"checkpoint_expired","expected":"STALE_REVOCATION_CHECKPOINT","observed":"STALE_REVOCATION_CHECKPOINT"},
     {"case":"checkpoint_clock_unknown","expected":"HOLD_CLOCK_UNKNOWN","observed":"HOLD_CLOCK_UNKNOWN"},
     {"case":"checkpoint_duplicate_packet","expected":"DUPLICATE_REVOCATION_PACKET","observed":"DUPLICATE_REVOCATION_PACKET"},
+    {"case":"checkpoint_lineage_genesis","expected":"LINEAGE_GENESIS_ACCEPTABLE","observed":"LINEAGE_GENESIS_ACCEPTABLE"},
+    {"case":"checkpoint_lineage_missing_history","expected":"HOLD_LINEAGE_HISTORY_REQUIRED","observed":"HOLD_LINEAGE_HISTORY_REQUIRED"},
+    {"case":"checkpoint_lineage_direct_advance","expected":"LINEAGE_ADVANCE_ACCEPTABLE","observed":"LINEAGE_ADVANCE_ACCEPTABLE"},
+    {"case":"checkpoint_lineage_exact_head","expected":"LINEAGE_HEAD_CURRENT","observed":"LINEAGE_HEAD_CURRENT"},
+    {"case":"checkpoint_lineage_older_candidate","expected":"CHECKPOINT_ROLLBACK_DETECTED","observed":"CHECKPOINT_ROLLBACK_DETECTED"},
+    {"case":"checkpoint_lineage_same_sequence_conflict","expected":"CHECKPOINT_FORK_DETECTED","observed":"CHECKPOINT_FORK_DETECTED"},
+    {"case":"checkpoint_lineage_gap","expected":"HOLD_LINEAGE_GAP","observed":"HOLD_LINEAGE_GAP"},
+    {"case":"checkpoint_lineage_wrong_predecessor","expected":"CHECKPOINT_FORK_DETECTED","observed":"CHECKPOINT_FORK_DETECTED"},
+    {"case":"checkpoint_lineage_complete_through_regression","expected":"CHECKPOINT_COMPLETENESS_ROLLBACK","observed":"CHECKPOINT_COMPLETENESS_ROLLBACK"},
+    {"case":"checkpoint_lineage_foreign_issuer","expected":"CHECKPOINT_LINEAGE_ISSUER_MISMATCH","observed":"CHECKPOINT_LINEAGE_ISSUER_MISMATCH"},
     {"case":"deterministic_interop_reference_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
     {"case":"independent_verifier_dependency_separation","expected":"NO_REFERENCE_CORE_IMPORT","observed":"NO_REFERENCE_CORE_IMPORT"},
     {"case":"independent_verifier_exact_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
@@ -58,6 +68,9 @@
     "checkpoint_attests_exact_manifest_only_through_historical_timestamp_not_current_global_state": true,
     "expired_or_clock_unknown_checkpoint_does_not_become_freshness_evidence": true,
     "checkpoint_does_not_automatically_change_capability_authorization": true,
+    "checkpoint_lineage_detects_rollback_only_relative_to_retained_local_state": true,
+    "checkpoint_lineage_does_not_discover_newer_unseen_checkpoints": true,
+    "loss_of_retained_lineage_state_removes_local_anti_rollback_memory": true,
     "reference_vector_does_not_establish_third_party_interoperability": true,
     "same_repo_source_separation_does_not_establish_external_independence": true,
     "same_repo_cross_language_agreement_does_not_establish_third_party_conformance": true
@@ -66,7 +79,8 @@
     "current revocation freshness after a checkpoint completeThrough timestamp",
     "revocation freshness on a peer that has not synchronized",
     "revocation distribution or synchronization across peers",
-    "checkpoint sequencing or anti-rollback across disconnected peers",
+    "checkpoint discovery or anti-rollback when local retained lineage state is absent, lost, or replaced",
+    "checkpoint sequencing across disconnected peers that retain different valid forks",
     "delegated or threshold revokers and checkpoint signers",
     "cross-device replay prevention while peers are disconnected",
     "trustworthy time when no trusted clock exists",
@@ -75,5 +89,5 @@
     "third-party or independently authored interoperability beyond the same-repository JavaScript and Go verifiers",
     "hostile-environment cryptographic review"
   ],
-  "truth_boundary": "This matrix records authored local fixtures, including supplied-chain ancestor invalidation and a bounded signed checkpoint that attests an exact supplied same-issuer revocation manifest only through a named historical timestamp while its envelope is valid. The checkpoint does not prove current global freshness, synchronization, or absence of newer unseen revocations. Interoperability evidence remains one deterministic vector plus same-repository JavaScript and Go verifiers and does not prove external security review, third-party conformance, or hostile-deployment safety."
+  "truth_boundary": "This matrix records authored local fixtures. Revocation checkpoints attest an exact supplied same-issuer manifest only through a named historical timestamp. Checkpoint lineage can expose rollback, forks, gaps, wrong predecessors, and completeThrough regression only relative to exact local lineage state the verifier actually retained; it cannot discover newer unseen checkpoints, provide consensus, or survive loss of that retained state. Interoperability evidence remains one deterministic vector plus same-repository JavaScript and Go verifiers and does not prove third-party conformance or hostile-deployment safety."
 }
