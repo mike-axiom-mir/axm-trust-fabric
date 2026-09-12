@@ -31,6 +31,16 @@ for (const name of jsFixtureFiles) {
   jsFixtureCount += (text.match(/^test\(/gm) || []).length;
 }
 
+assert.ok(Array.isArray(guard.javascript_direct_case_files), 'consistency contract must list direct JavaScript case files');
+let directCaseCount = 0;
+for (const relativePath of guard.javascript_direct_case_files) {
+  const fullPath = path.join(root, relativePath);
+  assert.ok(fs.existsSync(fullPath), `direct case file missing: ${relativePath}`);
+  const text = fs.readFileSync(fullPath, 'utf8');
+  assert.equal((text.match(/^test\(/gm) || []).length, 0, `direct case file must not also contain counted test() calls: ${relativePath}`);
+  directCaseCount += 1;
+}
+
 const goDir = path.join(root, 'crosslang', 'go');
 const goFixtureFiles = fs.readdirSync(goDir).filter((name) => name.endsWith('_test.go'));
 let goFixtureCount = 0;
@@ -39,7 +49,7 @@ for (const name of goFixtureFiles) {
   goFixtureCount += (text.match(/^func Test[A-Za-z0-9_]*\(/gm) || []).length;
 }
 
-const executableBehaviorFixtureCount = jsFixtureCount + goFixtureCount;
+const executableBehaviorFixtureCount = jsFixtureCount + directCaseCount + goFixtureCount;
 assert.equal(
   executableBehaviorFixtureCount,
   matrix.test_count,
