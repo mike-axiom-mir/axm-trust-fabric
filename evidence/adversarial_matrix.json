@@ -1,23 +1,33 @@
 {
   "schema": "axm.trust-fabric.adversarial-matrix/v1",
   "status": "FIXTURE_TESTED_LOCAL_REFERENCE",
+  "test_count": 20,
   "tests": [
     {"case":"canonical_object_key_order","expected":"PASS","observed":"PASS"},
-    {"case":"one_byte_body_alteration","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
+    {"case":"signed_bytes_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
     {"case":"embedded_public_key_swap","expected":"ISSUER_KEY_MISMATCH","observed":"ISSUER_KEY_MISMATCH"},
+    {"case":"malformed_public_key","expected":"FAIL_CLOSED","observed":"FAIL_CLOSED"},
     {"case":"clock_unavailable","expected":"HOLD_CLOCK_UNKNOWN","observed":"HOLD_CLOCK_UNKNOWN"},
     {"case":"expired_capability","expected":"EXPIRED","observed":"EXPIRED"},
-    {"case":"wrong_target","expected":"WRONG_TARGET","observed":"WRONG_TARGET"},
-    {"case":"wrong_action","expected":"WRONG_ACTION","observed":"WRONG_ACTION"},
-    {"case":"valid_narrow_delegation","expected":"DELEGATION_VALID","observed":"DELEGATION_VALID"},
-    {"case":"delegated_action_escalation","expected":"ACTION_ESCALATION","observed":"ACTION_ESCALATION"},
-    {"case":"delegated_expiry_escalation","expected":"TIME_ESCALATION","observed":"TIME_ESCALATION"},
+    {"case":"wrong_target_or_action","expected":"REFUSE","observed":"REFUSE"},
+    {"case":"untrusted_root_self_authorization","expected":"UNTRUSTED_ROOT_ISSUER","observed":"UNTRUSTED_ROOT_ISSUER"},
+    {"case":"delegation_narrowing","expected":"PASS","observed":"PASS"},
+    {"case":"delegation_action_or_time_escalation","expected":"REFUSE","observed":"REFUSE"},
     {"case":"wrong_delegate_issuer","expected":"DELEGATE_ISSUER_MISMATCH","observed":"DELEGATE_ISSUER_MISMATCH"},
+    {"case":"delegated_grant_without_chain","expected":"HOLD_PARENT_CHAIN_REQUIRED","observed":"HOLD_PARENT_CHAIN_REQUIRED"},
     {"case":"issuer_revocation","expected":"REVOKED","observed":"REVOKED"},
     {"case":"foreign_revocation","expected":"NOT_REVOKED","observed":"NOT_REVOKED"},
+    {"case":"short_revocation_window","expected":"HOLD_INVALID_REVOCATION_WINDOW","observed":"HOLD_INVALID_REVOCATION_WINDOW"},
     {"case":"one_use_local_replay","expected":"LOCAL_REPLAY","observed":"LOCAL_REPLAY"},
-    {"case":"signature_truth_boundary","expected":"TRUTH_NOT_EVALUATED","observed":"TRUTH_NOT_EVALUATED"}
+    {"case":"grant_not_equal_live_subject_possession","expected":"GRANT_ONLY","observed":"GRANT_ONLY"},
+    {"case":"subject_signed_exact_use","expected":"AUTHORIZED_USE","observed":"AUTHORIZED_USE"},
+    {"case":"wrong_subject_use","expected":"SUBJECT_POSSESSION_MISMATCH","observed":"SUBJECT_POSSESSION_MISMATCH"},
+    {"case":"use_bound_to_wrong_capability","expected":"CAPABILITY_BINDING_MISMATCH","observed":"CAPABILITY_BINDING_MISMATCH"}
   ],
+  "separate_claim_test": {
+    "signature_does_not_establish_truth": true,
+    "signature_does_not_establish_identity_continuity": true
+  },
   "unresolved": [
     "revocation freshness on a peer that has not synchronized",
     "cross-device replay prevention while peers are disconnected",
@@ -27,5 +37,5 @@
     "independent implementation interoperability",
     "hostile-environment cryptographic review"
   ],
-  "truth_boundary": "This matrix records authored local fixtures. It is not an external security audit or proof of deployment safety."
+  "truth_boundary": "This matrix records authored local fixtures. It is not an external security audit or proof of hostile-deployment safety."
 }
