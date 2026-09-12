@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axm.local/schema/trust/SIGNED_ENVELOPE.v1.json",
+  "title": "AXM Trust Fabric Signed Envelope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version","issuer","publicKey","issuedAt","expiresAt","nonce","body","signature"],
+  "properties": {
+    "version": {"const":"axm.trust-envelope/v1"},
+    "issuer": {"type":"string","pattern":"^axm:key:ed25519:[a-f0-9]{64}$"},
+    "publicKey": {"type":"string","pattern":"^[A-Za-z0-9_-]+$"},
+    "issuedAt": {"type":"string","format":"date-time"},
+    "expiresAt": {"type":"string","format":"date-time"},
+    "nonce": {"type":"string","pattern":"^[A-Za-z0-9_-]{16,128}$"},
+    "body": {"type":"object"},
+    "signature": {"type":"string","pattern":"^[A-Za-z0-9_-]+$"}
+  }
+}
