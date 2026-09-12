@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axm.local/schema/trust/KEY_ROTATION_ACK.v1.json",
+  "title": "AXM Trust Fabric key rotation acknowledgement body v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "rotationId", "predecessorKeyId", "successorKeyId", "domain"],
+  "properties": {
+    "kind": {"const": "key-rotation-ack"},
+    "rotationId": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "predecessorKeyId": {"type": "string", "pattern": "^axm:key:ed25519:[a-f0-9]{64}$"},
+    "successorKeyId": {"type": "string", "pattern": "^axm:key:ed25519:[a-f0-9]{64}$"},
+    "domain": {"type": "string", "minLength": 1, "maxLength": 256}
+  }
+}

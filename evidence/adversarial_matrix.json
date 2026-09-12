@@ -1,7 +1,7 @@
 {
   "schema": "axm.trust-fabric.adversarial-matrix/v1",
-  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_CHAIN_REVOCATION_CHECKPOINT_LINEAGE_COMPARE_ROTATION_AND_SAME_REPO_JS_GO_VECTOR_VERIFIERS",
-  "test_count": 75,
+  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_CHAIN_REVOCATION_CHECKPOINT_LINEAGE_COMPARE_ROTATION_POSSESSION_AND_SAME_REPO_JS_GO_VECTOR_VERIFIERS",
+  "test_count": 84,
   "tests": [
     {"case":"canonical_object_key_order","expected":"PASS","observed":"PASS"},
     {"case":"signed_bytes_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
@@ -64,6 +64,15 @@
     {"case":"key_rotation_wrong_domain","expected":"ROTATION_DOMAIN_MISMATCH","observed":"ROTATION_DOMAIN_MISMATCH"},
     {"case":"key_rotation_preserves_old_signature","expected":"OLD_SIGNATURE_STILL_VALID","observed":"OLD_SIGNATURE_STILL_VALID"},
     {"case":"key_rotation_competing_successors","expected":"ROTATION_FORK_EVIDENCE_NO_WINNER","observed":"ROTATION_FORK_EVIDENCE_NO_WINNER"},
+    {"case":"key_rotation_ack_exact_successor_possession","expected":"SUCCESSOR_POSSESSION_CONFIRMED_FOR_ROTATION","observed":"SUCCESSOR_POSSESSION_CONFIRMED_FOR_ROTATION"},
+    {"case":"key_rotation_ack_foreign_signer","expected":"ACK_SUCCESSOR_MISMATCH","observed":"ACK_SUCCESSOR_MISMATCH"},
+    {"case":"key_rotation_ack_exact_rotation_binding","expected":"ACK_ROTATION_BINDING_MISMATCH","observed":"ACK_ROTATION_BINDING_MISMATCH"},
+    {"case":"key_rotation_ack_predecessor_context","expected":"ACK_PREDECESSOR_MISMATCH","observed":"ACK_PREDECESSOR_MISMATCH"},
+    {"case":"key_rotation_ack_issuer_body_successor_mismatch","expected":"ACK_ISSUER_MISMATCH","observed":"ACK_ISSUER_MISMATCH"},
+    {"case":"key_rotation_ack_domain_context","expected":"ACK_DOMAIN_MISMATCH","observed":"ACK_DOMAIN_MISMATCH"},
+    {"case":"key_rotation_ack_window_escalation","expected":"ACK_WINDOW_ESCALATION","observed":"ACK_WINDOW_ESCALATION"},
+    {"case":"key_rotation_ack_expired","expected":"ACKNOWLEDGEMENT_EXPIRED","observed":"ACKNOWLEDGEMENT_EXPIRED"},
+    {"case":"key_rotation_ack_does_not_resolve_fork","expected":"POSSESSION_CONFIRMED_FORK_STILL_UNRESOLVED","observed":"POSSESSION_CONFIRMED_FORK_STILL_UNRESOLVED"},
     {"case":"deterministic_interop_reference_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
     {"case":"independent_verifier_dependency_separation","expected":"NO_REFERENCE_CORE_IMPORT","observed":"NO_REFERENCE_CORE_IMPORT"},
     {"case":"independent_verifier_exact_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
@@ -99,7 +108,10 @@
     "competing_simultaneously_usable_rotations_are_exposed_not_resolved": true,
     "reference_vector_does_not_establish_third_party_interoperability": true,
     "same_repo_source_separation_does_not_establish_external_independence": true,
-    "same_repo_cross_language_agreement_does_not_establish_third_party_conformance": true
+    "same_repo_cross_language_agreement_does_not_establish_third_party_conformance": true,
+    "successor_possession_ack_proves_key_control_not_identity_continuity": true,
+    "successor_possession_ack_does_not_transfer_capability_or_root_authority": true,
+    "successor_possession_ack_does_not_resolve_rotation_fork": true
   },
   "unresolved": [
     "current revocation freshness after a checkpoint completeThrough timestamp",
@@ -119,5 +131,5 @@
     "third-party or independently authored interoperability beyond the same-repository JavaScript and Go verifiers",
     "hostile-environment cryptographic review"
   ],
-  "truth_boundary": "This matrix records authored local fixtures. Revocation checkpoints attest an exact supplied same-issuer manifest only through a named historical timestamp. Checkpoint lineage can expose rollback, forks, gaps, wrong predecessors, and completeThrough regression only relative to exact local lineage state the verifier actually retained. The lineage comparator can classify two supplied complete valid histories as identical, exact-prefix descendant, fork after an exact common ancestor, or conflicting from genesis; it never discovers an unseen history, proves a globally newest head, resolves consensus, or selects a winning fork. Key-rotation evidence proves only that an explicitly expected predecessor key signed an exact successor key for one exact domain and bounded active window; it does not prove same-person/device identity, rewrite old evidence, transfer capability/root authority automatically, recover a lost predecessor, discover unseen rotations, or resolve competing rotations. Interoperability evidence remains one deterministic vector plus same-repository JavaScript and Go verifiers and does not prove third-party conformance or hostile-deployment safety."
+  "truth_boundary": "This matrix records authored local fixtures. Revocation checkpoints attest an exact supplied same-issuer manifest only through a named historical timestamp. Checkpoint lineage can expose rollback, forks, gaps, wrong predecessors, and completeThrough regression only relative to exact local lineage state the verifier actually retained. The lineage comparator can classify two supplied complete valid histories as identical, exact-prefix descendant, fork after an exact common ancestor, or conflicting from genesis; it never discovers an unseen history, proves a globally newest head, resolves consensus, or selects a winning fork. Key-rotation evidence proves only that an explicitly expected predecessor key signed an exact successor key for one exact domain and bounded active window. A successor acknowledgement proves only that the exact named successor key signed evidence bound to that exact rotation and bounded window; it does not prove same-person/device identity, rewrite old evidence, transfer capability/root authority automatically, recover a lost predecessor, discover unseen rotations, or resolve competing rotations. Interoperability evidence remains one deterministic vector plus same-repository JavaScript and Go verifiers and does not prove third-party conformance or hostile-deployment safety."
 }

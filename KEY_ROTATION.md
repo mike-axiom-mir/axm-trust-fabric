@@ -1,6 +1,6 @@
 # Key Rotation / Recovery Research Contract
 
-Status: **SINGLE-STEP BOUNDED ROTATION EXPERIMENT IMPLEMENTED / RECOVERY NOT IMPLEMENTED**
+Status: **SINGLE-STEP BOUNDED ROTATION + SUCCESSOR POSSESSION ACK IMPLEMENTED / RECOVERY NOT IMPLEMENTED**
 
 ## Implemented bounded property
 
@@ -21,26 +21,48 @@ A successful result is `KEY_SUCCESSOR_ATTESTED_FOR_DOMAIN`.
 
 That result means only that the explicitly expected predecessor key signed the exact successor public key for one exact domain and bounded active window. It does **not** prove A and B are the same human, device, legal identity, or constitutional authority.
 
+## Successor possession acknowledgement
+
+`src/key-rotation-ack.js` adds one isolated acknowledgement layer after a rotation already passes the bounded rotation evaluation.
+
+Key B signs an acknowledgement that binds:
+
+- the exact signed rotation digest;
+- the exact predecessor key id;
+- the exact successor key id;
+- the exact domain.
+
+The acknowledgement issuer must be the named successor key itself. Its signed validity window must be contained inside the predecessor rotation envelope window.
+
+A successful result is `SUCCESSOR_POSSESSION_CONFIRMED_FOR_ROTATION`.
+
+That proves only that the successor private key corresponding to the public key named in that exact rotation signed the acknowledgement. It does **not** prove same-person/device identity continuity, transfer root/capability authority, or make that rotation win over a competing predecessor-signed fork.
+
 ## Rules locked by fixtures
 
-- the envelope issuer must equal the body predecessor key id;
-- the evaluator must be given an explicit expected predecessor;
+- the rotation envelope issuer must equal the body predecessor key id;
+- the rotation evaluator must be given an explicit expected predecessor;
 - the successor key id must derive from the exact signed successor public key;
-- `effectiveAt` must lie inside the signed envelope window;
+- `effectiveAt` must lie inside the signed rotation envelope window;
 - trusted time is required and the rotation is unusable before `effectiveAt`;
 - the domain must match exactly;
 - old predecessor-signed bytes remain independently verifiable and are never rewritten as successor signatures;
 - two distinct simultaneously usable predecessor-signed rotations for the same expected predecessor/domain become `ROTATION_FORK_EVIDENCE`;
-- the comparator exposes both exact packet ids and chooses no winner.
+- the rotation comparator exposes both exact packet ids and chooses no winner;
+- successor possession acknowledgement must be signed by the exact named successor;
+- acknowledgement must bind the exact rotation digest, predecessor, successor, and domain;
+- acknowledgement validity cannot outlive the rotation envelope;
+- expired acknowledgement is not live possession evidence;
+- possession proof for one branch does not resolve a competing rotation fork.
 
-See `experiments/KEY_ROTATION_V1.md` for the falsifier-first contract.
+See `experiments/KEY_ROTATION_V1.md` and `experiments/KEY_ROTATION_ACK_V1.md` for the falsifier-first contracts.
 
 ## Still unresolved
 
-The bounded v1 experiment does **not** yet define or claim:
+The bounded experiments do **not** yet define or claim:
 
 - multi-hop A -> B -> C rotation lineage;
-- automatic acceptance of B as a capability/root issuer because A named it;
+- automatic acceptance of B as a capability/root issuer because A named it or B acknowledged it;
 - rotation revocation;
 - rotation discovery or globally current rotation state;
 - fork resolution or consensus;
@@ -65,5 +87,5 @@ Reject future rotation/recovery expansion if it:
 - rewrites prior signatures;
 - hides or automatically resolves a disputed fork;
 - treats successor/recovery possession as proof of legal/human identity;
-- silently converts a rotation statement into unrelated capability/root authority;
+- silently converts a rotation statement or acknowledgement into unrelated capability/root authority;
 - turns recovery into automatic CANON or permission escalation.
