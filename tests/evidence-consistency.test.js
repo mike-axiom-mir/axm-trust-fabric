@@ -8,6 +8,7 @@ const root = path.resolve(__dirname, '..');
 const matrixPath = path.join(root, 'evidence', 'adversarial_matrix.json');
 const guardPath = path.join(root, 'evidence', 'consistency_guard_v1.json');
 const reportPath = path.join(root, 'ROOT_GATE_REPORT.md');
+const readmePath = path.join(root, 'README.md');
 const matrix = JSON.parse(fs.readFileSync(matrixPath, 'utf8'));
 const guard = JSON.parse(fs.readFileSync(guardPath, 'utf8'));
 
@@ -61,9 +62,13 @@ assert.equal(guard.protocol_case_count, matrix.test_count, 'consistency contract
 assert.equal(guard.meta_test_counted_as_protocol_case, false, 'consistency meta-test must not inflate protocol evidence');
 console.log('PASS evidence consistency contract matches matrix without inflating it');
 
-const report = fs.readFileSync(reportPath, 'utf8');
 const requiredCountLine = `Current authored adversarial matrix: **${matrix.test_count} bounded cases**.`;
+const report = fs.readFileSync(reportPath, 'utf8');
 assert.ok(report.includes(requiredCountLine), `ROOT_GATE_REPORT.md must include: ${requiredCountLine}`);
 console.log('PASS primary root-gate report count matches matrix');
+
+const readme = fs.readFileSync(readmePath, 'utf8');
+assert.ok(readme.includes(requiredCountLine), `README.md must include: ${requiredCountLine}`);
+console.log('PASS public README evidence count matches matrix');
 
 console.log('\nEvidence consistency guard passed.');
