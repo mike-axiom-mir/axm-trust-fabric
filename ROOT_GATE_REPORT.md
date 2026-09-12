@@ -7,7 +7,9 @@ Status: candidate evidence for repository merge; not automatic CANON.
 PASS for this bounded claim.
 
 - The implementation claims only local fixture-tested behavior.
-- Signature validity is separated from truth, safety, legal identity, and constitutional authority.
+- Signature validity is separated from truth, safety, legal identity, identity continuity, and constitutional authority.
+- An arbitrary signer cannot self-authorize: root issuers are explicitly supplied by the consuming system.
+- A valid grant is separated from live use; `AUTHORIZED_USE` requires a subject-signed request bound to the exact capability, target, and action.
 - Missing trusted time becomes `HOLD_CLOCK_UNKNOWN`.
 - Offline revocation freshness, disconnected replay, key theft attribution, key rotation/recovery, interoperability, and hostile-environment review remain explicitly unresolved.
 
@@ -16,9 +18,10 @@ PASS for this bounded claim.
 PASS for this bounded claim.
 
 - No accounts, global registry, reputation score, central trust server, or ambient authority are introduced.
-- Capability authority is explicit, scoped, expiring, and fail-closed.
+- Capability authority is explicit, scoped, expiring, and rooted in caller-selected trust roots rather than familiar identity.
 - Delegation may narrow but cannot widen target, actions, time, reuse, or delegation depth.
-- A familiar signer gains no automatic permission outside an explicit capability chain.
+- Delegated grants require the complete parent chain.
+- The current requester must prove possession of the granted subject key for live use.
 
 ## Continuity
 
@@ -36,7 +39,7 @@ PASS for this bounded claim.
 
 - v0.1 uses Node built-in Ed25519 instead of inventing cryptography.
 - Key rotation/recovery is documented but intentionally not implemented.
-- Unknown clock and incomplete delegation chain states hold rather than guessing.
+- Unknown clock, incomplete delegation chain, untrusted root, invalid revocation window, and missing subject proof fail closed.
 - The first implementation is a dependency-free local reference primitive, not infrastructure.
 
 ## Evidence
@@ -47,12 +50,12 @@ Local command:
 npm test
 ```
 
-Observed result before publication: `15 trust-core tests passed.`
+Observed result before publication: `20 trust-core tests passed.`
 
-The CI workflow repeats the same command on Node 22.
+The GitHub Actions workflow repeats the same command on Node 22. Remote CI must agree before merge.
 
 ## Gate conclusion
 
-The four roots permit merging this bounded v0.1 reference implementation if the published branch/CI evidence remains consistent with this report.
+The four roots permit merging this bounded v0.1 reference implementation **only if** the published branch and remote CI remain consistent with this report.
 
 This conclusion grants no automatic installation, donor migration, release, deployment, security certification, or AXM-wide CANON status.
