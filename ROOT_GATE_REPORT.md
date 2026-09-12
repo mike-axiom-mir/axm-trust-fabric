@@ -4,7 +4,7 @@ Status: candidate evidence for repository merge; not automatic CANON.
 
 This is the primary consolidated root-gate report for the current bounded Trust Fabric v0.1 research state. Supplementary experiment reports remain useful history, but this file must track the repository's current authored evidence count and truth boundaries.
 
-Current authored adversarial matrix: **94 bounded cases**.
+Current authored adversarial matrix: **100 bounded cases**.
 
 A CI meta-guard checks that this count agrees with the machine-readable matrix, executable JavaScript + Go behavior fixtures, and the public README evidence count. The same guard also requires `TRUST_MODEL.md` to preserve the bounded successor-possession truth boundary already exercised by the protocol fixtures. The guard itself is evidence plumbing and is **not** counted as a protocol/security case.
 
@@ -29,6 +29,8 @@ PASS for the bounded repository state if the final published branch and CI agree
 - Competing simultaneously usable rotations remain `ROTATION_FORK_EVIDENCE`; a successful lineage branch does not select a winner.
 - Older predecessor-signed evidence remains independently verifiable and is not rewritten as successor-authored evidence.
 - Same-repository JavaScript and Go implementations agree on one fixed root-capability interoperability vector; this does not establish separately authored or third-party interoperability.
+- A second fixed vector now freezes one exact two-hop `A -> B -> C` rotation lineage. The existing JavaScript lineage path and a separate Go standard-library path agree on that supplied success result and exact evidence digests; the Go path additionally refuses signed-byte mutation, wrong domain, and acknowledgement substitution.
+- That second-vector agreement is only fixed-evidence portability. It does not prove general two-hop conformance, arbitrary-length lineage, identity continuity, authority transfer, branch freshness/uniqueness, fork resolution, external independence, or production security.
 - Missing trusted time remains an explicit hold rather than invented certainty.
 - The evidence consistency guard fails if the adversarial matrix count, executable authored behavior-fixture count, expected/observed matrix states, this primary report's count, the public README evidence count, or the required successor-possession boundary in `TRUST_MODEL.md` drift apart.
 - Current revocation freshness after `completeThrough`, synchronization/discovery, anti-rollback after local-state loss, disconnected-fork resolution, disconnected replay, key theft attribution, arbitrary-length rotation lineage beyond two hops, automatic successor authority integration, rotation freshness/revocation, lost-key recovery, external third-party interoperability, and hostile-environment review remain unresolved.
@@ -44,9 +46,9 @@ PASS for the bounded repository state if the final published branch and CI agree
 - Key rotation requires an explicit expected predecessor and exact domain; naming a successor does not make that successor a root/capability authority automatically.
 - Successor acknowledgement must be signed by that exact successor and remains branch-local evidence; it grants no unrelated authority.
 - The two-hop lineage evaluator requires an explicit expected origin and exact domain; neither B nor C becomes an ambient root, capability issuer, revoker, checkpoint signer, or fork winner because it appears in a valid lineage.
+- The JavaScript and Go interoperability paths evaluate exact supplied evidence only; reproducing a result grants no signer, verifier, implementation, or maintainer new authority.
 - A rotation statement and acknowledgement both expire with bounded signed windows and do not create permanent identity ownership.
 - Checkpoint comparison and rotation comparison expose conflicts as evidence states and grant no branch/successor automatic authority.
-- Evidence-only JavaScript and Go verifiers remain evaluators of supplied evidence; they do not become authorities.
 - The consistency guard changes no trust decision and grants no actor new authority.
 - No repository merge automatically changes product-level user control or promotes the mechanism to AXM-wide CANON.
 
@@ -60,10 +62,11 @@ PASS for the bounded repository state if the final published branch and CI agree
 - Key rotation adds successor evidence without modifying old predecessor signatures or claiming the successor authored historical bytes.
 - Successor acknowledgement binds the exact rotation digest instead of rewriting the rotation or any earlier signature.
 - Two-hop rotation lineage composes four existing signed packets without modifying any of them; the continuity fixture verifies packet bytes and envelope ids remain unchanged after evaluation.
+- The new two-hop interoperability vector freezes the exact four signed packets and their digests; the separate Go verifier reads those bytes rather than rewriting the JavaScript lineage implementation.
 - Forks, gaps, rollback, divergent common ancestry, competing rotations, and competing second-hop branches are surfaced rather than silently normalized.
-- `src/trust-core.js`, revocation-checkpoint behavior, capability authorization, donor boundaries, and existing single-hop rotation/acknowledgement semantics remain separable from the two-hop research layer.
-- Fixed interoperability bytes make serialization drift visible.
-- The consistency guard makes evidence-summary drift visible across machine evidence, the primary gate report, the public README, and the bounded successor-possession contract in `TRUST_MODEL.md` without rewriting protocol history or inflating the adversarial-case count.
+- `src/trust-core.js`, revocation-checkpoint behavior, capability authorization, donor boundaries, and existing single-hop/two-hop JavaScript rotation semantics remain unchanged by the interoperability addition.
+- Fixed interoperability bytes make serialization and cross-implementation drift visible.
+- The consistency guard makes evidence-summary drift visible across machine evidence, the primary gate report, the public README, and the bounded successor-possession contract in `TRUST_MODEL.md` without rewriting protocol history or inflating the meta-test into protocol evidence.
 
 ## Wisdom before speed
 
@@ -75,14 +78,15 @@ PASS for the bounded repository state if the final published branch and CI agree
 - Checkpoint freshness was separated from lineage continuity before any network discovery or consensus attempt.
 - Fork comparison exposes evidence before considering fork-resolution policy.
 - Key rotation was introduced first as an isolated single-hop predecessor-signed evidence primitive; successor possession was added as a separate exact-rotation acknowledgement before authority integration or recovery.
-- Multi-hop research now advances only to exactly two supplied hops, reusing existing rotation and acknowledgement checks, requiring possession at both hops, and forbidding domain/time widening before any arbitrary-length lineage engine, discovery system, authority transfer, or recovery protocol is attempted.
+- Multi-hop research advances only to exactly two supplied hops, reusing existing rotation and acknowledgement checks, requiring possession at both hops, and forbidding domain/time widening before any arbitrary-length lineage engine, discovery system, authority transfer, or recovery protocol is attempted.
+- Before extending lineage length or adding policy, the exact two-hop semantics are now frozen into one portable vector and reproduced through a separate standard-library implementation path.
 - Lost-key recovery remains a documented boundary rather than being fabricated from a missing predecessor.
-- Interoperability remains deliberately narrow rather than being promoted into a broad protocol-conformance claim.
+- Interoperability remains deliberately narrow: two fixed vector families in one repository are not promoted into a broad protocol-conformance or external-independence claim.
 - Evidence/governance accounting, including the public summary count and the Trust Model possession boundary, remains CI-bound as new protocol cases are added.
 
 ## Evidence
 
-The current 94 authored bounded cases are composed of:
+The current 100 authored bounded cases are composed of:
 
 - 24 trust-core fixtures;
 - 8 revocation-checkpoint fixtures;
@@ -91,9 +95,11 @@ The current 94 authored bounded cases are composed of:
 - 9 bounded key-rotation fixtures;
 - 9 bounded successor-possession acknowledgement fixtures;
 - 10 bounded two-hop key-rotation-lineage fixtures;
-- 1 deterministic reference-vector check;
-- 6 separate JavaScript verifier checks;
-- 7 Go standard-library verifier checks.
+- 1 root-capability deterministic reference-vector check;
+- 6 separate JavaScript root-capability verifier checks;
+- 7 Go standard-library root-capability verifier checks;
+- 1 JavaScript exact-two-hop lineage vector check;
+- 5 Go standard-library exact-two-hop lineage verifier checks.
 
 The 10 two-hop key-rotation-lineage fixtures cover:
 
@@ -108,7 +114,16 @@ The 10 two-hop key-rotation-lineage fixtures cover:
 9. trusted-time requirement;
 10. successful supplied lineage leaves a competing second-hop fork unresolved while historical packet bytes and ids remain unchanged.
 
-The evidence-consistency guard remains deliberately outside the 94-case protocol matrix. It checks repository accounting and report alignment:
+The 6 new interoperability cases cover:
+
+1. the published two-hop vector reproduces the JavaScript reference lineage result and exact four evidence digests;
+2. the Go lineage verifier remains standard-library-only and does not import or execute the JavaScript lineage evaluator;
+3. the Go path reproduces the exact published two-hop vector result and lineage identities/digests;
+4. a mutation of signed lineage bytes is rejected as an invalid signature;
+5. a wrong expected domain is refused;
+6. a substituted acknowledgement is refused because it is not bound to the exact second rotation.
+
+The evidence-consistency guard remains deliberately outside the 100-case protocol matrix. It checks repository accounting and report alignment:
 
 1. matrix `test_count` equals `tests.length`;
 2. matrix case ids are unique;
@@ -130,6 +145,6 @@ The final published PR head must pass remote CI before merge.
 
 ## Gate conclusion
 
-The four roots permit merging the bounded two-hop key-rotation-lineage experiment **only if** the final published branch, PR diff, 94-case evidence matrix, consistency guard, `TRUST_MODEL.md`, `KEY_ROTATION.md`, public README, donor boundaries, and remote CI remain consistent with this report.
+The four roots permit merging the bounded two-hop rotation-lineage interoperability addition **only if** the final published branch, PR diff, 100-case evidence matrix, consistency guard, `TRUST_MODEL.md`, `INTEROPERABILITY.md`, public README, donor boundaries, and remote CI remain consistent with this report.
 
-This conclusion grants no automatic release, deployment, donor migration, security certification, external interoperability claim, automatic successor root/capability/revocation/checkpoint authority, arbitrary-length rotation lineage, rotation discovery/freshness/revocation, fork resolution, lost-key recovery authority, global synchronization/consensus, or AXM-wide CANON status.
+This conclusion grants no automatic release, deployment, donor migration, security certification, general two-hop or arbitrary-length lineage conformance, external interoperability claim, automatic successor root/capability/revocation/checkpoint authority, rotation discovery/freshness/revocation, fork resolution, lost-key recovery authority, global synchronization/consensus, or AXM-wide CANON status.

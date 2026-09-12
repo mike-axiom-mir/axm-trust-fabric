@@ -181,9 +181,13 @@ The reference JavaScript test reproduces every fixed value exactly and verifies 
 
 A second JavaScript implementation path exists at `independent/vector-verifier-v1.js`. It does not import `src/trust-core.js`; its test enforces that dependency boundary and independently recomputes the fixed vector's canonical bytes, key id, digest, signature result, trusted-root decision, time decision, and exact scope decision. It also refuses mutated signed bytes, an untrusted root, expiry, wrong target, and wrong action.
 
-A third implementation path now exists in Go at `crosslang/go/vector_verifier.go`. It uses only the Go standard library and does not import or execute either JavaScript verifier. Its Go tests independently recompute the same canonical bytes, SPKI-derived key id, SHA-256 digest, Ed25519 signature result, trusted-root decision, temporal decision, and exact target/action result, while refusing bounded mutation/scope failures.
+A third implementation path exists in Go at `crosslang/go/vector_verifier.go`. It uses only the Go standard library and does not import or execute either JavaScript verifier. Its Go tests independently recompute the same canonical bytes, SPKI-derived key id, SHA-256 digest, Ed25519 signature result, trusted-root decision, temporal decision, and exact target/action result, while refusing bounded mutation/scope failures.
 
-This establishes **same-repository cross-language and cross-standard-library agreement for one fixed root-capability vector**. It does not establish separately authored or third-party interoperability, broad protocol conformance, production certification, or hostile-deployment security.
+`evidence/two_hop_rotation_lineage_interop_v1.json` adds a second fixed vector family for the exact bounded `A -> B -> C` experiment. It contains two predecessor-signed rotations and two successor-signed acknowledgements with fixed test-only keys, exact envelope digests, evaluation context, and the expected `TWO_HOP_ROTATION_LINEAGE_CONFIRMED` result.
+
+The existing JavaScript `src/key-rotation-lineage.js` path is bound to those exact bytes by `tests/key-rotation-lineage-interop.test.js`. A separate Go standard-library path at `crosslang/go/rotation_lineage_verifier.go` independently canonicalizes and verifies the envelopes, derives key identifiers and digests, checks exact predecessor/domain/acknowledgement binding and the two-hop no-widening rule, and reproduces the same bounded success. Its tests also refuse a signed-byte mutation, wrong expected domain, and substituted acknowledgement while statically guarding against JavaScript import or execution.
+
+This establishes **same-repository cross-language and cross-standard-library agreement for one fixed root-capability vector and one fixed two-hop rotation-lineage vector plus selected refusal states**. It does not establish separately authored or third-party interoperability, arbitrary-length lineage conformance, broad protocol conformance, production certification, identity continuity, authority transfer, branch freshness/uniqueness, fork resolution, or hostile-deployment security.
 
 ## Offline truth boundary
 
@@ -198,6 +202,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - a key-rotation verifier cannot discover a rotation it never received, prove that its supplied rotation is globally newest, or resolve two valid competing rotations;
 - a valid single-hop or two-hop rotation result does not prove successor/root/capability authority beyond its exact bounded attestation;
 - a confirmed two-hop branch does not prove that branch is unique, globally newest, or free of unseen competitors;
+- same-repository cross-language agreement on fixed lineage bytes cannot establish unseen branch absence or current global rotation state;
 - `CLOCK_UNKNOWN` cannot become authorization or active rotation evidence;
 - replay can be detected against local consumed evidence, but not globally across disconnected peers;
 - copied private keys cannot be distinguished cryptographically from the original holder.
@@ -216,7 +221,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - successor possession says the exact named successor key controlled its private key for the exact acknowledged rotation, not that identity or authority transferred;
 - two-hop rotation lineage says the exact supplied A -> B -> C evidence composed under bounded domain/time rules, not that identity/authority transferred or the branch is unique/newest;
 - competing rotations are conflict evidence, not a winner election;
-- agreement among same-repository JavaScript and Go implementations does not equal third-party interoperability;
+- agreement among same-repository JavaScript and Go implementations on fixed root-capability or two-hop-lineage vectors does not equal third-party interoperability or general conformance;
 - missing time becomes `HOLD_CLOCK_UNKNOWN`;
 - unresolved distributed replay, current revocation freshness, rotation freshness, arbitrary-length lineage, and lost-key recovery remain explicit.
 
@@ -229,6 +234,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - key rotation requires an explicit expected predecessor and exact domain; naming a successor grants no unrelated authority;
 - successor possession acknowledgement grants no root, capability, revocation, checkpoint, or fork-selection authority;
 - two-hop lineage requires an explicit origin and does not make B or C ambient authorities outside the supplied lineage evidence;
+- interoperability verifiers only evaluate supplied evidence and gain no authority from reproducing a result;
 - every capability is scoped and expiring;
 - delegation only narrows;
 - loss of ancestor authority removes downstream authority through that chain when the revocation evidence is known;
@@ -248,6 +254,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - key rotation adds bounded successor evidence without rewriting old signatures or pretending the successor authored old bytes;
 - successor acknowledgement binds the exact rotation digest without rewriting the predecessor rotation or older evidence;
 - two-hop rotation lineage composes exact existing rotation/acknowledgement packets and leaves every packet independently verifiable and byte-identical;
+- the two-hop interoperability vector freezes exact signed lineage bytes/digests so implementation drift becomes visible rather than silently normalized;
 - competing rotations remain visible as distinct signed evidence;
 - fixed vector bytes make future canonicalization drift visible rather than silently rewriting old evidence;
 - evidence-only JavaScript and Go verifiers do not replace the reference runtime.
@@ -262,8 +269,8 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - checkpoint semantics are isolated and falsifier-tested before any synchronization service or authorization dependency is attempted;
 - checkpoint anti-rollback is first tested as local retained-state continuity instead of inventing consensus or a global service;
 - ambiguous one-use delegation is refused rather than guessed;
-- interoperability grew from one vector, to a separate same-language verifier, to one bounded Go verifier before any protocol service or broad compatibility claim;
-- the Go verifier stays standard-library only and narrow instead of becoming a second runtime;
+- interoperability grew from one root-capability vector, to a separate same-language verifier, to a bounded Go verifier, and only then to one exact two-hop-lineage vector with a separate Go path before any arbitrary-lineage or broad compatibility claim;
+- the Go verifiers stay standard-library only and evidence-scoped instead of becoming second production runtimes;
 - unknown states fail closed rather than being filled by convenience.
 
 Passing the roots permits a repository merge. It does not automatically declare the mechanism CANON for every AXM system.

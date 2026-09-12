@@ -1,16 +1,19 @@
 # Interoperability Evidence v0.1
 
-Status: **SAME-REPOSITORY JAVASCRIPT + GO AGREEMENT ON ONE FIXED VECTOR / NOT THIRD-PARTY CONFORMANCE**
+Status: **SAME-REPOSITORY JAVASCRIPT + GO AGREEMENT ON TWO FIXED VECTOR FAMILIES / NOT THIRD-PARTY CONFORMANCE**
 
 ## Question
 
-Can independently implemented verifier paths reproduce the exact Trust Fabric v0.1 signed bytes, key identifier, envelope digest, signature verification, and bounded capability result without importing the reference runtime?
+Can independently implemented verifier paths reproduce exact Trust Fabric v0.1 signed bytes and bounded evaluation results without importing the reference runtime?
 
-The current strongest experiment asks a narrower cross-language version:
+The repository now carries two deliberately narrow vector families:
 
-> Can a Go implementation using only the Go standard library reproduce the published fixed vector and bounded refusal cases without importing, executing, or depending on either JavaScript verifier?
+1. a root-capability vector covering key id, canonical bytes, envelope digest, signature verification, trusted-root/time decisions, and exact target/action scope;
+2. an exact two-hop `A -> B -> C` key-rotation-lineage vector covering two predecessor-signed rotations, two successor-signed acknowledgements, exact evidence digests, predecessor/domain continuity, possession binding, and the two-hop no-widening rule.
 
-## Falsifier
+## Falsifiers
+
+### Root-capability vector
 
 The cross-language experiment fails if the Go verifier imports/calls either JavaScript verifier, shells out to another crypto implementation, requires third-party Go modules, or disagrees with any published fixed-vector constant or bounded authorization result.
 
@@ -26,70 +29,103 @@ A mismatch in any of these is a failure, not something to normalize silently:
 
 The adversarial side also fails the experiment if the Go verifier accepts mutated signed bytes, an untrusted root, an expired envelope, a wrong target, or a wrong action.
 
-## Vector
+### Two-hop rotation-lineage vector
+
+`experiments/TWO_HOP_ROTATION_LINEAGE_INTEROP_V1.md` records this falsifier before implementation. The experiment fails if the separate Go path:
+
+- accepts a bad Ed25519 signature over changed signed bytes;
+- derives different key ids or envelope digests from the fixed bytes;
+- accepts the wrong expected origin or domain;
+- accepts missing/substituted acknowledgement evidence;
+- accepts a second rotation whose predecessor is not the exact first successor;
+- accepts second-hop time widening outside the first signed boundary;
+- imports/executes `src/key-rotation-lineage.js` or turns into a JavaScript wrapper;
+- produces a success claim broader than `TWO_HOP_ROTATION_LINEAGE_CONFIRMED` for the supplied evidence.
+
+The experiment is also falsified by documentation that turns same-repository fixed-vector agreement into claims of identity continuity, authority transfer, branch freshness/uniqueness, fork resolution, arbitrary-length lineage conformance, third-party independence, or production security.
+
+## Vectors
+
+### Root-capability vector
 
 `evidence/interop_vector_v1.json` contains one fixed, deliberately non-secret Ed25519 test identity and one exact capability envelope.
 
 The private seed exists only to make the vector reproducible. **It must never be used as real AXM authority.**
 
-The vector fixes:
+The vector fixes Ed25519 PKCS8/SPKI encoding, UTF-8 canonical unsigned JSON bytes, SHA-256 digest, signature, evaluation time, local trusted-root set, and exact expected authorization result.
 
-- Ed25519 PKCS8/SPKI encoding;
-- UTF-8 canonical unsigned JSON bytes;
-- SHA-256 digest over those unsigned bytes;
-- Ed25519 signature over those unsigned bytes;
-- evaluation time and local trusted-root set;
-- exact expected authorization result.
+### Two-hop rotation-lineage vector
+
+`evidence/two_hop_rotation_lineage_interop_v1.json` contains three deterministic test-only Ed25519 identities plus exactly four signed packets: `A -> B`, B's acknowledgement of that rotation, `B -> C`, and C's acknowledgement of that rotation.
+
+It fixes all four signed packets, their exact SHA-256 envelope digests, the expected origin/domain/time context, and the bounded expected result `TWO_HOP_ROTATION_LINEAGE_CONFIRMED`.
+
+Those keys are evidence fixtures only. **They must never become real authority.**
 
 ## Implementation paths
 
 ### Reference JavaScript path
 
-`src/trust-core.js` remains the reference research runtime and is exercised by the original fixture suite and reference-vector check.
+`src/trust-core.js` remains the root-capability reference research runtime. `src/key-rotation-lineage.js` remains the bounded exact-two-hop lineage reference path. Neither was rewritten for the interoperability experiment.
 
-### Separate JavaScript verifier
+`tests/key-rotation-lineage-interop.test.js` binds the new lineage vector to the existing JavaScript evaluator and checks exact origin/intermediate/terminal ids, validity boundary, all four evidence digests, and absence of any authority/fork-winner output.
 
-`independent/vector-verifier-v1.js` does not import the reference core. Its test statically enforces that boundary and independently reproduces the published vector using Node's cryptographic primitive plus its own canonicalizer, key-id derivation, time check, root check, and exact scope evaluation.
+### Separate JavaScript root-capability verifier
 
-### Cross-language Go verifier
+`independent/vector-verifier-v1.js` does not import the reference core. Its test statically enforces that boundary and independently reproduces the published root-capability vector using Node's cryptographic primitive plus its own canonicalizer, key-id derivation, time check, root check, and exact scope evaluation.
 
-`crosslang/go/vector_verifier.go` is a second evidence-only implementation language and crypto-library path. It uses only the Go standard library, including `crypto/ed25519`, `crypto/x509`, `crypto/sha256`, and `encoding/json`.
+### Cross-language Go root-capability verifier
+
+`crosslang/go/vector_verifier.go` is an evidence-only implementation using only the Go standard library, including `crypto/ed25519`, `crypto/x509`, `crypto/sha256`, and `encoding/json`.
 
 It does not import either JavaScript verifier and does not shell out to Node, OpenSSL, or another crypto process. `crosslang/go/go.mod` has no third-party requirements.
 
-`crosslang/go/vector_verifier_test.go` adds seven bounded checks:
+`crosslang/go/vector_verifier_test.go` carries seven bounded checks: dependency separation, exact vector reproduction, signed-byte mutation, untrusted root, expiry, wrong target, and wrong action.
 
-1. Go-language / dependency separation;
-2. exact published-vector reproduction;
+### Cross-language Go two-hop lineage verifier
+
+`crosslang/go/rotation_lineage_verifier.go` is a separate evidence-only Go implementation of the exact bounded two-hop checks needed by the published lineage vector. It independently performs canonical JSON serialization, SHA-256 envelope digests, SPKI-derived Ed25519 key ids, Ed25519 signature verification, exact predecessor/domain binding, acknowledgement-to-rotation binding, temporal usability, and the second-hop no-widening constraint.
+
+It does not import, execute, or shell out to the JavaScript lineage evaluator. It remains standard-library only.
+
+`crosslang/go/rotation_lineage_verifier_test.go` carries five bounded checks:
+
+1. Go dependency separation from JavaScript/reference execution;
+2. exact published two-hop vector reproduction;
 3. signed-byte mutation rejection;
-4. untrusted-root refusal;
-5. expiry refusal;
-6. wrong-target refusal;
-7. wrong-action refusal.
+4. wrong-domain refusal;
+5. substituted acknowledgement refusal.
 
-Local prototype verification produced all seven passing Go tests before repository publication. CI runs the existing JavaScript suite and the Go suite independently.
+The fixed vector and the separate Go implementation were also exercised locally before publication; repository CI remains the merge gate for the exact committed state.
 
 ## What changed in evidence strength
 
-The earlier state established two JavaScript code paths in one repository agreeing on one fixed vector.
+The earlier state established cross-language agreement on one root-capability vector only.
 
-The Go verifier adds **cross-language and cross-standard-library agreement** on that same fixed vector. That is stronger evidence that the published bytes and bounded decisions are not artifacts of one JavaScript implementation path.
+The new state freezes one already-tested two-hop lineage into exact portable bytes and asks a separate Go implementation to reproduce the same bounded result without importing the JavaScript evaluator. This is stronger evidence that the A -> B -> C continuity semantics and signed-byte interpretation are not artifacts of one JavaScript code path.
 
-It is still same-repository evidence and therefore remains weaker than a separately authored or third-party implementation result.
+It is still same-repository evidence. The Go lineage verifier was authored inside the same experiment and has only the fixed vector plus selected refusals. Therefore it is **not** evidence of third-party independence or general lineage conformance.
 
 ## Claim boundary
 
-Passing all current implementations proves that three code paths in this repository — the reference JavaScript runtime, the separate JavaScript verifier, and a Go standard-library verifier — agree on one deterministic fixture and bounded negative cases.
+Passing all current interoperability checks proves only that the repository's JavaScript and Go paths agree on:
+
+- one fixed root-capability vector plus bounded root/scope/time/mutation refusals; and
+- one fixed exact-two-hop rotation-lineage vector plus selected mutation/domain/acknowledgement refusals.
 
 It does **not** prove:
 
 - independent third-party interoperability;
 - separately authored implementation independence;
-- broad protocol conformance beyond this root-capability vector;
+- broad protocol conformance;
+- arbitrary-length rotation-lineage conformance;
+- same-person/device/legal identity across rotated keys;
+- root, capability, revocation, or checkpoint authority transfer to successor keys;
+- globally newest or unique rotation-branch knowledge;
+- fork resolution or consensus;
 - production protocol certification;
 - hostile-environment security;
-- correct key custody or human identity;
 - trustworthy global time, globally fresh revocation, or disconnected replay prevention;
 - AXM-wide CANON status.
 
-The next stronger interoperability evidence should come from a genuinely external or separately authored implementation context that reproduces the published vector without copying any in-repository verifier. A second vector family covering delegation or revocation is useful only after the current one-vector claim remains reproducible across that external boundary.
+The strongest next interoperability boundary is genuinely external or separately authored reproduction of the published bytes. Until that exists, adding many more same-repository vector families should not be mistaken for external independence.

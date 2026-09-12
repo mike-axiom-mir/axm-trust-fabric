@@ -1,7 +1,7 @@
 {
   "schema": "axm.trust-fabric.adversarial-matrix/v1",
-  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_CHAIN_REVOCATION_CHECKPOINT_LINEAGE_COMPARE_ROTATION_POSSESSION_TWO_HOP_ROTATION_LINEAGE_AND_SAME_REPO_JS_GO_VECTOR_VERIFIERS",
-  "test_count": 94,
+  "status": "FIXTURE_TESTED_LOCAL_REFERENCE_WITH_CHAIN_REVOCATION_CHECKPOINT_LINEAGE_COMPARE_ROTATION_POSSESSION_TWO_HOP_ROTATION_LINEAGE_AND_SAME_REPO_JS_GO_VECTOR_VERIFIERS_PLUS_TWO_HOP_LINEAGE_INTEROP",
+  "test_count": 100,
   "tests": [
     {"case":"canonical_object_key_order","expected":"PASS","observed":"PASS"},
     {"case":"signed_bytes_mutation","expected":"INVALID_SIGNATURE","observed":"INVALID_SIGNATURE"},
@@ -96,7 +96,13 @@
     {"case":"go_verifier_untrusted_root","expected":"UNTRUSTED_ROOT_ISSUER","observed":"UNTRUSTED_ROOT_ISSUER"},
     {"case":"go_verifier_expiry","expected":"EXPIRED","observed":"EXPIRED"},
     {"case":"go_verifier_wrong_target","expected":"WRONG_TARGET","observed":"WRONG_TARGET"},
-    {"case":"go_verifier_wrong_action","expected":"WRONG_ACTION","observed":"WRONG_ACTION"}
+    {"case":"go_verifier_wrong_action","expected":"WRONG_ACTION","observed":"WRONG_ACTION"},
+    {"case":"two_hop_lineage_interop_reference_vector","expected":"EXACT_VECTOR_MATCH","observed":"EXACT_VECTOR_MATCH"},
+    {"case":"go_two_hop_lineage_dependency_separation","expected":"GO_STDLIB_ONLY_NO_JS_IMPORT_OR_EXEC","observed":"GO_STDLIB_ONLY_NO_JS_IMPORT_OR_EXEC"},
+    {"case":"go_two_hop_lineage_exact_vector","expected":"TWO_HOP_ROTATION_LINEAGE_CONFIRMED","observed":"TWO_HOP_ROTATION_LINEAGE_CONFIRMED"},
+    {"case":"go_two_hop_lineage_signed_mutation","expected":"HOLD_INVALID_ROTATION_HOP:INVALID_SIGNATURE","observed":"HOLD_INVALID_ROTATION_HOP:INVALID_SIGNATURE"},
+    {"case":"go_two_hop_lineage_wrong_domain","expected":"HOLD_INVALID_ROTATION_HOP:ROTATION_DOMAIN_MISMATCH","observed":"HOLD_INVALID_ROTATION_HOP:ROTATION_DOMAIN_MISMATCH"},
+    {"case":"go_two_hop_lineage_substituted_ack","expected":"HOLD_INVALID_ROTATION_ACK:ACK_ROTATION_BINDING_MISMATCH","observed":"HOLD_INVALID_ROTATION_ACK:ACK_ROTATION_BINDING_MISMATCH"}
   ],
   "separate_claim_test": {
     "signature_does_not_establish_truth": true,
@@ -120,6 +126,8 @@
     "two_hop_rotation_lineage_forbids_domain_or_window_widening": true,
     "two_hop_rotation_lineage_does_not_establish_identity_or_authority_transfer": true,
     "two_hop_rotation_lineage_does_not_resolve_or_hide_competing_branches": true,
+    "two_hop_rotation_lineage_cross_language_vector_is_fixed_evidence_not_general_conformance": true,
+    "two_hop_rotation_lineage_cross_language_agreement_does_not_establish_identity_authority_or_fork_resolution": true,
     "reference_vector_does_not_establish_third_party_interoperability": true,
     "same_repo_source_separation_does_not_establish_external_independence": true,
     "same_repo_cross_language_agreement_does_not_establish_third_party_conformance": true,
@@ -145,5 +153,5 @@
     "third-party or independently authored interoperability beyond the same-repository JavaScript and Go verifiers",
     "hostile-environment cryptographic review"
   ],
-  "truth_boundary": "This matrix records authored local fixtures. Revocation checkpoints attest an exact supplied same-issuer manifest only through a named historical timestamp. Checkpoint lineage can expose rollback, forks, gaps, wrong predecessors, and completeThrough regression only relative to exact local lineage state the verifier actually retained. The lineage comparator can classify two supplied complete valid histories as identical, exact-prefix descendant, fork after an exact common ancestor, or conflicting from genesis; it never discovers an unseen history, proves a globally newest head, resolves consensus, or selects a winning fork. Key-rotation evidence proves only that an explicitly expected predecessor key signed an exact successor key for one exact domain and bounded active window. A successor acknowledgement proves only that the exact named successor key signed evidence bound to that exact rotation and bounded window. The two-hop rotation-lineage experiment composes exactly A->B and B->C only when successor possession is confirmed at both hops, the same exact domain is preserved, and the second hop stays inside the first hop's effective/expiry bounds; it does not prove same-person/device identity, transfer capability/root/revocation/checkpoint authority, discover unseen rotations, establish a globally newest or unique branch, generalize to arbitrary lineage length, or resolve competing rotations. Interoperability evidence remains one deterministic vector plus same-repository JavaScript and Go verifiers and does not prove third-party conformance or hostile-deployment safety."
+  "truth_boundary": "This matrix records authored local fixtures. Revocation checkpoints attest an exact supplied same-issuer manifest only through a named historical timestamp. Checkpoint lineage can expose rollback, forks, gaps, wrong predecessors, and completeThrough regression only relative to exact local lineage state the verifier actually retained. The lineage comparator can classify two supplied complete valid histories as identical, exact-prefix descendant, fork after an exact common ancestor, or conflicting from genesis; it never discovers an unseen history, proves a globally newest head, resolves consensus, or selects a winning fork. Key-rotation evidence proves only that an explicitly expected predecessor key signed an exact successor key for one exact domain and bounded active window. A successor acknowledgement proves only that the exact named successor key signed evidence bound to that exact rotation and bounded window. The two-hop rotation-lineage experiment composes exactly A->B and B->C only when successor possession is confirmed at both hops, the same exact domain is preserved, and the second hop stays inside the first hop's effective/expiry bounds; it does not prove same-person/device identity, transfer capability/root/revocation/checkpoint authority, discover unseen rotations, establish a globally newest or unique branch, generalize to arbitrary lineage length, or resolve competing rotations. Interoperability evidence now includes a fixed root-capability vector plus a fixed two-hop rotation-lineage vector exercised by same-repository JavaScript and Go implementations. This proves only agreement for those supplied bytes and selected refusal states; it does not prove third-party conformance, external independence, arbitrary lineage conformance, or hostile-deployment safety."
 }
