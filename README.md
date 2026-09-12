@@ -4,7 +4,7 @@ Status: **RESEARCH / v0.1 reference implementation**
 
 AXM Trust Fabric experiments with one narrow question:
 
-> Can AXM prove that a key authorized an exact action for an exact scope without turning identity into centralized ownership, permanent surveillance, global accounts, or blanket trust?
+> Can AXM prove that an explicitly trusted key authorized an exact subject to perform an exact action for an exact scope, without turning identity into centralized ownership, permanent surveillance, global accounts, or blanket trust?
 
 It is a local-first cryptographic authorization primitive. It is **not** an identity provider, reputation system, truth oracle, account service, blockchain, or automatic authority escalator.
 
@@ -24,9 +24,11 @@ No human or machine actor is the constitutional merge gate by category. A ground
 - Ed25519 keypairs using Node's built-in cryptography.
 - Deterministic canonical JSON subset for signed bytes.
 - Signed envelopes with explicit issuer, time window, nonce, body, and signature.
-- Scoped capability grants: exact target + action set.
-- Delegation ceilings: child grants cannot widen actions, target, time, reuse, or delegation depth.
-- Issuer-signed revocation packets for exact capability IDs.
+- Caller-supplied trusted root issuers: an arbitrary key cannot self-authorize merely by signing a grant.
+- Scoped capability grants: exact subject, target, and action set.
+- Delegation chains with exact parent binding and narrowing ceilings.
+- Issuer-signed revocation packets for exact capability IDs, with a hold if revocation would expire before the capability.
+- Subject-signed capability-use requests, separating a valid grant from proof that the current actor controls the granted subject key.
 - Explicit `CLOCK_UNKNOWN` hold rather than pretending offline time is trusted.
 - Optional one-use capabilities with **local-only** replay detection.
 - Separate claim-state labels for integrity, authorship, authority, identity continuity, and truth.
@@ -41,7 +43,7 @@ No human or machine actor is the constitutional merge gate by category. A ground
 - cross-device replay prevention while devices are disconnected;
 - key rotation/recovery claims beyond the documented research contract;
 - content truth or safety verification;
-- automatic CANON, merge, install, migration, or permission escalation.
+- automatic CANON, install, migration, or permission escalation.
 
 ## Run locally
 
@@ -56,6 +58,7 @@ npm test
 - `TRUST_MODEL.md` — semantic contract and root boundary.
 - `IDENTITY_VS_AUTHORITY.md` — separates the five claim dimensions.
 - `KEY_ROTATION.md` — unimplemented rotation/recovery research contract.
+- `schema/` — machine-readable envelope, grant, revocation, and use-body schemas.
 - `src/trust-core.js` — dependency-free reference implementation.
 - `tests/trust-core.test.js` — executable adversarial fixtures.
 - `evidence/adversarial_matrix.json` — what is proven, held, and unresolved.
@@ -65,4 +68,4 @@ npm test
 
 Current claim: **fixture-tested local reference implementation** only.
 
-The tests demonstrate behavior of this implementation on authored fixtures. They do not establish security under hostile deployment, independent interoperability, hardware-backed key custody, globally fresh revocation, trustworthy clocks, human identity, informed consent, or content truth.
+The current authored harness contains 20 tests. That demonstrates behavior of this implementation on those fixtures. It does not establish hostile-deployment security, independent interoperability, hardware-backed key custody, globally fresh revocation, trustworthy clocks, legal/human identity, informed consent, or content truth.
