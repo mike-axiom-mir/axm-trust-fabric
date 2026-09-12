@@ -5,7 +5,7 @@
   "description": "Local-first cryptographic authorization primitives for AXM research.",
   "type": "commonjs",
   "scripts": {
-    "test": "node tests/trust-core.test.js && node tests/revocation-checkpoint.test.js && node tests/checkpoint-lineage.test.js && node tests/interop-vector.test.js && node tests/independent-interop.test.js"
+    "test": "node tests/trust-core.test.js && node tests/revocation-checkpoint.test.js && node tests/checkpoint-lineage.test.js && node tests/checkpoint-lineage-compare.test.js && node tests/interop-vector.test.js && node tests/independent-interop.test.js"
   },
   "engines": {
     "node": ">=20"
