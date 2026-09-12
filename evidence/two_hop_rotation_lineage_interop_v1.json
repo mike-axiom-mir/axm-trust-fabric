@@ -1,0 +1,111 @@
+{
+  "schema": "axm.trust-fabric.two-hop-rotation-lineage-interop-vector/v1",
+  "warning": "TEST VECTOR ONLY — NEVER USE THESE KEYS FOR REAL AUTHORITY",
+  "identities": {
+    "origin": {
+      "seedHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "publicKey": "MCowBQYDK2VwAyEAA6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg",
+      "keyId": "axm:key:ed25519:a050837d85070582ccf7394b0988847cc312cb88259b894899f6f239cf1791a5"
+    },
+    "intermediate": {
+      "seedHex": "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+      "publicKey": "MCowBQYDK2VwAyEAKay64UG8yvCyLhqU000LxzYeUm0L_hLIl5S8kyKWbdc",
+      "keyId": "axm:key:ed25519:824c89aa8efb95ef93629b4519599129cace4adac9a6180daba31ceed41ecee6"
+    },
+    "terminal": {
+      "seedHex": "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+      "publicKey": "MCowBQYDK2VwAyEAJUO5L_EJVRFHatyDadtt3JM2ZaEZeN2hQE7hBmypVZ0",
+      "keyId": "axm:key:ed25519:788de5096f8b530eef97a4015cffb7cfeb260c23795b846bf8112682a93b1101"
+    }
+  },
+  "domain": "axm:interop:two-hop-rotation-lineage:v1",
+  "evidence": {
+    "rotations": [
+      {
+        "version": "axm.trust-envelope/v1",
+        "issuer": "axm:key:ed25519:a050837d85070582ccf7394b0988847cc312cb88259b894899f6f239cf1791a5",
+        "publicKey": "MCowBQYDK2VwAyEAA6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg",
+        "issuedAt": "2026-09-13T00:00:00.000Z",
+        "expiresAt": "2026-09-13T02:00:00.000Z",
+        "nonce": "YXhtLWludGVyb3AtbGluZWFnZS1hYi1yb3RhdGlvbg",
+        "body": {
+          "kind": "key-rotation",
+          "predecessorKeyId": "axm:key:ed25519:a050837d85070582ccf7394b0988847cc312cb88259b894899f6f239cf1791a5",
+          "successorKeyId": "axm:key:ed25519:824c89aa8efb95ef93629b4519599129cace4adac9a6180daba31ceed41ecee6",
+          "successorPublicKey": "MCowBQYDK2VwAyEAKay64UG8yvCyLhqU000LxzYeUm0L_hLIl5S8kyKWbdc",
+          "domain": "axm:interop:two-hop-rotation-lineage:v1",
+          "effectiveAt": "2026-09-13T00:10:00.000Z"
+        },
+        "signature": "fQvebMT-sWSZRuo2HlJeh0bdCXZ5cGRO_x9ASUhChvBenoLEftUsW9eUUtG4zR2Lp7y9BkghAF4WxARbIwIiCQ"
+      },
+      {
+        "version": "axm.trust-envelope/v1",
+        "issuer": "axm:key:ed25519:824c89aa8efb95ef93629b4519599129cace4adac9a6180daba31ceed41ecee6",
+        "publicKey": "MCowBQYDK2VwAyEAKay64UG8yvCyLhqU000LxzYeUm0L_hLIl5S8kyKWbdc",
+        "issuedAt": "2026-09-13T00:20:00.000Z",
+        "expiresAt": "2026-09-13T01:30:00.000Z",
+        "nonce": "YXhtLWludGVyb3AtbGluZWFnZS1iYy1yb3RhdGlvbg",
+        "body": {
+          "kind": "key-rotation",
+          "predecessorKeyId": "axm:key:ed25519:824c89aa8efb95ef93629b4519599129cace4adac9a6180daba31ceed41ecee6",
+          "successorKeyId": "axm:key:ed25519:788de5096f8b530eef97a4015cffb7cfeb260c23795b846bf8112682a93b1101",
+          "successorPublicKey": "MCowBQYDK2VwAyEAJUO5L_EJVRFHatyDadtt3JM2ZaEZeN2hQE7hBmypVZ0",
+          "domain": "axm:interop:two-hop-rotation-lineage:v1",
+          "effectiveAt": "2026-09-13T00:30:00.000Z"
+        },
+        "signature": "tNzD3xXujMaePbBF9GcerEhHoyw0-Kfkb86cMx0bNQzYcQpLkefucZQPNkrCBYANtlTbNMbzxMAdy6rcdTcDAg"
+      }
+    ],
+    "acknowledgements": [
+      {
+        "version": "axm.trust-envelope/v1",
+        "issuer": "axm:key:ed25519:824c89aa8efb95ef93629b4519599129cace4adac9a6180daba31ceed41ecee6",
+        "publicKey": "MCowBQYDK2VwAyEAKay64UG8yvCyLhqU000LxzYeUm0L_hLIl5S8kyKWbdc",
+        "issuedAt": "2026-09-13T00:15:00.000Z",
+        "expiresAt": "2026-09-13T01:45:00.000Z",
+        "nonce": "YXhtLWludGVyb3AtbGluZWFnZS1hYi1hY2s",
+        "body": {
+          "kind": "key-rotation-ack",
+          "rotationId": "fe36243d8fd23c94d907455adae29957eeedd683d96fd2f4c6204b513e4cc3a3",
+          "predecessorKeyId": "axm:key:ed25519:a050837d85070582ccf7394b0988847cc312cb88259b894899f6f239cf1791a5",
+          "successorKeyId": "axm:key:ed25519:824c89aa8efb95ef93629b4519599129cace4adac9a6180daba31ceed41ecee6",
+          "domain": "axm:interop:two-hop-rotation-lineage:v1"
+        },
+        "signature": "FwIp_NaKGcBpv5yn3wHQC9XLBSO-tYSDSPvUXrFx25MzkNri3mvjDwqqBboFnA2xManPhQbhpwwUcsb9n7biBg"
+      },
+      {
+        "version": "axm.trust-envelope/v1",
+        "issuer": "axm:key:ed25519:788de5096f8b530eef97a4015cffb7cfeb260c23795b846bf8112682a93b1101",
+        "publicKey": "MCowBQYDK2VwAyEAJUO5L_EJVRFHatyDadtt3JM2ZaEZeN2hQE7hBmypVZ0",
+        "issuedAt": "2026-09-13T00:35:00.000Z",
+        "expiresAt": "2026-09-13T01:15:00.000Z",
+        "nonce": "YXhtLWludGVyb3AtbGluZWFnZS1iYy1hY2s",
+        "body": {
+          "kind": "key-rotation-ack",
+          "rotationId": "b2d3ac65317ea6621e3f37f8619a68268952bc8cca62616c094c4fd651e8e7cb",
+          "predecessorKeyId": "axm:key:ed25519:824c89aa8efb95ef93629b4519599129cace4adac9a6180daba31ceed41ecee6",
+          "successorKeyId": "axm:key:ed25519:788de5096f8b530eef97a4015cffb7cfeb260c23795b846bf8112682a93b1101",
+          "domain": "axm:interop:two-hop-rotation-lineage:v1"
+        },
+        "signature": "jFp1VIwTALN4O3XvWhMKXko6PcdpqN8oNl5tSRKZNkF527KqbzdHOgUGXMKsJ6AW6OXrbiteko24tZMzPc7sDA"
+      }
+    ]
+  },
+  "digests": {
+    "rotationAB": "fe36243d8fd23c94d907455adae29957eeedd683d96fd2f4c6204b513e4cc3a3",
+    "ackAB": "9de351d55efd1b78e41ad862ddaf998c214749163ce5e0e30caebfbb863cad72",
+    "rotationBC": "b2d3ac65317ea6621e3f37f8619a68268952bc8cca62616c094c4fd651e8e7cb",
+    "ackBC": "ea98964ee1cc20950a14182655b6d6ad5dfa397de5ceadd4ce2acb8822f442b5"
+  },
+  "evaluation": {
+    "nowMs": 1789260600000,
+    "nowIso": "2026-09-13T00:50:00.000Z",
+    "expectedOrigin": "axm:key:ed25519:a050837d85070582ccf7394b0988847cc312cb88259b894899f6f239cf1791a5",
+    "domain": "axm:interop:two-hop-rotation-lineage:v1",
+    "expectedCode": "TWO_HOP_ROTATION_LINEAGE_CONFIRMED",
+    "expectedIntermediate": "axm:key:ed25519:824c89aa8efb95ef93629b4519599129cace4adac9a6180daba31ceed41ecee6",
+    "expectedTerminal": "axm:key:ed25519:788de5096f8b530eef97a4015cffb7cfeb260c23795b846bf8112682a93b1101",
+    "expectedValidUntil": "2026-09-13T01:15:00.000Z"
+  },
+  "truthBoundary": "One fixed two-hop rotation lineage reproduced by the repository JavaScript reference path and an independent Go standard-library evaluator. This proves same-repository cross-language agreement for these supplied bytes only; it does not establish third-party conformance, identity continuity, authority transfer, global newest-branch knowledge, or fork resolution."
+}
