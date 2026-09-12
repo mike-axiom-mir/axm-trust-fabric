@@ -9,6 +9,7 @@ const matrixPath = path.join(root, 'evidence', 'adversarial_matrix.json');
 const guardPath = path.join(root, 'evidence', 'consistency_guard_v1.json');
 const reportPath = path.join(root, 'ROOT_GATE_REPORT.md');
 const readmePath = path.join(root, 'README.md');
+const trustModelPath = path.join(root, 'TRUST_MODEL.md');
 const matrix = JSON.parse(fs.readFileSync(matrixPath, 'utf8'));
 const guard = JSON.parse(fs.readFileSync(guardPath, 'utf8'));
 
@@ -70,5 +71,12 @@ console.log('PASS primary root-gate report count matches matrix');
 const readme = fs.readFileSync(readmePath, 'utf8');
 assert.ok(readme.includes(requiredCountLine), `README.md must include: ${requiredCountLine}`);
 console.log('PASS public README evidence count matches matrix');
+
+assert.ok(Array.isArray(guard.required_trust_model_phrases), 'consistency contract must list required trust-model possession phrases');
+const trustModel = fs.readFileSync(trustModelPath, 'utf8');
+for (const phrase of guard.required_trust_model_phrases) {
+  assert.ok(trustModel.includes(phrase), `TRUST_MODEL.md must preserve bounded successor-possession truth boundary: ${phrase}`);
+}
+console.log('PASS Trust Model preserves bounded successor-possession truth boundary');
 
 console.log('\nEvidence consistency guard passed.');
