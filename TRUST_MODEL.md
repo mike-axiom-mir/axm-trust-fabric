@@ -143,6 +143,20 @@ Old predecessor-signed evidence remains independently verifiable against its ori
 
 The v0.1 experiment deliberately does not implement multi-hop rotation lineage, rotation revocation/discovery/freshness, fork resolution/consensus, automatic successor authority integration, or lost-key recovery.
 
+## Successor possession acknowledgement experiment
+
+`src/key-rotation-ack.js` adds an isolated possession-evidence layer after a rotation already passes the bounded key-rotation evaluation. It does not make the successor a root, capability issuer, revoker, checkpoint signer, or identity owner.
+
+The successor signs an acknowledgement bound to the exact rotation digest, predecessor key id, successor key id, and domain. The acknowledgement issuer must equal the named successor and its signed validity window must stay inside the predecessor-signed rotation window.
+
+A successful result is `SUCCESSOR_POSSESSION_CONFIRMED_FOR_ROTATION`. It proves control of the exact successor private key for this exact rotation evidence only.
+
+It does not prove human, device, or legal identity continuity. It does not transfer root, capability, revocation, or checkpoint authority. It does not resolve a competing rotation fork or select a winning branch.
+
+An acknowledgement therefore strengthens the evidence from “A named public key B” to “A named public key B and B demonstrated control of the corresponding private key for this exact bounded packet.” It still does not establish that A and B are the same actor, that B inherits unrelated authority, or that no other valid rotation branch exists.
+
+The acknowledgement fails closed on a foreign signer, rotation-digest mismatch, predecessor/successor/domain substitution, validity-window escalation, unknown trusted time, not-yet-valid state, or expiry. Possession evidence for one branch remains branch-local evidence and cannot erase competing signed evidence.
+
 ## Interoperability evidence
 
 `evidence/interop_vector_v1.json` fixes one deliberately non-secret Ed25519 seed/private key, derived public key and key id, canonical unsigned envelope bytes, SHA-256 envelope digest, signature, evaluation time, trusted-root context, and expected scoped grant result.
@@ -182,6 +196,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - a checkpoint says `ATTESTED_THROUGH`, not `CURRENT_GLOBAL_STATE`;
 - checkpoint lineage says locally retained continuity/rollback state, not global newest state;
 - key rotation says the predecessor key attested this successor for one domain/window, not that both keys are the same person/device or that successor authority is globally current;
+- successor possession says the exact named successor key controlled its private key for the exact acknowledged rotation, not that identity or authority transferred;
 - competing rotations are conflict evidence, not a winner election;
 - agreement among same-repository JavaScript and Go implementations does not equal third-party interoperability;
 - missing time becomes `HOLD_CLOCK_UNKNOWN`;
@@ -194,6 +209,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - checkpoint evaluation requires an explicit expected issuer rather than trusting any signer by default;
 - checkpoint lineage likewise requires an explicit expected issuer and cannot be advanced by a foreign signer;
 - key rotation requires an explicit expected predecessor and exact domain; naming a successor grants no unrelated authority;
+- successor possession acknowledgement grants no root, capability, revocation, checkpoint, or fork-selection authority;
 - every capability is scoped and expiring;
 - delegation only narrows;
 - loss of ancestor authority removes downstream authority through that chain when the revocation evidence is known;
@@ -211,6 +227,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - checkpoint lineage adds signed predecessor links without mutating old checkpoints;
 - retained local heads expose rollback/forks instead of silently rewriting history;
 - key rotation adds bounded successor evidence without rewriting old signatures or pretending the successor authored old bytes;
+- successor acknowledgement binds the exact rotation digest without rewriting the predecessor rotation or older evidence;
 - competing rotations remain visible as distinct signed evidence;
 - fixed vector bytes make future canonicalization drift visible rather than silently rewriting old evidence;
 - evidence-only JavaScript and Go verifiers do not replace the reference runtime.
@@ -219,6 +236,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 
 - v0.1 has no account system, global registry, blockchain, trust score, or automatic recovery;
 - key rotation began as a documented contract and is implemented only as an isolated single-hop attestation before any authority integration or recovery mechanism;
+- successor possession remains a separate bounded acknowledgement layer before multi-hop lineage, authority integration, or recovery;
 - revocation-chain behavior is locked with local adversarial fixtures before attempting revocation distribution infrastructure;
 - checkpoint semantics are isolated and falsifier-tested before any synchronization service or authorization dependency is attempted;
 - checkpoint anti-rollback is first tested as local retained-state continuity instead of inventing consensus or a global service;
