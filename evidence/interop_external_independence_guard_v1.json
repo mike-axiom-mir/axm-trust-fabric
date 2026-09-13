@@ -1,0 +1,27 @@
+{
+  "schema": "axm.trust-fabric.interop-external-independence-guard/v1",
+  "status": "EVIDENCE_GOVERNANCE_BOUNDARY",
+  "question": "Can same-repository JavaScript + Go portability evidence be mechanically prevented from drifting into an external, third-party, or separately authored conformance claim before such evidence exists?",
+  "result": "SAME_REPOSITORY_INTEROP_CLAIM_BOUNDARY_CI_GUARDED",
+  "checked_documents": [
+    "INTEROPERABILITY.md",
+    "README.md"
+  ],
+  "guard_contract": "evidence/consistency_guard_v1.json",
+  "executable_guard": "tests/evidence-consistency.test.js",
+  "protocol_case_count": 130,
+  "counted_as_protocol_case": false,
+  "runtime_semantics_changed": false,
+  "donor_boundaries_changed": false,
+  "authority_semantics_changed": false,
+  "required_boundary": {
+    "same_repository_only": true,
+    "external_independence_established": false,
+    "third_party_conformance_established": false,
+    "broad_conformance_established": false,
+    "production_security_established": false,
+    "canon_promoted": false
+  },
+  "truth_boundary": "Passing this meta-guard proves only that selected human-facing repository documents still preserve the explicit same-repository/not-third-party interoperability boundary at this commit. It does not create external evidence, prove broad protocol conformance, prove hostile-environment security, or promote repository state to AXM-wide CANON.",
+  "strongest_next_step": "Obtain genuinely external or separately authored reproduction of published fixed bytes and bounded classifications without sharing Trust Fabric implementation code."
+}
