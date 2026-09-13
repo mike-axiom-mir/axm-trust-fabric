@@ -185,6 +185,22 @@ Older sequence evidence is rollback evidence; conflicting same-sequence or wrong
 
 This retained-head evidence does not discover unseen checkpoints or revocations. It does not prove globally newest/current rotation-revocation state. It does not survive loss or replacement of retained local state. It does not synchronize peers or choose a fork winner. It does not transfer identity or authority. It also does not validate the referenced rotations beyond the checkpoint's existing bounded contract or promote repository state to AXM-wide CANON.
 
+## Complete rotation-revocation checkpoint lineage comparison experiment
+
+`src/key-rotation-revocation-checkpoint-lineage-compare.js` compares only two explicitly supplied complete signed rotation-revocation checkpoint histories for one explicit `expectedPredecessor`. Before comparing them, it replay-validates each supplied history from sequence zero through the existing rotation-revocation checkpoint-lineage evaluator. Missing intermediate history, foreign-predecessor evidence, or otherwise invalid lineage evidence therefore fails closed instead of being normalized into a relationship claim.
+
+For two valid supplied histories, the bounded relationship states are:
+
+- `ROTATION_REVOCATION_LINEAGES_IDENTICAL` when every signed link id is identical;
+- `ROTATION_REVOCATION_RIGHT_DESCENDS_FROM_LEFT` when the left history is an exact signed-link prefix of the right;
+- `ROTATION_REVOCATION_LEFT_DESCENDS_FROM_RIGHT` when the right history is an exact signed-link prefix of the left;
+- `ROTATION_REVOCATION_LINEAGE_FORK_EVIDENCE` when both histories share an exact common ancestor and then diverge;
+- `ROTATION_REVOCATION_LINEAGE_GENESIS_CONFLICT` when both valid supplied histories begin from different signed genesis links.
+
+A prefix relationship is evidence about the two supplied histories only. It does not prove either supplied head globally newest or current. The comparator does not discover unseen checkpoints or revocations, does not establish peer synchronization, does not resolve consensus or choose a winning fork, does not survive loss of retained local state, does not transfer identity or authority, and does not validate referenced rotations beyond the existing checkpoint contract.
+
+The comparator preserves exact common-ancestor/divergence evidence where available and emits no winner field. It does not rewrite checkpoint/link history, change capability or revocation semantics, alter donor boundaries, or promote repository state to AXM-wide CANON.
+
 ## Successor possession acknowledgement experiment
 
 `src/key-rotation-ack.js` adds an isolated possession-evidence layer after a rotation already passes the bounded key-rotation evaluation. It does not make the successor a root, capability issuer, revoker, checkpoint signer, or identity owner.
@@ -246,6 +262,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - a known supplied authoritative exact rotation revocation can invalidate that exact hop locally without making any claim about unseen rotation state;
 - a rotation-revocation checkpoint attests only one exact supplied predecessor-local manifest through its historical `completeThrough`; it cannot prove absent or unseen revocations do not exist;
 - a retained rotation-revocation checkpoint-lineage head exposes rollback/fork/gap evidence only relative to exact local memory and cannot establish globally newest/current state or survive loss of that retained state;
+- comparing two supplied complete rotation-revocation checkpoint histories cannot reveal an unseen third history, establish global freshness, synchronize peers, or elect a fork winner;
 - a valid single-hop or two-hop rotation result does not prove successor/root/capability authority beyond its exact bounded attestation;
 - a confirmed two-hop branch does not prove that branch is unique, globally newest, or free of unseen competitors;
 - same-repository cross-language agreement on fixed lineage bytes cannot establish unseen branch absence or current global rotation state;
@@ -267,6 +284,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - exact rotation revocation says only that the same predecessor revoked one exact supplied rotation packet; absence of supplied revocation evidence is not global freshness;
 - a rotation-revocation checkpoint says only that one expected predecessor attested one exact supplied revocation manifest through one historical boundary;
 - rotation-revocation checkpoint lineage says only exact local retained-head continuity/rollback/fork evidence, not globally newest/current state;
+- complete rotation-revocation checkpoint lineage comparison classifies only the two supplied replay-valid histories; exact-prefix descent is not a global-newest claim and fork evidence is not winner selection;
 - successor possession says the exact named successor key controlled its private key for the exact acknowledged rotation, not that identity or authority transferred;
 - two-hop rotation lineage says the exact supplied A -> B -> C evidence composed under bounded domain/time rules, not that identity/authority transferred or the branch is unique/newest;
 - competing rotations are conflict evidence, not a winner election;
@@ -283,6 +301,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - key rotation requires an explicit expected predecessor and exact domain; naming a successor grants no unrelated authority;
 - exact rotation revocation requires the same predecessor that signed the exact referenced rotation; foreign keys gain no revocation power;
 - rotation-revocation checkpoint and lineage evaluation require the explicit expected predecessor; foreign signers cannot attest or advance another predecessor's local history;
+- complete rotation-revocation checkpoint lineage comparison requires the explicit expected predecessor and grants no branch-selection, synchronization, checkpoint, revocation, identity, or capability authority;
 - successor possession acknowledgement grants no root, capability, revocation, checkpoint, or fork-selection authority;
 - two-hop lineage requires an explicit origin and does not make B or C ambient authorities outside the supplied lineage evidence;
 - interoperability verifiers only evaluate supplied evidence and gain no authority from reproducing a result;
@@ -305,6 +324,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - key rotation adds bounded successor evidence without rewriting old signatures or pretending the successor authored old bytes;
 - exact rotation revocation binds one exact rotation digest and invalidates use of that supplied hop without rewriting the rotation or acknowledgement bytes;
 - rotation-revocation checkpoints bind exact existing revocation envelope ids, and their lineage links bind exact immutable checkpoint/link ids without rewriting historical packets;
+- complete rotation-revocation checkpoint lineage comparison replays and compares exact immutable checkpoint/link histories without rewriting either supplied history or choosing one as canonical;
 - successor acknowledgement binds the exact rotation digest without rewriting the predecessor rotation or older evidence;
 - two-hop rotation lineage composes exact existing rotation/acknowledgement packets and leaves every packet independently verifiable and byte-identical;
 - the two-hop interoperability vector freezes exact signed lineage bytes/digests so implementation drift becomes visible rather than silently normalized;
@@ -320,6 +340,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - rotation lineage advances only to exactly two hops with possession required at both hops, rather than jumping to arbitrary chain length, discovery, recovery, or consensus;
 - exact rotation revocation is added as a separate local-evidence layer before extending lineage length, building revocation distribution, or inventing recovery/fork policy;
 - historical rotation-revocation checkpointing and retained-head lineage remain bounded predecessor-local evidence before discovery, synchronization, global freshness, or fork-resolution policy;
+- complete-history comparison is kept evidence-only and CI-bound before any branch-selection, synchronization, fork-resolution, or recovery policy is attempted;
 - revocation-chain behavior is locked with local adversarial fixtures before attempting revocation distribution infrastructure;
 - checkpoint semantics are isolated and falsifier-tested before any synchronization service or authorization dependency is attempted;
 - checkpoint anti-rollback is first tested as local retained-state continuity instead of inventing consensus or a global service;
