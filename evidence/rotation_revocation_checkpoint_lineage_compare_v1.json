@@ -1,0 +1,41 @@
+{
+  "schema": "axm.trust-fabric.rotation-revocation-checkpoint-lineage-compare/v1",
+  "status": "FIXTURE_TESTED_BOUNDED_COMPARISON",
+  "experiment": "experiments/KEY_ROTATION_REVOCATION_CHECKPOINT_LINEAGE_COMPARE_V1.md",
+  "implementation": "src/key-rotation-revocation-checkpoint-lineage-compare.js",
+  "fixture": "tests/key-rotation-revocation-checkpoint-lineage.test.js",
+  "protocol_case_count_delta": 0,
+  "case_accounting": "Comparison assertions extend the existing key_rotation_revocation_checkpoint_lineage_authority_binding_boundaries fixture; no additional top-level authored protocol/security case is claimed and the repository matrix remains 130.",
+  "expected_relationship_states": [
+    "ROTATION_REVOCATION_LINEAGES_IDENTICAL",
+    "ROTATION_REVOCATION_RIGHT_DESCENDS_FROM_LEFT",
+    "ROTATION_REVOCATION_LEFT_DESCENDS_FROM_RIGHT",
+    "ROTATION_REVOCATION_LINEAGE_FORK_EVIDENCE",
+    "ROTATION_REVOCATION_LINEAGE_GENESIS_CONFLICT"
+  ],
+  "fail_closed_state": "HOLD_INVALID_ROTATION_REVOCATION_LINEAGE_EVIDENCE",
+  "verified_properties": [
+    "each supplied complete lineage is replay-validated from sequence zero with the existing rotation-revocation checkpoint-lineage evaluator before comparison",
+    "descendant classification requires an exact shared prefix of signed link envelope ids",
+    "fork evidence preserves the exact common ancestor and first divergent links",
+    "different valid genesis links do not receive an invented common ancestor",
+    "missing intermediate history fails closed",
+    "foreign-predecessor history fails closed",
+    "comparison requires an explicit expected predecessor",
+    "comparison emits no winner field and does not mutate retained historical checkpoint or link bytes"
+  ],
+  "truth_boundary": "This evidence classifies only relationships between the two complete signed rotation-revocation checkpoint histories supplied to the call. It does not discover unseen checkpoints or revocations, prove either supplied head globally newest or current, establish peer synchronization, resolve consensus or forks, survive loss of retained state, transfer identity or authority, or validate referenced rotations beyond the existing checkpoint contract.",
+  "unresolved": [
+    "discovery of unseen checkpoint histories or revocations",
+    "synchronization across peers",
+    "globally current rotation-revocation freshness",
+    "fork resolution or consensus",
+    "anti-rollback after retained local state is absent, lost, replaced, or corrupted outside the model",
+    "delegated or threshold checkpoint signers",
+    "trustworthy external time",
+    "lost-key recovery",
+    "third-party interoperability",
+    "hostile-environment cryptographic review"
+  ],
+  "canon_boundary": "Repository merge does not promote this mechanism to AXM-wide CANON."
+}

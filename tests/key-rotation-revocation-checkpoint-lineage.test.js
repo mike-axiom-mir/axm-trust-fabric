@@ -13,6 +13,9 @@ const {
   createKeyRotationRevocationCheckpointLink,
   evaluateKeyRotationRevocationCheckpointLineage
 } = require('../src/key-rotation-revocation-checkpoint-lineage');
+const {
+  compareKeyRotationRevocationCheckpointLineages
+} = require('../src/key-rotation-revocation-checkpoint-lineage-compare');
 
 const root = generateIdentity();
 const stranger = generateIdentity();
@@ -195,7 +198,7 @@ test('linked successor cannot move rotation-revocation completeThrough backward'
   assert.equal(result.code, 'ROTATION_REVOCATION_CHECKPOINT_COMPLETENESS_ROLLBACK');
 });
 
-test('authority and exact-binding boundaries fail closed without rewriting retained history', () => {
+test('authority, exact-binding, and complete-history comparison boundaries fail closed without rewriting retained history', () => {
   const foreignCheckpoint = checkpoint(stranger, 'foreign', '2026-09-13T03:00:00.000Z', '2026-09-13T03:05:00.000Z');
   const foreignLink = createKeyRotationRevocationCheckpointLink(stranger, {
     checkpoint: foreignCheckpoint,
@@ -248,6 +251,81 @@ test('authority and exact-binding boundaries fail closed without rewriting retai
     expectedPredecessor: root.keyId
   });
   assert.equal(earlyResult.code, 'ROTATION_REVOCATION_CHECKPOINT_LINK_BEFORE_CHECKPOINT');
+
+  const thirdCheckpoint = checkpoint(root, 'compare-third', '2026-09-13T04:00:00.000Z', '2026-09-13T04:05:00.000Z');
+  const thirdLink = createKeyRotationRevocationCheckpointLink(root, {
+    checkpoint: thirdCheckpoint,
+    previousLink: successorLink,
+    issuedAt: '2026-09-13T04:06:00.000Z',
+    expiresAt: '2026-09-13T06:00:00.000Z',
+    nonce: nonce('compare-third')
+  });
+  const shortLineage = [genesisHead, successorHead];
+  const longLineage = [genesisHead, successorHead, { checkpoint: thirdCheckpoint, link: thirdLink }];
+
+  const identical = compareKeyRotationRevocationCheckpointLineages(longLineage, longLineage, {
+    expectedPredecessor: root.keyId
+  });
+  assert.equal(identical.code, 'ROTATION_REVOCATION_LINEAGES_IDENTICAL');
+  assert.match(identical.truthBoundary, /does not discover unseen checkpoints or revocations/);
+
+  const descendant = compareKeyRotationRevocationCheckpointLineages(shortLineage, longLineage, {
+    expectedPredecessor: root.keyId
+  });
+  assert.equal(descendant.code, 'ROTATION_REVOCATION_RIGHT_DESCENDS_FROM_LEFT');
+  assert.equal(descendant.descendantSteps, 1);
+  assert.match(descendant.truthBoundary, /globally newest\/current/);
+
+  const compareForkCheckpoint = checkpoint(root, 'compare-fork', '2026-09-13T04:01:00.000Z', '2026-09-13T04:07:00.000Z');
+  const compareForkLink = createKeyRotationRevocationCheckpointLink(root, {
+    checkpoint: compareForkCheckpoint,
+    previousLink: successorLink,
+    issuedAt: '2026-09-13T04:08:00.000Z',
+    expiresAt: '2026-09-13T06:00:00.000Z',
+    nonce: nonce('compare-fork')
+  });
+  const fork = compareKeyRotationRevocationCheckpointLineages(
+    longLineage,
+    [genesisHead, successorHead, { checkpoint: compareForkCheckpoint, link: compareForkLink }],
+    { expectedPredecessor: root.keyId }
+  );
+  assert.equal(fork.code, 'ROTATION_REVOCATION_LINEAGE_FORK_EVIDENCE');
+  assert.equal(fork.commonAncestor.linkId, envelopeDigest(successorLink));
+  assert.equal('winner' in fork, false);
+
+  const alternateGenesisCheckpoint = checkpoint(root, 'compare-alternate-genesis', '2026-09-13T01:01:00.000Z', '2026-09-13T01:07:00.000Z');
+  const alternateGenesisLink = createKeyRotationRevocationCheckpointLink(root, {
+    checkpoint: alternateGenesisCheckpoint,
+    issuedAt: '2026-09-13T01:08:00.000Z',
+    expiresAt: '2026-09-13T06:00:00.000Z',
+    nonce: nonce('compare-alternate-genesis')
+  });
+  const genesisConflict = compareKeyRotationRevocationCheckpointLineages(
+    [genesisHead],
+    [{ checkpoint: alternateGenesisCheckpoint, link: alternateGenesisLink }],
+    { expectedPredecessor: root.keyId }
+  );
+  assert.equal(genesisConflict.code, 'ROTATION_REVOCATION_LINEAGE_GENESIS_CONFLICT');
+  assert.equal(genesisConflict.commonAncestor, null);
+
+  const omittedIntermediate = compareKeyRotationRevocationCheckpointLineages(
+    shortLineage,
+    [genesisHead, { checkpoint: thirdCheckpoint, link: thirdLink }],
+    { expectedPredecessor: root.keyId }
+  );
+  assert.equal(omittedIntermediate.code, 'HOLD_INVALID_ROTATION_REVOCATION_LINEAGE_EVIDENCE');
+  assert.equal(omittedIntermediate.cause, 'HOLD_ROTATION_REVOCATION_LINEAGE_GAP');
+
+  const foreignComparison = compareKeyRotationRevocationCheckpointLineages(
+    [genesisHead],
+    [{ checkpoint: foreignCheckpoint, link: foreignLink }],
+    { expectedPredecessor: root.keyId }
+  );
+  assert.equal(foreignComparison.code, 'HOLD_INVALID_ROTATION_REVOCATION_LINEAGE_EVIDENCE');
+  assert.equal(foreignComparison.cause, 'ROTATION_REVOCATION_CHECKPOINT_LINEAGE_ISSUER_MISMATCH');
+
+  const missingExpectedPredecessor = compareKeyRotationRevocationCheckpointLineages(shortLineage, longLineage);
+  assert.equal(missingExpectedPredecessor.code, 'HOLD_EXPECTED_PREDECESSOR_REQUIRED');
 
   assert.equal(envelopeDigest(successorHead.checkpoint), envelopeDigest(successorCheckpoint));
   assert.equal(envelopeDigest(successorHead.link), envelopeDigest(successorLink));
