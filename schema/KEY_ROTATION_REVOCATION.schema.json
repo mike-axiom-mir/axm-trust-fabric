@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axm.local/schema/KEY_ROTATION_REVOCATION.schema.json",
+  "title": "AXM Trust Fabric Key Rotation Revocation Body v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "rotationId", "predecessorKeyId", "successorKeyId", "domain", "reasonCode"],
+  "properties": {
+    "kind": { "const": "key-rotation-revocation" },
+    "rotationId": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "predecessorKeyId": { "type": "string", "pattern": "^axm:key:ed25519:[a-f0-9]{64}$" },
+    "successorKeyId": { "type": "string", "pattern": "^axm:key:ed25519:[a-f0-9]{64}$" },
+    "domain": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "reasonCode": { "type": "string", "pattern": "^[A-Z0-9_]{2,64}$" }
+  }
+}
