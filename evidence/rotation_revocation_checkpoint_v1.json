@@ -1,0 +1,29 @@
+{
+  "schema": "axm.trust-fabric.rotation-revocation-checkpoint-evidence/v1",
+  "status": "BOUNDED_HISTORICAL_ATTESTATION_FIXTURE_TESTED",
+  "question": "Can one explicit predecessor attest the exact supplied set of its own signed key-rotation-revocation packets through a historical completeThrough boundary without claiming global freshness, referenced-rotation validity, authority transfer, discovery, or consensus?",
+  "success_state": "ROTATION_REVOCATION_SET_ATTESTED_THROUGH",
+  "authored_cases": 10,
+  "proved": [
+    "exact supplied same-predecessor packet-id manifest binds count and digest",
+    "omission or substitution changes the signed manifest result",
+    "checkpoint evaluation requires the explicit expected predecessor",
+    "foreign predecessor packets cannot enter another predecessor checkpoint manifest",
+    "packets issued after completeThrough are not covered",
+    "completeThrough cannot exceed checkpoint issuedAt",
+    "expired checkpoint becomes stale and unknown clock holds",
+    "duplicate packet ids are rejected"
+  ],
+  "not_proved": [
+    "referenced rotation validity",
+    "absence of newer or unseen rotation revocations",
+    "peer synchronization or discovery completeness",
+    "globally newest or unique rotation branch",
+    "identity continuity or authority transfer",
+    "fork resolution or consensus",
+    "checkpoint lineage or anti-rollback",
+    "lost-key recovery",
+    "AXM-wide CANON status"
+  ],
+  "truth_boundary": "ROTATION_REVOCATION_SET_ATTESTED_THROUGH means only that the explicitly expected predecessor signed a checkpoint whose exact count and digest match the supplied valid same-predecessor key-rotation-revocation packet ids through the named historical completeThrough boundary while the checkpoint itself is temporally usable. It does not separately validate referenced rotations or establish current global revocation state."
+}
