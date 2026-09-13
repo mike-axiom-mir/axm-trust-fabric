@@ -13,23 +13,25 @@ This experiment does not add a protocol primitive. It protects the claim boundar
 The experiment fails if any of the following is true:
 
 1. `INTEROPERABILITY.md` can lose the explicit statement that external/third-party independence is not established and CI still passes.
-2. The public `README.md` can imply that same-repository JavaScript + Go agreement is third-party or separately authored external conformance and CI still passes.
+2. The public `README.md` can lose its explicit statement that third-party or separately authored protocol conformance is not implemented and CI still passes.
 3. The guard treats same-repository fixed-vector agreement as proof of broad conformance, production security, global freshness, synchronization, consensus, or AXM-wide CANON.
 4. Enforcing the boundary changes runtime trust decisions, signed packet formats, donor behavior, cryptographic authority, or the authored protocol-case count.
-5. The guard proves only that its own machine-readable declaration contains the phrase, rather than checking the human-facing documents where an overclaim could appear.
+5. The guard proves only that its own machine-readable declaration contains the boundary rather than checking the human-facing documents where an overclaim could appear.
 6. A repository merge is interpreted as external validation or AXM-wide CANON promotion.
-
-A deliberate guard-first branch state should fail until the public documents carry the exact held-state marker required by the consistency contract.
 
 ## Bounded target
 
-Add one CI meta-check that binds an explicit held state to both interoperability documentation and the public README:
+Extend the existing evidence-consistency meta-guard so CI directly checks the already-published held-state language in `INTEROPERABILITY.md` and `README.md`.
 
-`EXTERNAL_INTEROPERABILITY_NOT_ESTABLISHED`
+The guarded interoperability claims must continue to say, in substance and in exact required phrases, that:
 
-The marker means only that current JavaScript + Go agreement was produced inside this repository and is not evidence of an independently authored external implementation.
+- current cross-language agreement is **same-repository evidence**;
+- it is **not evidence of third-party independence**;
+- the strongest next boundary requires genuinely external or separately authored reproduction;
+- adding more same-repository vectors must not be mistaken for external independence; and
+- the public README still lists third-party or separately authored protocol conformance as not implemented.
 
-The guard remains outside the protocol/security case count.
+The meta-guard remains outside the protocol/security case count.
 
 ## Root boundary
 
