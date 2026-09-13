@@ -85,7 +85,7 @@ function test(name, fn) {
   console.log(`PASS ${name}`);
 }
 
-test('exact predecessor-signed revocation invalidates the exact supplied rotation', () => {
+test('exact predecessor-signed revocation enforces exact packet and causal issuance boundary', () => {
   const rotation = firstRotation();
   const packet = revocation(a, rotation, 'exact');
   const result = evaluateKeyRotationWithRevocations(rotation, [packet], rotationOptions(a.keyId));
@@ -94,6 +94,36 @@ test('exact predecessor-signed revocation invalidates the exact supplied rotatio
   assert.equal(result.revocationId, envelopeDigest(packet));
   assert.match(result.truthBoundary, /supplied valid revocation/);
   assert.match(result.truthBoundary, /global rotation freshness/);
+
+  assert.throws(
+    () => revocation(a, rotation, 'predated-local', { issuedAt: '2026-09-12T23:59:59.000Z' }),
+    (error) => error && error.code === 'INVALID_ROTATION_REVOCATION_CAUSALITY'
+  );
+
+  const predated = signEnvelope({
+    identity: a,
+    issuedAt: '2026-09-12T23:59:59.000Z',
+    expiresAt: rotation.expiresAt,
+    nonce: nonce('predated-external'),
+    body: {
+      kind: 'key-rotation-revocation',
+      rotationId: envelopeDigest(rotation),
+      predecessorKeyId: rotation.body.predecessorKeyId,
+      successorKeyId: rotation.body.successorKeyId,
+      domain: rotation.body.domain,
+      reasonCode: 'ROTATION_REVOKED'
+    }
+  });
+  const predatedResult = evaluateKeyRotationWithRevocations(rotation, [predated], rotationOptions(a.keyId));
+  assert.equal(predatedResult.ok, false);
+  assert.equal(predatedResult.code, 'HOLD_INVALID_ROTATION_REVOCATION_CAUSALITY');
+  assert.match(predatedResult.truthBoundary, /local signed-evidence causality contradiction/);
+  assert.match(predatedResult.truthBoundary, /does not establish globally trustworthy time/);
+
+  const equalIssuedAt = revocation(a, rotation, 'equal-issued-at', { issuedAt: rotation.issuedAt });
+  const equalIssuedAtResult = evaluateKeyRotationWithRevocations(rotation, [equalIssuedAt], rotationOptions(a.keyId));
+  assert.equal(equalIssuedAtResult.ok, false);
+  assert.equal(equalIssuedAtResult.code, 'ROTATION_REVOKED');
 });
 
 test('foreign signer cannot revoke another predecessor exact rotation', () => {

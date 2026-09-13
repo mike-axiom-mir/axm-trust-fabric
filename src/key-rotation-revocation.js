@@ -65,6 +65,11 @@ function createKeyRotationRevocation(predecessorIdentity, {
   };
   const revocation = signEnvelope({ identity: predecessorIdentity, body, issuedAt, expiresAt, nonce });
   validateRotationRevocationBody(revocation);
+  demand(
+    Date.parse(revocation.issuedAt) >= Date.parse(rotation.issuedAt),
+    'INVALID_ROTATION_REVOCATION_CAUSALITY',
+    'Rotation revocation cannot be issued before the exact rotation packet it revokes.'
+  );
   return revocation;
 }
 
@@ -99,6 +104,16 @@ function evaluateKeyRotationWithRevocations(rotation, revocations = [], options 
         code: 'HOLD_ROTATION_REVOCATION_CONTEXT_MISMATCH',
         rotationEvidence: rotationResult,
         revocationId: verified.envelopeId
+      };
+    }
+
+    if (Date.parse(packet.issuedAt) < Date.parse(rotation.issuedAt)) {
+      return {
+        ok: false,
+        code: 'HOLD_INVALID_ROTATION_REVOCATION_CAUSALITY',
+        rotationEvidence: rotationResult,
+        revocationId: verified.envelopeId,
+        truthBoundary: 'The exact supplied revocation is signed earlier than the exact supplied rotation packet it claims to revoke. This is a local signed-evidence causality contradiction only; it does not establish globally trustworthy time, freshness, synchronization, or ordering.'
       };
     }
 
