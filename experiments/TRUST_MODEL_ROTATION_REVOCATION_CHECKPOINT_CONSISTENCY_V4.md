@@ -25,6 +25,10 @@ It also fails if enforcing those statements changes runtime trust decisions, add
 - keep the authored protocol/security matrix at 130 cases because this is documentation/evidence consistency plumbing, not a new protocol property;
 - update the primary root-gate report so the guard scope is stated accurately.
 
+## Observed falsifier evidence
+
+With the new required phrases present in the consistency contract while `TRUST_MODEL.md` was still unrepaired, exact branch commit `70e5b1794773a55a896159ee9dd049847d0675e6` failed remote CI at `npm test`. The Go step was consequently skipped. This is the intended falsifier: the previously missing primary-model boundary became machine-detectable before the documentation repair was applied.
+
 ## Truth boundary
 
 A green guard proves only that selected repository documentation at one commit still states these bounded semantics already backed by executable fixtures. It does not prove documentation completeness, protocol completeness, global freshness, peer synchronization, fork resolution, external security, identity continuity, authority transfer, recovery, or AXM-wide CANON status.
