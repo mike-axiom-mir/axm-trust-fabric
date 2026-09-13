@@ -59,7 +59,7 @@
   "required_interoperability_phrases": [
     "Status: **SAME-REPOSITORY JAVASCRIPT + GO AGREEMENT ON THREE FIXED VECTOR FAMILIES / NOT THIRD-PARTY CONFORMANCE**",
     "It is still same-repository evidence.",
-    "not evidence of third-party independence",
+    "**not** evidence of third-party independence",
     "The strongest next interoperability boundary is genuinely external or separately authored reproduction of the published bytes.",
     "adding more same-repository vector families should not be mistaken for external independence"
   ],
