@@ -72,11 +72,11 @@ const readme = fs.readFileSync(readmePath, 'utf8');
 assert.ok(readme.includes(requiredCountLine), `README.md must include: ${requiredCountLine}`);
 console.log('PASS public README evidence count matches matrix');
 
-assert.ok(Array.isArray(guard.required_trust_model_phrases), 'consistency contract must list required trust-model possession phrases');
+assert.ok(Array.isArray(guard.required_trust_model_phrases), 'consistency contract must list required bounded Trust Model phrases');
 const trustModel = fs.readFileSync(trustModelPath, 'utf8');
 for (const phrase of guard.required_trust_model_phrases) {
-  assert.ok(trustModel.includes(phrase), `TRUST_MODEL.md must preserve bounded successor-possession truth boundary: ${phrase}`);
+  assert.ok(trustModel.includes(phrase), `TRUST_MODEL.md must preserve bounded Trust Model truth boundary: ${phrase}`);
 }
-console.log('PASS Trust Model preserves bounded successor-possession truth boundary');
+console.log('PASS Trust Model preserves required bounded truth boundaries');
 
 console.log('\nEvidence consistency guard passed.');
