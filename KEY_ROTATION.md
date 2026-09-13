@@ -77,7 +77,9 @@ A rotation revocation is signed by the same predecessor that signed the referenc
 
 A supplied valid active exact match produces `ROTATION_REVOKED`. A foreign signer or revocation bound to another rotation cannot revoke the supplied rotation.
 
-The revocation envelope must remain valid through at least the referenced rotation's signed expiry. A shorter matching revocation produces `HOLD_INVALID_ROTATION_REVOCATION_WINDOW` rather than allowing a clean later resurrection after the revocation expires. A matching revocation that is not yet valid is not treated as already active.
+The revocation envelope must remain valid through at least the referenced rotation's signed expiry. A shorter matching revocation produces `HOLD_INVALID_ROTATION_REVOCATION_WINDOW` rather than allowing a clean later resurrection after the revocation expires. A matching not-yet-valid revocation is not treated as already active.
+
+The revocation must also not predate the exact rotation packet it names. If an otherwise-authoritative exact-match revocation has `revocation.issuedAt < rotation.issuedAt`, evaluation fails closed as `HOLD_INVALID_ROTATION_REVOCATION_CAUSALITY`; the local creation helper rejects the same contradiction as `INVALID_ROTATION_REVOCATION_CAUSALITY`. Equal canonical timestamps are allowed. This is only a relationship between two signed packet timestamps and does **not** prove that either timestamp is externally true, synchronized, globally fresh, or globally ordered.
 
 When no active authoritative exact revocation is found, the bounded success state is `KEY_ROTATION_USABLE_WITH_SUPPLIED_REVOCATION_EVIDENCE`. That wording is intentional: it means only that the supplied local evidence contains no active authoritative exact revocation. It does **not** prove that no revocation exists elsewhere, that this peer is synchronized, or that the rotation is globally fresh/newest.
 
@@ -109,12 +111,13 @@ This experiment does not implement rotation-revocation discovery/synchronization
 - evaluating a lineage does not rewrite any historical rotation or acknowledgement packet;
 - an exact rotation revocation must be signed by the same predecessor that signed the referenced rotation;
 - rotation revocation binds the exact rotation digest, predecessor, successor, and domain, so unrelated rotations remain unaffected;
+- an exact matching rotation revocation cannot have `issuedAt` earlier than the referenced rotation packet's `issuedAt`; predated evidence fails closed while equal timestamps remain allowed;
 - a matching revocation whose expiry is shorter than the referenced rotation fails closed as `HOLD_INVALID_ROTATION_REVOCATION_WINDOW`;
 - a known supplied authoritative revocation of either hop prevents a two-hop lineage from remaining confirmed under the revocation-aware wrapper;
 - absence of supplied rotation-revocation evidence never becomes a global freshness or unseen-evidence claim;
 - revocation evaluation leaves historical rotation and acknowledgement bytes/digests unchanged.
 
-See `experiments/KEY_ROTATION_V1.md`, `experiments/KEY_ROTATION_ACK_V1.md`, `experiments/KEY_ROTATION_LINEAGE_V1.md`, and `experiments/KEY_ROTATION_REVOCATION_V1.md` for the falsifier-first contracts.
+See `experiments/KEY_ROTATION_V1.md`, `experiments/KEY_ROTATION_ACK_V1.md`, `experiments/KEY_ROTATION_LINEAGE_V1.md`, `experiments/KEY_ROTATION_REVOCATION_V1.md`, and `experiments/KEY_ROTATION_REVOCATION_CAUSALITY_V2.md` for the falsifier-first contracts.
 
 ## Still unresolved
 
@@ -123,6 +126,7 @@ The bounded experiments do **not** yet define or claim:
 - arbitrary-length rotation lineage beyond the bounded two-hop `A -> B -> C` experiment;
 - automatic acceptance of B or C as a capability/root issuer because a predecessor named them or they acknowledged possession;
 - rotation-revocation discovery, synchronization, freshness, delegated/threshold revokers, or fork-interaction policy;
+- externally trustworthy or synchronized time beyond comparisons among timestamps already signed into supplied evidence;
 - rotation discovery or globally current rotation state;
 - fork resolution or consensus;
 - rollback protection after local evidence loss;
