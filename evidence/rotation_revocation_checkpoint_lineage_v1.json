@@ -1,0 +1,31 @@
+{
+  "schema": "axm.trust-fabric.rotation-revocation-checkpoint-lineage-evidence/v1",
+  "status": "FIXTURE_TESTED_LOCAL_RETAINED_HEAD_CONTINUITY_ONLY",
+  "case_count": 10,
+  "question": "Can one explicitly expected predecessor extend one exact locally retained key-rotation-revocation checkpoint head by one direct successor without rollback or silent fork normalization?",
+  "falsifiers": [
+    "non-genesis accepted without retained predecessor history",
+    "older sequence silently replaces retained newer head",
+    "same-sequence conflict is normalized instead of exposed",
+    "wrong direct predecessor advances",
+    "completeThrough moves backward",
+    "sequence gap is treated as continuous",
+    "foreign signer advances expected predecessor lineage",
+    "link does not bind exact checkpoint digest",
+    "link predates the checkpoint it names",
+    "success is promoted into global freshness, synchronization, fork resolution, authority transfer, or CANON"
+  ],
+  "observed": {
+    "local_genesis": "ROTATION_REVOCATION_LINEAGE_GENESIS_ACCEPTABLE",
+    "missing_history": "HOLD_ROTATION_REVOCATION_LINEAGE_HISTORY_REQUIRED",
+    "direct_advance": "ROTATION_REVOCATION_LINEAGE_ADVANCE_ACCEPTABLE",
+    "exact_head": "ROTATION_REVOCATION_LINEAGE_HEAD_CURRENT",
+    "older_candidate": "ROTATION_REVOCATION_CHECKPOINT_ROLLBACK_DETECTED",
+    "same_sequence_conflict": "ROTATION_REVOCATION_CHECKPOINT_FORK_DETECTED",
+    "lineage_gap": "HOLD_ROTATION_REVOCATION_LINEAGE_GAP",
+    "wrong_predecessor": "ROTATION_REVOCATION_CHECKPOINT_FORK_DETECTED",
+    "complete_through_regression": "ROTATION_REVOCATION_CHECKPOINT_COMPLETENESS_ROLLBACK",
+    "authority_and_exact_binding_boundaries": "FAIL_CLOSED_HISTORY_UNCHANGED"
+  },
+  "truth_boundary": "This evidence establishes only local anti-rollback and fork/gap visibility relative to one exact retained predecessor-signed rotation-revocation checkpoint/link head. It does not discover unseen checkpoints or revocations, prove a globally newest or globally fresh state, survive loss of retained local state, synchronize peers, resolve forks, validate referenced rotations beyond the checkpoint contract, transfer identity or authority, or establish AXM-wide CANON."
+}
