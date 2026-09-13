@@ -1,7 +1,7 @@
 {
   "schema": "axm.trust-fabric.evidence-consistency/v1",
   "status": "CI_META_GUARD",
-  "protocol_case_count": 100,
+  "protocol_case_count": 110,
   "meta_test_counted_as_protocol_case": false,
   "javascript_direct_case_files": [
     "tests/interop-vector.test.js"
@@ -12,7 +12,12 @@
     "proves control of the exact successor private key for this exact rotation evidence only",
     "does not prove human, device, or legal identity continuity",
     "does not transfer root, capability, revocation, or checkpoint authority",
-    "does not resolve a competing rotation fork or select a winning branch"
+    "does not resolve a competing rotation fork or select a winning branch",
+    "## Exact key rotation revocation experiment",
+    "ROTATION_REVOKED",
+    "KEY_ROTATION_USABLE_WITH_SUPPLIED_REVOCATION_EVIDENCE",
+    "does not prove that no revocation exists elsewhere",
+    "HOLD_INVALID_ROTATION_REVOCATION_WINDOW"
   ],
   "checks": [
     "matrix_test_count_matches_entries",
@@ -21,7 +26,7 @@
     "javascript_plus_go_behavior_fixture_count_matches_matrix",
     "primary_root_gate_report_states_current_matrix_count",
     "public_readme_states_current_matrix_count",
-    "trust_model_successor_possession_truth_boundary_present"
+    "trust_model_bounded_truth_boundaries_present"
   ],
-  "truth_boundary": "This guard proves selected repository evidence declarations agree at one commit, including the machine matrix, primary root-gate report, public README count, and the bounded successor-possession truth boundary in TRUST_MODEL.md. It does not prove fixture completeness, documentation completeness, semantic correctness beyond exercised cases, external independence, hostile-environment security, or AXM-wide CANON status."
+  "truth_boundary": "This guard proves selected repository evidence declarations agree at one commit, including the machine matrix, primary root-gate report, public README count, and bounded successor-possession plus exact rotation-revocation truth boundaries in TRUST_MODEL.md. It does not prove fixture completeness, documentation completeness, semantic correctness beyond exercised cases, external independence, hostile-environment security, or AXM-wide CANON status."
 }
