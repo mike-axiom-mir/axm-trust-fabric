@@ -31,7 +31,21 @@
     "does not survive loss or replacement of retained local state",
     "does not synchronize peers or choose a fork winner",
     "does not transfer identity or authority",
-    "A foreign signer cannot checkpoint or advance another predecessor's lineage"
+    "A foreign signer cannot checkpoint or advance another predecessor's lineage",
+    "## Complete rotation-revocation checkpoint lineage comparison experiment",
+    "two explicitly supplied complete signed rotation-revocation checkpoint histories",
+    "ROTATION_REVOCATION_LINEAGES_IDENTICAL",
+    "ROTATION_REVOCATION_RIGHT_DESCENDS_FROM_LEFT",
+    "ROTATION_REVOCATION_LEFT_DESCENDS_FROM_RIGHT",
+    "ROTATION_REVOCATION_LINEAGE_FORK_EVIDENCE",
+    "ROTATION_REVOCATION_LINEAGE_GENESIS_CONFLICT",
+    "does not discover unseen checkpoints or revocations",
+    "does not prove either supplied head globally newest or current",
+    "does not establish peer synchronization",
+    "does not resolve consensus or choose a winning fork",
+    "does not survive loss of retained local state",
+    "does not transfer identity or authority",
+    "does not validate referenced rotations beyond the existing checkpoint contract"
   ],
   "checks": [
     "matrix_test_count_matches_entries",
@@ -42,5 +56,5 @@
     "public_readme_states_current_matrix_count",
     "trust_model_bounded_truth_boundaries_present"
   ],
-  "truth_boundary": "This guard proves selected repository evidence declarations agree at one commit, including the machine matrix, primary root-gate report, public README count, and bounded successor-possession, exact rotation-revocation, historical rotation-revocation-checkpoint, and retained-head rotation-revocation-checkpoint-lineage truth boundaries in TRUST_MODEL.md. The guard does not prove fixture completeness, documentation completeness, semantic correctness beyond exercised cases, global freshness, synchronization, fork resolution, external independence, hostile-environment security, or AXM-wide CANON status."
+  "truth_boundary": "This guard proves selected repository evidence declarations agree at one commit, including the machine matrix, primary root-gate report, public README count, and bounded successor-possession, exact rotation-revocation, historical rotation-revocation-checkpoint, retained-head rotation-revocation-checkpoint-lineage, and complete-history rotation-revocation-lineage-comparison truth boundaries in TRUST_MODEL.md. The guard does not prove fixture completeness, documentation completeness, semantic correctness beyond exercised cases, global freshness, synchronization, fork resolution, external independence, hostile-environment security, or AXM-wide CANON status."
 }
