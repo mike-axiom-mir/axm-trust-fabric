@@ -4,9 +4,9 @@ Status: candidate evidence for repository merge; not automatic CANON.
 
 This is the primary consolidated root-gate report for the current bounded Trust Fabric v0.1 research state. Supplementary experiment reports remain useful history, but this file must track the repository's current authored evidence count and truth boundaries.
 
-Current authored adversarial matrix: **120 bounded cases**.
+Current authored adversarial matrix: **130 bounded cases**.
 
-A CI meta-guard checks that this count agrees with the machine-readable matrix, executable JavaScript + Go behavior fixtures, and the public README evidence count. The same guard also requires `TRUST_MODEL.md` to preserve selected bounded successor-possession and exact rotation-revocation truth boundaries already exercised by the protocol fixtures. The guard itself is evidence plumbing and is **not** counted as a protocol/security case. The earlier rotation-revocation causality assertions still extend one existing exact-revocation fixture rather than adding a top-level case; the new bounded historical rotation-revocation checkpoint contributes 10 independently counted adversarial cases, bringing the authored matrix to 120.
+A CI meta-guard checks that this count agrees with the machine-readable matrix, executable JavaScript + Go behavior fixtures, and the public README evidence count. The same guard also requires `TRUST_MODEL.md` to preserve selected bounded successor-possession and exact rotation-revocation truth boundaries already exercised by the protocol fixtures. The guard itself is evidence plumbing and is **not** counted as a protocol/security case. The earlier rotation-revocation causality assertions still extend one existing exact-revocation fixture rather than adding a top-level case; the bounded historical rotation-revocation checkpoint contributes 10 independently counted adversarial cases, and the new local retained-head rotation-revocation checkpoint-lineage experiment contributes 10 more, bringing the authored matrix to 130.
 
 ## Truth
 
@@ -32,9 +32,12 @@ PASS for the bounded repository state if the final published branch and CI agree
 - A matching rotation revocation that expires before the referenced rotation produces `HOLD_INVALID_ROTATION_REVOCATION_WINDOW` rather than a clean withdrawal that can silently disappear before the original rotation expires.
 - `KEY_ROTATION_USABLE_WITH_SUPPLIED_REVOCATION_EVIDENCE` means only that no active authoritative exact revocation was found in the evidence supplied to that evaluation. It does not prove no revocation exists elsewhere or that the rotation is globally fresh/newest.
 - The revocation-aware two-hop wrapper refuses an otherwise-valid supplied lineage when either hop has a known supplied authoritative exact revocation and reports the affected hop; it does not rewrite the existing lineage evaluator or historical packets.
-- The new rotation-revocation checkpoint accepts only an exact supplied set of cryptographically valid `key-rotation-revocation` envelopes signed by the explicitly expected predecessor, with every packet issued at or before the signed historical `completeThrough` boundary and with exact packet-id count/digest agreement.
+- The rotation-revocation checkpoint accepts only an exact supplied set of cryptographically valid `key-rotation-revocation` envelopes signed by the explicitly expected predecessor, with every packet issued at or before the signed historical `completeThrough` boundary and with exact packet-id count/digest agreement.
 - `ROTATION_REVOCATION_SET_ATTESTED_THROUGH` means only that this predecessor signed this exact supplied packet-id manifest through that historical boundary while the checkpoint itself is temporally usable. It does not separately validate the referenced rotations, prove that no newer or unseen revocation exists, prove peer synchronization, establish a globally newest/unique branch, transfer identity/authority, or resolve a fork.
 - An expired rotation-revocation checkpoint is `STALE_ROTATION_REVOCATION_CHECKPOINT`; an unknown verifier clock is `HOLD_CLOCK_UNKNOWN`. Neither becomes current global freshness evidence.
+- The new rotation-revocation checkpoint-lineage primitive adds only local retained-head continuity over exact immutable checkpoint/link IDs. `ROTATION_REVOCATION_LINEAGE_ADVANCE_ACCEPTABLE` means the supplied candidate is the exact direct successor of the exact locally retained predecessor and does not move `completeThrough` backward.
+- An older sequence becomes `ROTATION_REVOCATION_CHECKPOINT_ROLLBACK_DETECTED`; same-sequence or wrong-predecessor direct successors remain `ROTATION_REVOCATION_CHECKPOINT_FORK_DETECTED`; sequence gaps hold; exact checkpoint/link binding and link-after-checkpoint causality fail closed.
+- Rotation-revocation checkpoint lineage does not discover unseen checkpoints or revocations, prove globally newest/current rotation-revocation state, survive loss or replacement of retained local state, synchronize peers, resolve forks, validate referenced rotations beyond the existing checkpoint contract, or transfer identity/authority.
 - Competing simultaneously usable rotations remain `ROTATION_FORK_EVIDENCE`; a successful lineage branch or checkpoint does not select a winner.
 - Older predecessor-signed evidence remains independently verifiable and is not rewritten as successor-authored evidence.
 - Same-repository JavaScript and Go implementations agree on one fixed root-capability interoperability vector; this does not establish separately authored or third-party interoperability.
@@ -42,7 +45,7 @@ PASS for the bounded repository state if the final published branch and CI agree
 - That second-vector agreement is only fixed-evidence portability. It does not prove general two-hop conformance, arbitrary-length lineage, identity continuity, authority transfer, branch freshness/uniqueness, fork resolution, external independence, or production security.
 - Missing trusted time remains an explicit hold rather than invented certainty.
 - The evidence consistency guard fails if the adversarial matrix count, executable authored behavior-fixture count, expected/observed matrix states, this primary report's count, the public README evidence count, or the required bounded truth boundaries in `TRUST_MODEL.md` drift apart.
-- Current revocation freshness after `completeThrough`, synchronization/discovery, anti-rollback after local-state loss, disconnected-fork resolution, disconnected replay, key theft attribution, arbitrary-length rotation lineage beyond two hops, automatic successor authority integration, rotation-revocation discovery/synchronization/freshness/delegated revokers/fork policy, rotation-revocation checkpoint discovery/lineage/current global freshness, externally trustworthy/synchronized time, lost-key recovery, external third-party interoperability, and hostile-environment review remain unresolved.
+- Current revocation freshness after `completeThrough`, synchronization/discovery, anti-rollback after local-state loss, disconnected-fork resolution, disconnected replay, key theft attribution, arbitrary-length rotation lineage beyond two hops, automatic successor authority integration, rotation-revocation discovery/synchronization/freshness/delegated revokers/fork policy, rotation-revocation checkpoint discovery/synchronization/current global freshness/retained-state-loss protection, externally trustworthy/synchronized time, lost-key recovery, external third-party interoperability, and hostile-environment review remain unresolved.
 
 ## Agency / non-domination
 
@@ -59,8 +62,10 @@ PASS for the bounded repository state if the final published branch and CI agree
 - The two-hop lineage evaluator requires an explicit expected origin and exact domain; neither B nor C becomes an ambient root, capability issuer, revoker, checkpoint signer, or fork winner because it appears in a valid lineage.
 - The revocation-aware wrapper evaluates explicit supplied revocation sets and does not create a registry, central revocation service, automatic authority transfer, or winner election.
 - The rotation-revocation checkpoint requires an explicit expected predecessor and can attest only revocation packets signed by that same predecessor; foreign keys, mixed predecessor sets, verifier keys, and maintainers gain no checkpoint authority.
+- Rotation-revocation checkpoint-lineage evaluation also requires the explicit expected predecessor. Only that predecessor can sign its checkpoint/link history; a foreign signer cannot advance, replace, or legitimize another predecessor's retained lineage.
+- A valid lineage relationship grants neither the predecessor nor any verifier additional capability/root/revocation/checkpoint authority and creates no branch-selection power.
 - The JavaScript and Go interoperability paths evaluate exact supplied evidence only; reproducing a result grants no signer, verifier, implementation, or maintainer new authority.
-- A rotation statement, acknowledgement, rotation-revocation packet, and rotation-revocation checkpoint all use bounded signed windows and do not create permanent identity ownership.
+- A rotation statement, acknowledgement, rotation-revocation packet, rotation-revocation checkpoint, and checkpoint-lineage link all use bounded signed evidence and do not create permanent identity ownership.
 - Checkpoint comparison and rotation comparison expose conflicts as evidence states and grant no branch/successor automatic authority.
 - The consistency guard changes no trust decision and grants no actor new authority.
 - No repository merge automatically changes product-level user control or promotes the mechanism to AXM-wide CANON.
@@ -70,18 +75,20 @@ PASS for the bounded repository state if the final published branch and CI agree
 PASS for the bounded repository state if the final published branch and CI agree.
 
 - City Multiplayer and Collaboration Platform remain donor references only; their working invite, authority-lease, review, UI, and merge paths are not rewritten.
-- Exact signed capability, revocation, checkpoint, lineage, key-rotation, successor-acknowledgement, rotation-revocation, and rotation-revocation-checkpoint packets remain independently verifiable historical evidence.
+- Exact signed capability, revocation, checkpoint, lineage, key-rotation, successor-acknowledgement, rotation-revocation, rotation-revocation-checkpoint, and rotation-revocation-checkpoint-lineage packets remain independently verifiable historical evidence.
 - Parent capability digests preserve delegation lineage; checkpoint manifests bind exact revocation envelope ids; checkpoint-lineage links bind exact predecessor ids.
 - Key rotation adds successor evidence without modifying old predecessor signatures or claiming the successor authored historical bytes.
 - Successor acknowledgement binds the exact rotation digest instead of rewriting the rotation or any earlier signature.
 - Exact rotation revocation also binds the exact rotation digest and context instead of mutating or relabeling the referenced rotation.
 - Rotation-revocation causality is evaluated from signed timestamps already present in the two immutable packets; no historical packet is edited to manufacture a consistent order.
 - The historical rotation-revocation checkpoint binds the canonical sorted list of exact existing revocation envelope IDs; it does not mutate, relabel, validate-by-rewrite, or replace the referenced rotations or revocation packets.
+- The rotation-revocation checkpoint-lineage link binds the exact immutable checkpoint envelope ID plus exact predecessor-link ID and sequence; it never edits an existing checkpoint or revocation packet to manufacture continuity.
+- The retained-head boundary is explicit: local anti-rollback protection disappears if that exact local state is lost or replaced, rather than being silently reconstructed from unsupported assumptions.
 - Two-hop rotation lineage composes four existing signed packets without modifying any of them; the continuity fixture verifies packet bytes and envelope ids remain unchanged after evaluation.
 - The revocation-aware two-hop fixtures verify that rejecting a known revoked hop leaves all historical rotation and acknowledgement bytes/digests unchanged.
 - The two-hop interoperability vector freezes the exact four signed packets and their digests; the separate Go verifier reads those bytes rather than rewriting the JavaScript lineage implementation.
-- Forks, gaps, rollback, divergent common ancestry, competing rotations, competing second-hop branches, exact known revoked rotation hops, predated exact revocation evidence, manifest omission/substitution, and mixed-predecessor checkpoint evidence are surfaced rather than silently normalized.
-- `src/trust-core.js`, existing capability-revocation checkpoint behavior, capability authorization, donor boundaries, and existing single-hop/two-hop JavaScript rotation/revocation semantics remain unchanged by the rotation-revocation checkpoint addition.
+- Forks, gaps, rollback, divergent common ancestry, competing rotations, competing second-hop branches, exact known revoked rotation hops, predated exact revocation evidence, manifest omission/substitution, mixed-predecessor checkpoint evidence, rotation-revocation checkpoint-lineage rollback/forks/gaps, exact binding mismatch, and completeness regression are surfaced rather than silently normalized.
+- `src/trust-core.js`, existing capability-revocation checkpoint behavior, capability authorization, donor boundaries, and existing single-hop/two-hop JavaScript rotation/revocation semantics remain unchanged by the rotation-revocation checkpoint-lineage addition.
 - Fixed interoperability bytes make serialization and cross-implementation drift visible.
 - The consistency guard makes evidence-summary drift visible across machine evidence, the primary gate report, the public README, and selected bounded contracts in `TRUST_MODEL.md` without rewriting protocol history or inflating the meta-test into protocol evidence.
 
@@ -99,8 +106,9 @@ PASS for the bounded repository state if the final published branch and CI agree
 - Before extending lineage length, Trust Fabric tests the smaller withdrawal question: whether one exact known rotation can be locally revoked without spillover, silent resurrection, global-freshness claims, or historical rewrite.
 - Before adding revocation distribution, the exact revocation layer closes the smaller signed-evidence causality gap: a revocation cannot claim to withdraw an exact rotation before that exact rotation packet was signed.
 - The causal rule deliberately compares only packet-internal signed timestamps and does not invent network time, synchronization, or global ordering infrastructure.
-- Before any rotation-revocation discovery/synchronization service, Trust Fabric now tests the smaller historical-attestation question: can one explicit predecessor bind the exact supplied set of its own revocation packet IDs through one named boundary without claiming current global state.
-- The rotation-revocation checkpoint deliberately does not add checkpoint lineage, anti-rollback, current-state discovery, fork policy, delegated/threshold checkpoint signers, or authorization integration.
+- Before any rotation-revocation discovery/synchronization service, Trust Fabric tests the smaller historical-attestation question: can one explicit predecessor bind the exact supplied set of its own revocation packet IDs through one named boundary without claiming current global state.
+- Before attempting rotation-revocation checkpoint discovery, synchronization, or global-state policy, Trust Fabric now tests the next smaller continuity seam: one exact retained predecessor-local checkpoint head plus one exact direct successor, with rollback/fork/gap/completeness regression exposed locally.
+- That checkpoint-lineage primitive remains isolated rather than being generalized into discovery, network synchronization, fork resolution, retained-state recovery, authorization dependence, or arbitrary-history comparison.
 - The exact rotation-revocation layer is separate from discovery/synchronization, delegated/threshold revocation, recovery, and fork policy rather than pretending those harder problems are solved.
 - Before extending lineage length or adding policy, the exact two-hop semantics remain frozen into one portable vector and reproduced through a separate standard-library implementation path.
 - Lost-key recovery remains a documented boundary rather than being fabricated from a missing predecessor.
@@ -109,7 +117,7 @@ PASS for the bounded repository state if the final published branch and CI agree
 
 ## Evidence
 
-The current 120 authored bounded cases are composed of:
+The current 130 authored bounded cases are composed of:
 
 - 24 trust-core fixtures;
 - 8 revocation-checkpoint fixtures;
@@ -120,6 +128,7 @@ The current 120 authored bounded cases are composed of:
 - 10 bounded two-hop key-rotation-lineage fixtures;
 - 10 exact key-rotation-revocation fixtures;
 - 10 bounded key-rotation-revocation-checkpoint fixtures;
+- 10 bounded key-rotation-revocation-checkpoint-lineage fixtures;
 - 1 root-capability deterministic reference-vector check;
 - 6 separate JavaScript root-capability verifier checks;
 - 7 Go standard-library root-capability verifier checks;
@@ -156,6 +165,21 @@ The 10 bounded key-rotation-revocation-checkpoint fixtures cover:
 
 `evidence/rotation_revocation_checkpoint_v1.json` records that success is historical exact-manifest evidence only. It does not separately validate referenced rotations, prove synchronization or absence of unseen/newer revocations, transfer identity/authority, or resolve branch policy.
 
+The 10 bounded key-rotation-revocation-checkpoint-lineage fixtures cover:
+
+1. sequence-zero checkpoint/link may become a local genesis observation only;
+2. non-genesis history without an exact retained predecessor head holds;
+3. the exact direct signed successor advances the retained local head;
+4. the exact retained pair is recognized without becoming a global-newest claim;
+5. an older valid sequence cannot replace a retained newer head;
+6. a different valid same-sequence history is exposed as a fork;
+7. a missing intermediate sequence produces an explicit gap;
+8. an exact next sequence pointing at a different predecessor is exposed as a fork;
+9. a direct successor cannot move `completeThrough` backward;
+10. foreign issuer, exact checkpoint-binding, link-before-checkpoint, and retained-history preservation boundaries fail closed in one combined authority/binding fixture.
+
+`evidence/rotation_revocation_checkpoint_lineage_v1.json` records that these results establish local continuity only relative to an exact retained predecessor checkpoint/link. They do not discover unseen state, prove current global freshness, survive retained-state loss, synchronize peers, resolve forks, transfer identity/authority, or establish AXM-wide CANON.
+
 The 10 two-hop key-rotation-lineage fixtures cover:
 
 1. exact `A -> B -> C` composition with successor possession confirmed at both hops;
@@ -178,7 +202,7 @@ The 6 two-hop interoperability cases cover:
 5. a wrong expected domain is refused;
 6. a substituted acknowledgement is refused because it is not bound to the exact second rotation.
 
-The evidence-consistency guard remains deliberately outside the 120-case protocol matrix. It checks repository accounting and report alignment:
+The evidence-consistency guard remains deliberately outside the 130-case protocol matrix. It checks repository accounting and report alignment:
 
 1. matrix `test_count` equals `tests.length`;
 2. matrix case ids are unique;
@@ -200,6 +224,6 @@ The final published PR head must pass remote CI before merge.
 
 ## Gate conclusion
 
-The four roots permit merging the bounded historical key-rotation-revocation checkpoint addition **only if** the final published branch, PR diff, 120-case evidence matrix, 10 new adversarial fixtures, machine-readable checkpoint evidence record, public README, donor boundaries, unchanged core/runtime semantics outside this isolated primitive, and remote CI remain consistent with this report.
+The four roots permit merging the bounded local key-rotation-revocation checkpoint-lineage addition **only if** the final published branch, PR diff, 130-case evidence matrix, 10 new adversarial fixtures, machine-readable checkpoint-lineage evidence record, public README, donor boundaries, unchanged core/runtime semantics outside this isolated primitive, and remote CI remain consistent with this report.
 
-This conclusion grants no automatic release, deployment, donor migration, security certification, arbitrary-length lineage conformance, external interoperability claim, automatic successor root/capability/revocation/checkpoint authority, rotation-revocation discovery/synchronization/global freshness/delegated revocation, rotation-revocation checkpoint discovery/lineage/current global freshness, externally trustworthy time, fork resolution, lost-key recovery authority, global synchronization/consensus, or AXM-wide CANON status.
+This conclusion grants no automatic release, deployment, donor migration, security certification, arbitrary-length lineage conformance, external interoperability claim, automatic successor root/capability/revocation/checkpoint authority, rotation-revocation discovery/synchronization/global freshness/delegated revocation, rotation-revocation checkpoint discovery/synchronization/current global freshness/anti-rollback after retained-state loss, externally trustworthy time, fork resolution, lost-key recovery authority, global synchronization/consensus, or AXM-wide CANON status.
