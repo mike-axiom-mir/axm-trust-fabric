@@ -57,14 +57,14 @@
     "does not validate referenced rotations beyond the existing checkpoint contract"
   ],
   "required_interoperability_phrases": [
-    "EXTERNAL_INTEROPERABILITY_NOT_ESTABLISHED",
-    "same-repository evidence",
+    "Status: **SAME-REPOSITORY JAVASCRIPT + GO AGREEMENT ON THREE FIXED VECTOR FAMILIES / NOT THIRD-PARTY CONFORMANCE**",
+    "It is still same-repository evidence.",
     "not evidence of third-party independence",
+    "The strongest next interoperability boundary is genuinely external or separately authored reproduction of the published bytes.",
     "adding more same-repository vector families should not be mistaken for external independence"
   ],
   "required_readme_interoperability_phrases": [
-    "EXTERNAL_INTEROPERABILITY_NOT_ESTABLISHED",
-    "same-repository JavaScript + Go agreement must not be described as third-party or separately authored external conformance"
+    "third-party or separately authored protocol conformance;"
   ],
   "checks": [
     "matrix_test_count_matches_entries",
