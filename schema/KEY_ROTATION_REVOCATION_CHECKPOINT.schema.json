@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axm.local/schema/trust/KEY_ROTATION_REVOCATION_CHECKPOINT.v1.json",
+  "title": "AXM Trust Fabric Key Rotation Revocation Checkpoint body v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "completeThrough", "revocationCount", "revocationIdsDigest"],
+  "properties": {
+    "kind": {"const": "key-rotation-revocation-checkpoint"},
+    "completeThrough": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"},
+    "revocationCount": {"type": "integer", "minimum": 0, "maximum": 10000},
+    "revocationIdsDigest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}
