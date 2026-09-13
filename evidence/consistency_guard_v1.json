@@ -6,6 +6,15 @@
   "javascript_direct_case_files": [
     "tests/interop-vector.test.js"
   ],
+  "supplemental_evidence_case_files": {
+    "javascript": [
+      "tests/key-rotation-revocation-lineage-compare-interop.test.js"
+    ],
+    "go": [
+      "crosslang/go/rotation_revocation_lineage_compare_verifier_test.go"
+    ]
+  },
+  "supplemental_evidence_counted_as_protocol_cases": false,
   "required_trust_model_phrases": [
     "## Successor possession acknowledgement experiment",
     "SUCCESSOR_POSSESSION_CONFIRMED_FOR_ROTATION",
@@ -51,10 +60,11 @@
     "matrix_test_count_matches_entries",
     "matrix_case_ids_unique",
     "matrix_expected_matches_observed",
-    "javascript_plus_go_behavior_fixture_count_matches_matrix",
+    "javascript_plus_go_behavior_fixture_count_matches_matrix_excluding_declared_supplemental_portability_checks",
+    "declared_supplemental_portability_files_exist_and_contain_executable_checks",
     "primary_root_gate_report_states_current_matrix_count",
     "public_readme_states_current_matrix_count",
     "trust_model_bounded_truth_boundaries_present"
   ],
-  "truth_boundary": "This guard proves selected repository evidence declarations agree at one commit, including the machine matrix, primary root-gate report, public README count, and bounded successor-possession, exact rotation-revocation, historical rotation-revocation-checkpoint, retained-head rotation-revocation-checkpoint-lineage, and complete-history rotation-revocation-lineage-comparison truth boundaries in TRUST_MODEL.md. The guard does not prove fixture completeness, documentation completeness, semantic correctness beyond exercised cases, global freshness, synchronization, fork resolution, external independence, hostile-environment security, or AXM-wide CANON status."
+  "truth_boundary": "This guard proves selected repository evidence declarations agree at one commit, including the machine matrix, primary root-gate report, public README count, and bounded successor-possession, exact rotation-revocation, historical rotation-revocation-checkpoint, retained-head rotation-revocation-checkpoint-lineage, and complete-history rotation-revocation-lineage-comparison truth boundaries in TRUST_MODEL.md. The fixed comparator portability JavaScript/Go checks are declared supplemental evidence because they reproduce already-bounded comparator relationships and selected refusal states rather than introducing a new trust-protocol success state; they therefore do not inflate the 130-case protocol matrix. The guard does not prove fixture completeness, documentation completeness, semantic correctness beyond exercised cases, global freshness, synchronization, fork resolution, external independence, hostile-environment security, or AXM-wide CANON status."
 }

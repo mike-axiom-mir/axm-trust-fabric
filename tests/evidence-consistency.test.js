@@ -25,12 +25,28 @@ for (const entry of matrix.tests) {
 }
 console.log('PASS matrix expected and observed states agree');
 
+const supplemental = guard.supplemental_evidence_case_files || {};
+const supplementalJavaScript = new Set(supplemental.javascript || []);
+const supplementalGo = new Set(supplemental.go || []);
+assert.equal(guard.supplemental_evidence_counted_as_protocol_cases, false, 'supplemental portability evidence must not silently inflate protocol count');
+
 const jsFixtureFiles = fs.readdirSync(__dirname)
   .filter((name) => name.endsWith('.test.js') && name !== 'evidence-consistency.test.js');
 let jsFixtureCount = 0;
+let supplementalJavaScriptCheckCount = 0;
 for (const name of jsFixtureFiles) {
+  const relativePath = `tests/${name}`;
   const text = fs.readFileSync(path.join(__dirname, name), 'utf8');
-  jsFixtureCount += (text.match(/^test\(/gm) || []).length;
+  const count = (text.match(/^test\(/gm) || []).length;
+  if (supplementalJavaScript.has(relativePath)) {
+    assert.ok(count > 0, `supplemental JavaScript evidence must contain executable checks: ${relativePath}`);
+    supplementalJavaScriptCheckCount += count;
+    continue;
+  }
+  jsFixtureCount += count;
+}
+for (const relativePath of supplementalJavaScript) {
+  assert.ok(fs.existsSync(path.join(root, relativePath)), `supplemental JavaScript evidence file missing: ${relativePath}`);
 }
 
 assert.ok(Array.isArray(guard.javascript_direct_case_files), 'consistency contract must list direct JavaScript case files');
@@ -46,10 +62,26 @@ for (const relativePath of guard.javascript_direct_case_files) {
 const goDir = path.join(root, 'crosslang', 'go');
 const goFixtureFiles = fs.readdirSync(goDir).filter((name) => name.endsWith('_test.go'));
 let goFixtureCount = 0;
+let supplementalGoCheckCount = 0;
 for (const name of goFixtureFiles) {
+  const relativePath = `crosslang/go/${name}`;
   const text = fs.readFileSync(path.join(goDir, name), 'utf8');
-  goFixtureCount += (text.match(/^func Test[A-Za-z0-9_]*\(/gm) || []).length;
+  const count = (text.match(/^func Test[A-Za-z0-9_]*\(/gm) || []).length;
+  if (supplementalGo.has(relativePath)) {
+    assert.ok(count > 0, `supplemental Go evidence must contain executable checks: ${relativePath}`);
+    supplementalGoCheckCount += count;
+    continue;
+  }
+  goFixtureCount += count;
 }
+for (const relativePath of supplementalGo) {
+  assert.ok(fs.existsSync(path.join(root, relativePath)), `supplemental Go evidence file missing: ${relativePath}`);
+}
+assert.ok(
+  supplementalJavaScriptCheckCount + supplementalGoCheckCount > 0,
+  'declared supplemental portability evidence must contain at least one executable check'
+);
+console.log(`PASS supplemental portability evidence declared outside protocol matrix (${supplementalJavaScriptCheckCount} JavaScript + ${supplementalGoCheckCount} Go checks)`);
 
 const executableBehaviorFixtureCount = jsFixtureCount + directCaseCount + goFixtureCount;
 assert.equal(

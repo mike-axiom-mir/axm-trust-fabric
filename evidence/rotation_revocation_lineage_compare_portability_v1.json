@@ -1,0 +1,38 @@
+{
+  "schema": "axm.trust-fabric.rotation-revocation-lineage-compare-portability/v1",
+  "status": "FIXED_VECTOR_SUPPLEMENTAL_EVIDENCE",
+  "experiment": "experiments/ROTATION_REVOCATION_LINEAGE_COMPARE_INTEROP_V1.md",
+  "vector": "evidence/rotation_revocation_lineage_compare_interop_v1.json",
+  "javascript_path": "tests/key-rotation-revocation-lineage-compare-interop.test.js",
+  "go_implementation": "crosslang/go/rotation_revocation_lineage_compare_verifier.go",
+  "go_tests": "crosslang/go/rotation_revocation_lineage_compare_verifier_test.go",
+  "protocol_case_count_delta": 0,
+  "case_accounting": "These portability checks reproduce already-bounded complete-history comparator relationships and selected refusal states through a second standard-library implementation path. They are supplemental implementation-portability evidence and do not introduce a new Trust Fabric protocol success state, so the authored protocol matrix remains 130 cases.",
+  "fixed_relationships": [
+    "ROTATION_REVOCATION_LINEAGES_IDENTICAL",
+    "ROTATION_REVOCATION_RIGHT_DESCENDS_FROM_LEFT",
+    "ROTATION_REVOCATION_LEFT_DESCENDS_FROM_RIGHT",
+    "ROTATION_REVOCATION_LINEAGE_FORK_EVIDENCE",
+    "ROTATION_REVOCATION_LINEAGE_GENESIS_CONFLICT"
+  ],
+  "selected_refusals": [
+    "signed checkpoint/link mutation fails signature verification",
+    "omitted intermediate history fails closed as lineage-gap evidence",
+    "wrong explicitly expected predecessor fails closed"
+  ],
+  "dependency_boundary": "The Go verifier is standard-library only and does not import, execute, shell out to, or mechanically wrap the JavaScript comparator/reference runtime.",
+  "truth_boundary": "Agreement proves only same-repository portability for one fixed set of supplied signed rotation-revocation checkpoint histories plus selected refusal states. It does not prove third-party interoperability, separately authored external independence, broad protocol conformance, discovery of unseen checkpoints or revocations, synchronization, globally newest/current state, fork resolution or winner selection, identity continuity, authority transfer, recovery, hostile-environment security, or AXM-wide CANON status.",
+  "unresolved": [
+    "independent third-party reproduction",
+    "broad comparator conformance beyond the fixed vector",
+    "discovery or synchronization of unseen histories",
+    "globally current rotation-revocation freshness",
+    "fork-resolution policy or consensus",
+    "retained-state-loss recovery",
+    "delegated or threshold checkpoint signers",
+    "trustworthy external time",
+    "lost-key recovery",
+    "hostile-environment cryptographic review"
+  ],
+  "canon_boundary": "Repository merge does not promote this mechanism to AXM-wide CANON."
+}
