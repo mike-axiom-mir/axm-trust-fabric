@@ -1,0 +1,19 @@
+{
+  "schema": "axm.trust-fabric.rotation-revocation-causality-evidence/v2",
+  "status": "BOUNDED_LOCAL_SIGNED_EVIDENCE_CAUSALITY",
+  "question": "Can an exact predecessor-signed rotation revocation be prevented from predating the exact rotation packet it claims to revoke without claiming globally trustworthy time?",
+  "falsifier": "Any authoritative exact-match revocation with revocation.issuedAt < rotation.issuedAt producing ROTATION_REVOKED or clean usability would falsify the bounded rule.",
+  "expected": {
+    "predated_local_creation": "INVALID_ROTATION_REVOCATION_CAUSALITY",
+    "predated_external_signed_packet": "HOLD_INVALID_ROTATION_REVOCATION_CAUSALITY",
+    "equal_issued_at": "CAUSALITY_ACCEPTABLE",
+    "global_time_or_freshness_claim": false,
+    "historical_rewrite": false
+  },
+  "fixture_accounting": {
+    "protocol_case_count": 110,
+    "new_top_level_case_added": false,
+    "reason": "The causality assertions extend the existing exact key-rotation-revocation fixture rather than adding a separate counted protocol case."
+  },
+  "truth_boundary": "The check compares two canonical timestamps already signed into the exact supplied packets. It proves only that the revocation packet was not signed earlier than the rotation packet it names; it does not prove external clock truth, synchronization, global freshness, or global ordering."
+}
