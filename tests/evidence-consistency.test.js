@@ -10,6 +10,7 @@ const guardPath = path.join(root, 'evidence', 'consistency_guard_v1.json');
 const reportPath = path.join(root, 'ROOT_GATE_REPORT.md');
 const readmePath = path.join(root, 'README.md');
 const trustModelPath = path.join(root, 'TRUST_MODEL.md');
+const interoperabilityPath = path.join(root, 'INTEROPERABILITY.md');
 const matrix = JSON.parse(fs.readFileSync(matrixPath, 'utf8'));
 const guard = JSON.parse(fs.readFileSync(guardPath, 'utf8'));
 
@@ -110,5 +111,18 @@ for (const phrase of guard.required_trust_model_phrases) {
   assert.ok(trustModel.includes(phrase), `TRUST_MODEL.md must preserve bounded Trust Model truth boundary: ${phrase}`);
 }
 console.log('PASS Trust Model preserves required bounded truth boundaries');
+
+assert.ok(Array.isArray(guard.required_interoperability_phrases), 'consistency contract must list required interoperability truth-boundary phrases');
+const interoperability = fs.readFileSync(interoperabilityPath, 'utf8');
+for (const phrase of guard.required_interoperability_phrases) {
+  assert.ok(interoperability.includes(phrase), `INTEROPERABILITY.md must preserve external-independence hold: ${phrase}`);
+}
+console.log('PASS interoperability document preserves explicit external-independence hold');
+
+assert.ok(Array.isArray(guard.required_readme_interoperability_phrases), 'consistency contract must list required public interoperability truth-boundary phrases');
+for (const phrase of guard.required_readme_interoperability_phrases) {
+  assert.ok(readme.includes(phrase), `README.md must preserve public external-independence hold: ${phrase}`);
+}
+console.log('PASS public README preserves explicit external-independence hold');
 
 console.log('\nEvidence consistency guard passed.');
