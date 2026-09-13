@@ -1,0 +1,162 @@
+{
+  "schema": "axm.trust-fabric.rotation-revocation-lineage-compare-interop/v1",
+  "warning": "TEST VECTOR ONLY — NEVER USE THIS KEY FOR REAL AUTHORITY",
+  "identity": {
+    "seedHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "privateKeyPkcs8": "MC4CAQAwBQYDK2VwBCIEIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4f",
+    "publicKeySpki": "MCowBQYDK2VwAyEAA6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg",
+    "keyId": "axm:key:ed25519:a050837d85070582ccf7394b0988847cc312cb88259b894899f6f239cf1791a5"
+  },
+  "defaults": {
+    "expiresAt": "2026-09-13T12:00:00.000Z",
+    "revocationIdsDigestForEmptyManifest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "packetSpecs": [
+    {
+      "name": "genesis",
+      "checkpoint": {
+        "completeThrough": "2026-09-13T01:00:00.000Z",
+        "issuedAt": "2026-09-13T01:05:00.000Z",
+        "nonce": "YXhtLXBvcnRhYmxlLWNoZWNrcG9pbnQtZ2VuZXNpcy1ub25jZS1tYXRlcmlhbA",
+        "expectedDigest": "72cd3fee186007c2695b4d9d461e2499c97ec8d4b3e6977275bd287bb8589c3d",
+        "expectedSignature": "57Dm1L0Wg6HLBGTATO3uUF9iXhKSbnLB2Ueu1EI7cf5IX97Esqogwi6LgZbM3SO5supyaVKh2XSu3SsBiFKDAw"
+      },
+      "link": {
+        "issuedAt": "2026-09-13T01:06:00.000Z",
+        "nonce": "YXhtLXBvcnRhYmxlLWxpbmstZ2VuZXNpcy1ub25jZS1tYXRlcmlhbA",
+        "sequence": 0,
+        "previous": null,
+        "expectedDigest": "a577996c95ed1fd7de6b72c7ab3b14636db4bcc9933c0b790368d2cceab6875d",
+        "expectedSignature": "ktH0wLlw5pY2zUP_V8VhPU5ljupOrzq5bvpPf0yicEdSkNrgulE-j9bfc4z3_FEXQyQL1CIeo82-ugWKboJGCw"
+      }
+    },
+    {
+      "name": "shared",
+      "checkpoint": {
+        "completeThrough": "2026-09-13T02:00:00.000Z",
+        "issuedAt": "2026-09-13T02:05:00.000Z",
+        "nonce": "YXhtLXBvcnRhYmxlLWNoZWNrcG9pbnQtc2hhcmVkLW5vbmNlLW1hdGVyaWFs",
+        "expectedDigest": "422d13b864738986a3b23be6844db6f2d83d4dd5aee950d31d1cf843fffac58a",
+        "expectedSignature": "D4eOjsMt2kcMwBBHMtu9V9pEdBaIvC77y7vItDbyPz7XiQE5vPsE8aaUj3qJs_yWNcJvSH2sqiZxVbtD7eJ0Cw"
+      },
+      "link": {
+        "issuedAt": "2026-09-13T02:06:00.000Z",
+        "nonce": "YXhtLXBvcnRhYmxlLWxpbmstc2hhcmVkLW5vbmNlLW1hdGVyaWFs",
+        "sequence": 1,
+        "previous": "genesis",
+        "expectedDigest": "ed7a8a3fd2f3d25850fd2e391545712a6e03e8f25cae6cfd0b445b0be33269aa",
+        "expectedSignature": "LyvLPbw7yL7Hyk5bn5hgOl9PD4obZr-10dBmpmSkEZGK10J-4eclbuQeUgZuLo6wQahqTuvbb5j_d0ppriP5Dw"
+      }
+    },
+    {
+      "name": "branchA",
+      "checkpoint": {
+        "completeThrough": "2026-09-13T03:00:00.000Z",
+        "issuedAt": "2026-09-13T03:05:00.000Z",
+        "nonce": "YXhtLXBvcnRhYmxlLWNoZWNrcG9pbnQtYnJhbmNoLWEtbm9uY2UtbWF0ZXJpYWw",
+        "expectedDigest": "bd5055e3c210747ac8507b0776f28e82b1b03403364fb4053aca848b4f2a059a",
+        "expectedSignature": "b_GfZzqmaY22jzkvjMhhG8SsipUnG0hOKkNlK7hba2q4Lmsa-LQhKafh8x9iI7QzWv-89GNaYkBEtnIbkKocAg"
+      },
+      "link": {
+        "issuedAt": "2026-09-13T03:06:00.000Z",
+        "nonce": "YXhtLXBvcnRhYmxlLWxpbmstYnJhbmNoLWEtbm9uY2UtbWF0ZXJpYWw",
+        "sequence": 2,
+        "previous": "shared",
+        "expectedDigest": "3bd49306f32f4dcb9b6de48770979495c9520f92f2856a1b1b3877a113076d81",
+        "expectedSignature": "lAUQFFU9fsLzippzeUtB8L1UurfAg_yP2oMR0jiQlI68G7m5CqwAwoKFN0N0MO3RoKgCybloVe1I4u1lqudpBw"
+      }
+    },
+    {
+      "name": "branchB",
+      "checkpoint": {
+        "completeThrough": "2026-09-13T03:01:00.000Z",
+        "issuedAt": "2026-09-13T03:07:00.000Z",
+        "nonce": "YXhtLXBvcnRhYmxlLWNoZWNrcG9pbnQtYnJhbmNoLWItbm9uY2UtbWF0ZXJpYWw",
+        "expectedDigest": "1f6e1cb154f5f3148354a9ee9dd3dce2b95fd31711d07a4cfc2d4847775804e6",
+        "expectedSignature": "y3IlgBRv7ar6OzAvqXRONxqjbcojxosZoAICGwZGvLsf1DGjloBXuaWrRNYHfXlESXQNeVS-TN2R7GFjmgl8AQ"
+      },
+      "link": {
+        "issuedAt": "2026-09-13T03:08:00.000Z",
+        "nonce": "YXhtLXBvcnRhYmxlLWxpbmstYnJhbmNoLWItbm9uY2UtbWF0ZXJpYWw",
+        "sequence": 2,
+        "previous": "shared",
+        "expectedDigest": "bdd10bec76e90004ce3b1a1785cf44ae4e658f103ec7663c1ef4e40298ea25dd",
+        "expectedSignature": "uYrwf3CYoAmDnJDPVdUIMljk2MM8zPt9KKBZ9Nj4jFF3vXI2qieQzfwJtEeSCTi24VCI22fBZsTqUZCLfyTxBQ"
+      }
+    },
+    {
+      "name": "alternateGenesis",
+      "checkpoint": {
+        "completeThrough": "2026-09-13T01:01:00.000Z",
+        "issuedAt": "2026-09-13T01:07:00.000Z",
+        "nonce": "YXhtLXBvcnRhYmxlLWNoZWNrcG9pbnQtYWx0ZXJuYXRlLWdlbmVzaXMtbm9uY2UtbWF0ZXJpYWw",
+        "expectedDigest": "74929652eda995d5fe655f5f60a452f8c3ac81dfaf750c219fd1c1d93aa536f6",
+        "expectedSignature": "-w3Yd788-xGgiojB6EVNgdPVa2QpkH8RjL5G6HiEJnPJK4ZoogUn8_590U4-YRR7_O7U-Kfm6B1Bl7Di-M8lBg"
+      },
+      "link": {
+        "issuedAt": "2026-09-13T01:08:00.000Z",
+        "nonce": "YXhtLXBvcnRhYmxlLWxpbmstYWx0ZXJuYXRlLWdlbmVzaXMtbm9uY2UtbWF0ZXJpYWw",
+        "sequence": 0,
+        "previous": null,
+        "expectedDigest": "bc7452b78e31612bbdd8af06c325fdfee1e6434fd13e799c8edde16c79622cc4",
+        "expectedSignature": "UZQCfrS4qrOyMGi8Na2yDOwSW1SiGADS-qJ6Gil7ywGun-JGklZmIcaBXQXUjwTn-Ji3tm_BKa0h6Zwu9qA9DA"
+      }
+    }
+  ],
+  "histories": {
+    "genesis": ["genesis"],
+    "short": ["genesis", "shared"],
+    "branchA": ["genesis", "shared", "branchA"],
+    "branchB": ["genesis", "shared", "branchB"],
+    "alternateGenesis": ["alternateGenesis"]
+  },
+  "comparisons": [
+    {
+      "name": "identical",
+      "left": "branchA",
+      "right": "branchA",
+      "expectedCode": "ROTATION_REVOCATION_LINEAGES_IDENTICAL",
+      "expectedRelation": "identical",
+      "expectedCommonAncestorLinkId": "3bd49306f32f4dcb9b6de48770979495c9520f92f2856a1b1b3877a113076d81"
+    },
+    {
+      "name": "rightDescends",
+      "left": "short",
+      "right": "branchA",
+      "expectedCode": "ROTATION_REVOCATION_RIGHT_DESCENDS_FROM_LEFT",
+      "expectedRelation": "right-descends-from-left",
+      "expectedCommonAncestorLinkId": "ed7a8a3fd2f3d25850fd2e391545712a6e03e8f25cae6cfd0b445b0be33269aa",
+      "expectedDescendantSteps": 1
+    },
+    {
+      "name": "leftDescends",
+      "left": "branchA",
+      "right": "short",
+      "expectedCode": "ROTATION_REVOCATION_LEFT_DESCENDS_FROM_RIGHT",
+      "expectedRelation": "left-descends-from-right",
+      "expectedCommonAncestorLinkId": "ed7a8a3fd2f3d25850fd2e391545712a6e03e8f25cae6cfd0b445b0be33269aa",
+      "expectedDescendantSteps": 1
+    },
+    {
+      "name": "fork",
+      "left": "branchA",
+      "right": "branchB",
+      "expectedCode": "ROTATION_REVOCATION_LINEAGE_FORK_EVIDENCE",
+      "expectedRelation": "fork",
+      "expectedCommonAncestorLinkId": "ed7a8a3fd2f3d25850fd2e391545712a6e03e8f25cae6cfd0b445b0be33269aa",
+      "expectedLeftDivergenceLinkId": "3bd49306f32f4dcb9b6de48770979495c9520f92f2856a1b1b3877a113076d81",
+      "expectedRightDivergenceLinkId": "bdd10bec76e90004ce3b1a1785cf44ae4e658f103ec7663c1ef4e40298ea25dd"
+    },
+    {
+      "name": "genesisConflict",
+      "left": "genesis",
+      "right": "alternateGenesis",
+      "expectedCode": "ROTATION_REVOCATION_LINEAGE_GENESIS_CONFLICT",
+      "expectedRelation": "conflict-no-common-ancestor",
+      "expectedCommonAncestorLinkId": null,
+      "expectedLeftDivergenceLinkId": "a577996c95ed1fd7de6b72c7ab3b14636db4bcc9933c0b790368d2cceab6875d",
+      "expectedRightDivergenceLinkId": "bc7452b78e31612bbdd8af06c325fdfee1e6434fd13e799c8edde16c79622cc4"
+    }
+  ],
+  "truthBoundary": "One fixed same-repository portability vector for supplied signed rotation-revocation checkpoint histories. Agreement does not prove third-party interoperability, external implementation independence, broad protocol conformance, discovery, synchronization, global freshness, fork resolution or winner selection, identity continuity, authority transfer, recovery, hostile-environment security, or AXM-wide CANON status."
+}
