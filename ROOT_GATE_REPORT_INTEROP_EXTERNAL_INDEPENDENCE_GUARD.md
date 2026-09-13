@@ -10,6 +10,12 @@ Can Trust Fabric mechanically prevent current same-repository JavaScript + Go po
 
 The falsifier is recorded in `experiments/INTEROP_EXTERNAL_INDEPENDENCE_GUARD_V1.md` before the bounded guard work. The experiment fails if the human-facing interoperability boundaries can disappear while CI remains green, if the guard grants new authority or changes runtime/protocol semantics, if it inflates the authored protocol-case count, or if repository merge is treated as external validation or AXM-wide CANON.
 
+## Observed verification evidence
+
+The first exact guarded branch run on commit `62d76062dc83cb8d4353170ae4923cb0439f84f6` failed during `npm test` at the new interoperability-document assertion. All existing protocol fixtures and earlier consistency checks had passed first; Go was skipped after Node failed. The failure exposed that the guard expected plain `not evidence of third-party independence` while the published document contains the exact Markdown text `**not** evidence of third-party independence`.
+
+That mismatch was not normalized away. The guard contract was repaired to bind the exact published wording. A final PASS still requires full Node + Go verification on the repaired exact head.
+
 ## Exact bounded delta
 
 - extend `evidence/consistency_guard_v1.json` with required interoperability truth-boundary phrases from `INTEROPERABILITY.md` and `README.md`;
