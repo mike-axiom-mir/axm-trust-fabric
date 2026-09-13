@@ -17,13 +17,7 @@
     "ROTATION_REVOKED",
     "KEY_ROTATION_USABLE_WITH_SUPPLIED_REVOCATION_EVIDENCE",
     "does not prove that no revocation exists elsewhere",
-    "HOLD_INVALID_ROTATION_REVOCATION_WINDOW",
-    "## Rotation-revocation checkpoint lineage / local anti-rollback experiment",
-    "ROTATION_REVOCATION_LINEAGE_ADVANCE_ACCEPTABLE",
-    "only relative to the exact locally retained predecessor checkpoint/link",
-    "does not discover newer unseen checkpoints",
-    "does not establish current global rotation-revocation state",
-    "does not resolve forks"
+    "HOLD_INVALID_ROTATION_REVOCATION_WINDOW"
   ],
   "checks": [
     "matrix_test_count_matches_entries",
@@ -34,5 +28,5 @@
     "public_readme_states_current_matrix_count",
     "trust_model_bounded_truth_boundaries_present"
   ],
-  "truth_boundary": "This guard proves selected repository evidence declarations agree at one commit, including the machine matrix, primary root-gate report, public README count, and bounded successor-possession, exact rotation-revocation, plus rotation-revocation checkpoint-lineage truth boundaries in TRUST_MODEL.md. It does not prove fixture completeness, documentation completeness, semantic correctness beyond exercised cases, external independence, hostile-environment security, or AXM-wide CANON status."
+  "truth_boundary": "This guard proves selected repository evidence declarations agree at one commit, including the machine matrix, primary root-gate report, public README count, and bounded successor-possession plus exact rotation-revocation truth boundaries in TRUST_MODEL.md. The new rotation-revocation checkpoint-lineage boundary is recorded separately in its falsifier-first experiment, executable result strings, machine-readable evidence, and primary root-gate report rather than being silently generalized into the existing Trust Model sections. This guard does not prove fixture completeness, documentation completeness, semantic correctness beyond exercised cases, external independence, hostile-environment security, or AXM-wide CANON status."
 }
