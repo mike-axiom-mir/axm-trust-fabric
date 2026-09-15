@@ -11,7 +11,7 @@ Trust Fabric proves bounded cryptographic statements about exact bytes and exact
 | Integrity | signed canonical bytes still match | bytes are safe, correct, or desirable |
 | Authorship | holder of a private key signed the bytes | a legal/named human authored them |
 | Authority | an explicitly trusted root issued a valid grant chain for an exact subject/action/target, and the subject can sign an exact use request | signer has authority outside that chain |
-| Identity continuity | bounded predecessor keys may attest exact successor keys for exact domains/windows, including one supplied two-hop A -> B -> C chain when possession is confirmed at both hops | key succession proves same person/device/legal identity or automatically transfers authority |
+| Identity continuity | bounded predecessor keys may attest exact successor keys for exact domains/windows, including supplied two-hop A -> B -> C and three-hop A -> B -> C -> D branches when possession is confirmed at every hop | key succession proves same person/device/legal identity or automatically transfers authority |
 | Truth | not evaluated | signed statement is true |
 
 ## Trust roots are local policy
@@ -231,6 +231,22 @@ It does **not** prove A, B, and C are the same human, device, account, legal ide
 
 A competing `B -> C` / `B -> D` pair remains `ROTATION_FORK_EVIDENCE` under the existing comparator even when one supplied A -> B -> C branch independently passes the two-hop evaluator. No winner is selected and no historical rotation or acknowledgement bytes are rewritten.
 
+## Bounded three-hop rotation lineage experiment
+
+`src/key-rotation-three-hop-lineage.js` composes exactly three supplied rotation/acknowledgement pairs. It is a separate bounded evaluator and does not rewrite or generalize the existing single-hop or two-hop paths.
+
+The evaluator requires an explicit `expectedOrigin`, exact expected `domain`, trusted `nowMs`, exactly three rotations, and exactly three acknowledgements. It accepts only the exact predecessor/successor sequence `A -> B -> C -> D`; B, C, and D must each prove possession by signing an acknowledgement bound to their exact hop.
+
+Each hop must preserve the same exact domain. Hop 2 may not be issued before hop 1 becomes effective or outlive hop 1; hop 3 may not be issued before hop 2 becomes effective or outlive hop 2. Because each later window is contained by its immediate predecessor, the supplied branch cannot widen authority through time as it extends.
+
+A successful result is `THREE_HOP_ROTATION_LINEAGE_CONFIRMED`.
+
+It means only that exactly three supplied predecessor-signed rotations are currently usable, successor possession is confirmed at every hop, one exact domain is preserved, and the supplied windows narrow or remain contained hop by hop.
+
+It does not prove A, B, C, and D are the same human, device, account, legal identity, or constitutional authority. It does not transfer root, capability, revocation, or checkpoint authority. It does not prove the supplied branch is globally newest or unique, discover unseen rotations, resolve a competing branch, recover a lost key, or generalize to arbitrary-length key continuity.
+
+A competing terminal `C -> D` / `C -> E` pair remains `ROTATION_FORK_EVIDENCE` even when one supplied `A -> B -> C -> D` branch independently passes this evaluator. No winner is selected and no historical rotation or acknowledgement bytes are rewritten.
+
 ## Interoperability evidence
 
 `evidence/interop_vector_v1.json` fixes one deliberately non-secret Ed25519 seed/private key, derived public key and key id, canonical unsigned envelope bytes, SHA-256 envelope digest, signature, evaluation time, trusted-root context, and expected scoped grant result.
@@ -263,8 +279,8 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - a rotation-revocation checkpoint attests only one exact supplied predecessor-local manifest through its historical `completeThrough`; it cannot prove absent or unseen revocations do not exist;
 - a retained rotation-revocation checkpoint-lineage head exposes rollback/fork/gap evidence only relative to exact local memory and cannot establish globally newest/current state or survive loss of that retained state;
 - comparing two supplied complete rotation-revocation checkpoint histories cannot reveal an unseen third history, establish global freshness, synchronize peers, or elect a fork winner;
-- a valid single-hop or two-hop rotation result does not prove successor/root/capability authority beyond its exact bounded attestation;
-- a confirmed two-hop branch does not prove that branch is unique, globally newest, or free of unseen competitors;
+- a valid single-hop, two-hop, or three-hop rotation result does not prove successor/root/capability authority beyond its exact bounded attestation;
+- a confirmed two-hop or three-hop branch does not prove that branch is unique, globally newest, or free of unseen competitors;
 - same-repository cross-language agreement on fixed lineage bytes cannot establish unseen branch absence or current global rotation state;
 - `CLOCK_UNKNOWN` cannot become authorization or active rotation evidence;
 - replay can be detected against local consumed evidence, but not globally across disconnected peers;
@@ -287,10 +303,11 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - complete rotation-revocation checkpoint lineage comparison classifies only the two supplied replay-valid histories; exact-prefix descent is not a global-newest claim and fork evidence is not winner selection;
 - successor possession says the exact named successor key controlled its private key for the exact acknowledged rotation, not that identity or authority transferred;
 - two-hop rotation lineage says the exact supplied A -> B -> C evidence composed under bounded domain/time rules, not that identity/authority transferred or the branch is unique/newest;
+- three-hop rotation lineage says the exact supplied A -> B -> C -> D evidence composed under bounded hop-by-hop domain/time rules, not that identity/authority transferred, the branch is unique/newest, or arbitrary lineage is solved;
 - competing rotations are conflict evidence, not a winner election;
 - agreement among same-repository JavaScript and Go implementations on fixed root-capability or two-hop-lineage vectors does not equal third-party interoperability or general conformance;
 - missing time becomes `HOLD_CLOCK_UNKNOWN`;
-- unresolved distributed replay, current revocation freshness, rotation-revocation synchronization/freshness, arbitrary-length lineage, and lost-key recovery remain explicit.
+- unresolved distributed replay, current revocation freshness, rotation-revocation synchronization/freshness, arbitrary-length lineage beyond three hops, and lost-key recovery remain explicit.
 
 ### Agency / non-domination
 
@@ -304,6 +321,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - complete rotation-revocation checkpoint lineage comparison requires the explicit expected predecessor and grants no branch-selection, synchronization, checkpoint, revocation, identity, or capability authority;
 - successor possession acknowledgement grants no root, capability, revocation, checkpoint, or fork-selection authority;
 - two-hop lineage requires an explicit origin and does not make B or C ambient authorities outside the supplied lineage evidence;
+- three-hop lineage requires an explicit origin and does not make B, C, or D ambient authorities outside the supplied lineage evidence;
 - interoperability verifiers only evaluate supplied evidence and gain no authority from reproducing a result;
 - every capability is scoped and expiring;
 - delegation only narrows;
@@ -327,6 +345,7 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - complete rotation-revocation checkpoint lineage comparison replays and compares exact immutable checkpoint/link histories without rewriting either supplied history or choosing one as canonical;
 - successor acknowledgement binds the exact rotation digest without rewriting the predecessor rotation or older evidence;
 - two-hop rotation lineage composes exact existing rotation/acknowledgement packets and leaves every packet independently verifiable and byte-identical;
+- three-hop rotation lineage composes six exact existing rotation/acknowledgement packets and leaves every packet independently verifiable and byte-identical;
 - the two-hop interoperability vector freezes exact signed lineage bytes/digests so implementation drift becomes visible rather than silently normalized;
 - competing rotations remain visible as distinct signed evidence;
 - fixed vector bytes make future canonicalization drift visible rather than silently rewriting old evidence;
@@ -337,8 +356,8 @@ An offline verifier cannot know facts it has never synchronized. Therefore:
 - v0.1 has no account system, global registry, blockchain, trust score, or automatic recovery;
 - key rotation began as a documented contract and is implemented only as an isolated single-hop attestation before any authority integration or recovery mechanism;
 - successor possession remains a separate bounded acknowledgement layer before authority integration or recovery;
-- rotation lineage advances only to exactly two hops with possession required at both hops, rather than jumping to arbitrary chain length, discovery, recovery, or consensus;
-- exact rotation revocation is added as a separate local-evidence layer before extending lineage length, building revocation distribution, or inventing recovery/fork policy;
+- rotation lineage advanced first to exactly two supplied hops and now to a separate exact three-hop experiment, with possession required at every hop and domain/time narrowing preserved, rather than jumping to arbitrary chain length, discovery, recovery, or consensus;
+- exact rotation revocation is added as a separate local-evidence layer before arbitrary lineage, revocation distribution, or recovery/fork policy;
 - historical rotation-revocation checkpointing and retained-head lineage remain bounded predecessor-local evidence before discovery, synchronization, global freshness, or fork-resolution policy;
 - complete-history comparison is kept evidence-only and CI-bound before any branch-selection, synchronization, fork-resolution, or recovery policy is attempted;
 - revocation-chain behavior is locked with local adversarial fixtures before attempting revocation distribution infrastructure;
