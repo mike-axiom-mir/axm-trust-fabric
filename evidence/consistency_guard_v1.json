@@ -1,7 +1,7 @@
 {
   "schema": "axm.trust-fabric.evidence-consistency/v1",
   "status": "CI_META_GUARD",
-  "protocol_case_count": 130,
+  "protocol_case_count": 139,
   "meta_test_counted_as_protocol_case": false,
   "javascript_direct_case_files": [
     "tests/interop-vector.test.js"
@@ -22,6 +22,13 @@
     "does not prove human, device, or legal identity continuity",
     "does not transfer root, capability, revocation, or checkpoint authority",
     "does not resolve a competing rotation fork or select a winning branch",
+    "## Bounded three-hop rotation lineage experiment",
+    "THREE_HOP_ROTATION_LINEAGE_CONFIRMED",
+    "exactly three supplied rotation/acknowledgement pairs",
+    "does not prove A, B, C, and D are the same human, device, account, legal identity, or constitutional authority",
+    "does not transfer root, capability, revocation, or checkpoint authority",
+    "does not prove the supplied branch is globally newest or unique",
+    "does not generalize to arbitrary-length key continuity",
     "## Exact key rotation revocation experiment",
     "ROTATION_REVOKED",
     "KEY_ROTATION_USABLE_WITH_SUPPLIED_REVOCATION_EVIDENCE",
@@ -78,5 +85,5 @@
     "interoperability_external_independence_hold_present",
     "public_readme_external_independence_hold_present"
   ],
-  "truth_boundary": "This guard proves selected repository evidence declarations agree at one commit, including the machine matrix, primary root-gate report, public README count, bounded Trust Model claims, and the explicit held state that same-repository JavaScript + Go portability evidence is not independently authored external or third-party interoperability. The fixed comparator portability JavaScript/Go checks are declared supplemental evidence because they reproduce already-bounded comparator relationships and selected refusal states rather than introducing a new trust-protocol success state; they therefore do not inflate the 130-case protocol matrix. The guard does not prove fixture completeness, documentation completeness, semantic correctness beyond exercised cases, external interoperability, broad conformance, global freshness, synchronization, fork resolution, hostile-environment security, or AXM-wide CANON status."
+  "truth_boundary": "This guard proves selected repository evidence declarations agree at one commit, including the 139-case machine matrix, primary root-gate report, public README count, bounded Trust Model claims, and the explicit held state that same-repository JavaScript + Go portability evidence is not independently authored external or third-party interoperability. The fixed comparator portability JavaScript/Go checks are declared supplemental evidence because they reproduce already-bounded comparator relationships and selected refusal states rather than introducing a new trust-protocol success state; they therefore do not inflate the 139-case protocol matrix. The guard does not prove fixture completeness, documentation completeness, semantic correctness beyond exercised cases, external interoperability, broad conformance, global freshness, synchronization, fork resolution, hostile-environment security, or AXM-wide CANON status."
 }
